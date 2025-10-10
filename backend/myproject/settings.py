@@ -37,6 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # GPT가 말로는, 만든 앱들 여기에 입력해야한다는데...
+    'apps.users',
+    'apps.dimc',
+    'apps.learning',
+    'apps.consultation',
+    'apps.gamification',
+    'apps.message',
+
 ]
 
 MIDDLEWARE = [
@@ -79,7 +88,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '54321',
         'HOST': 'access-digit.gl.at.ply.gg',
-        'PORT': '61954',  # PostgreSQL 기본 포트
+        'PORT': '61954',
     }
 }
 
