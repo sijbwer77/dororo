@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ur0x2b!3w^&#^88#sy6mwllw$5o*=y+6%4=zc*n#37npm2l=11
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # GPT가 말로는, 만든 앱들 여기에 입력해야한다는데...
+    'rest_framework',
     'apps.users',
     'apps.dimc',
     'apps.learning',
@@ -47,6 +48,13 @@ INSTALLED_APPS = [
     'apps.message',
 
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",  # ← 이게 있어야 폼 UI가 뜸
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -84,11 +92,13 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'LMS',
+        'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': '54321',
-        'HOST': 'access-digit.gl.at.ply.gg',
-        'PORT': '61954',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': ':memory:'
     }
 }
 
