@@ -25,12 +25,15 @@ SECRET_KEY = 'django-insecure-ur0x2b!3w^&#^88#sy6mwllw$5o*=y+6%4=zc*n#37npm2l=11
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework', # Django로 API 만드는 프레임워크
+    'rest_framework_simplejwt', # DRF 에서 JWT 인증할 때 필요한 라이브러리
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,13 +43,17 @@ INSTALLED_APPS = [
 
     # GPT가 말로는, 만든 앱들 여기에 입력해야한다는데...
     'apps.users',
-    'apps.dimc',
     'apps.learning',
     'apps.consultation',
     'apps.gamification',
     'apps.message',
 
 ]
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -81,6 +88,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -91,8 +99,17 @@ DATABASES = {
         'PORT': '61954',
     }
 }
-
-
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': '1212',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

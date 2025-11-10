@@ -20,3 +20,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# 실행방법
+# python manage.py runserver

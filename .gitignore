@@ -1,13 +1,38 @@
-# Python
-venv/
-__pycache__/
-*.pyc
-
-# Node.js
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# OS
+# ---- Global ignore ----
 .DS_Store
+*.log
+__pycache__/
+*.py[cod]
+*.sqlite3
+.env
+.env.local
+.env.development
+.env.production
+*.bak
+*.swp
+
+# ---- Node / Frontend ----
+node_modules/
+.next/
+out/
+frontend/.env*
+frontend/.next/
+frontend/node_modules/
+frontend/dist/
+frontend/.vercel/
+
+# ---- Python / Django ----
+backend/venv/
+backend/.venv/
+backend/__pycache__/
+backend/db.sqlite3
+backend/*.pyc
+backend/staticfiles/
+backend/media/
+backend/.env
+
+# ---- IDE / OS ----
+.vscode/
+.idea/
+*.iml
 Thumbs.db
