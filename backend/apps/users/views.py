@@ -1,28 +1,59 @@
-from django.shortcuts import render
-
-from rest_framework import generics, status
+from django.contrib.auth import login, logout, get_user_model
+from rest_framework import status, views
 from rest_framework.response import Response
-from .serializers import StudentSignUpSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
-class StudentSignUpAPI(generics.GenericAPIView):
-    """
-    Student SignUp Api
-    """
-    serializer_class = StudentSignUpSerializer
-    authentication_classes = []   # 브라우저에서 편하게 테스트
-    permission_classes = []
+from .models import LocalAccount
+from .serializers import (
+    SignupSerializer, LoginSerializer, UserSerializer
+)
 
-    def get(self, request):
-        # GET으로 들어오면 DRF가 아래 serializer를 기반으로 폼 UI를 렌더링함
-        return Response({})
+User = get_user_model()
+class SignupView(views.APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, role):
+        if role not in ['sp', 'mg']:
+            return Response({'detail': 'invalid role'}, status=400)
+
+        serializer = SignupSerializer(data=request.data,
+                                      context={'role': role})
+        if serializer.is_valid():
+            user = serializer.save()
+            login(request, user)
+            return Response(UserSerializer(user).data,
+                            status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class LoginView(views.APIView):
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        s = self.get_serializer(data=request.data)
-        if s.is_valid():
-            user = s.save()
-            return Response({"message": "signup_ok", "user_id": user.id},
-                            status=status.HTTP_201_CREATED)
-        return Response(s.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            login(request, user)
+            data = UserSerializer(user).data
+            # role만 따로 보고 싶으면:
+            try:
+                data['role'] = user.local_account.role
+            except LocalAccount.DoesNotExist:
+                data['role'] = None
+            return Response(data)
+        return Response(serializer.errors, status=400)
 
-# urls에서 함수처럼 쓸 수 있게 export(선택)
-student_signup_api = StudentSignUpAPI.as_view()
+
+class LogoutView(views.APIView):
+    def post(self, request):
+        logout(request)
+        return Response({'ok': True})
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_username(request):
+    username = request.query_params.get('username', '').strip()
+    if not username:
+        return Response({'ok': False, 'error': 'username-required'}, status=400)
+
+    exists = User.objects.filter(username=username).exists()
+    return Response({'ok': True, 'exists': exists})

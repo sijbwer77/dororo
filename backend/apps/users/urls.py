@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import student_signup_api  # 위에서 export한 이름
+from .views import SignupView, LoginView, LogoutView, check_username
 
-app_name = "users"
 urlpatterns = [
-    path("api/users/student/signup/", student_signup_api, name="student_signup"),
+    path('signup/<str:role>/', SignupView.as_view(), name='signup'),
+    path('login/',  LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('check-username/', check_username, name='check_username'),
 ]
