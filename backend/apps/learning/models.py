@@ -8,21 +8,20 @@ from django.utils.text import slugify
 #강의 테이블
 class Course(models.Model):
     STATUS_CHOICES = [
-        ('draft', 'Draft'),                    # 관리자 생성
-        ('pending_teacher', 'Waiting Teacher'), # 강사 배정 신청/대기
-        ('teacher_assigned', 'Teacher Assigned'), # 강사 배정 완료
-        ('enrolling', 'Enrolling Students'),   # 학생 모집
-        ('in_progress', 'In Progress'),        # 강의 진행
-        ('finished', 'Finished'),              # 종료
+        ('new', '생성됨'),
+        ('pending_teacher', '강사 모집'),
+        ('teacher_assigned', '강사 배정완료'),
+        ('enrolling', '학생 모집'),
+        ('in_progress', '강의 진행중'),
+        ('finished', '종료'),
     ]
-
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses")
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses", null=True, blank=True)
     capacity = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
+    modified_at = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
         return self.title
@@ -86,7 +85,7 @@ class Submission(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete = models.CASCADE, related_name="submissions")
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='submissions/', blank=True)
-    status = models.CharField(max_length=20,choices=STATUS_CHOICES, default='submitted')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
     grade = models.PositiveSmallIntegerField(null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
