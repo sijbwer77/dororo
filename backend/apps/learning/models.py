@@ -19,7 +19,7 @@ class Course(models.Model):
     description = models.TextField(blank=True)
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses", null=True, blank=True)
     capacity = models.PositiveIntegerField(default=0)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -53,29 +53,39 @@ class TeacherAssignmentRequest(models.Model):
         unique_together = ('teacher','course')
     
     def __str__(self):
-        return f"{self.teacher.username} -> {self.course.title}"
+        return f"{self.teacher.username} -> {self.course.title} ({self.status})"
 
 class Notice(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="notices")
     title = models.CharField(max_length=200)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"[{self.course.title}] {self.title}"
 
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="weeks")
     week = models.PositiveIntegerField()
-    title=models.CharField(max_length=200)
-    # TODO: 강의 자료나 학습 내용 저장 방식 설정 필요
+    title = models.CharField(max_length=200)
+
+    # 학습 내용
+    content = models.TextField(blank=True)  # 텍스트 설명
+    file = models.FileField(upload_to='resources/lesson', blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
+
+
+    def __str__(self):
+        return f"{self.course.title} - {self.week}주차: {self.title}"
 
 class Assignment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="assignments")
     title = models.CharField(max_length=200)
     description = models.TextField()
     due_date = models.DateTimeField()
-    #assignment 관련해서 admin 페이지에서 표시되길 assignment object(1)
-    #이렇게 표시되는거 괜찮은지 확인필요
-    #과제 평가나 완료표시 관련해서도 어떻게할지 생각하기
-
+    
+    def __str__(self):
+        return f"[{self.course.title}] {self.title}"
 
 class Submission(models.Model):
     STATUS_CHOICES={
@@ -84,16 +94,22 @@ class Submission(models.Model):
     }
     assignment = models.ForeignKey(Assignment, on_delete = models.CASCADE, related_name="submissions")
     student = models.ForeignKey(User, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='submissions/', blank=True)
+    file = models.FileField(upload_to='resources/submissions', blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
     grade = models.PositiveSmallIntegerField(null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.assignment.title} - {self.student.username} ({self.status})"
 
 class Schedule(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="schedules")
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
+    
+    def __str__(self):
+        return f"{self.course.title} / {self.date} {self.start_time}~{self.end_time}"
 
 class Attendance(models.Model):
     STATUS_CHOICES = [
@@ -105,3 +121,9 @@ class Attendance(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, related_name="attendances")
     status=models.CharField(max_length=20, choices=STATUS_CHOICES )
+    
+    class Meta:
+        unique_together = ('course', 'student', 'schedule')
+
+    def __str__(self):
+        return f"{self.course.title} / {self.student.username} / {self.schedule.date} - {self.status}"
