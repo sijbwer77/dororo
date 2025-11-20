@@ -1,0 +1,10 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\spdlq\\miniconda3\\envs\\dororo\\python.exe",
+  "terminal.integrated.shellArgs.windows": [
+    "-ExecutionPolicy",
+    "ByPass",
+    "-NoExit",
+    "-Command",
+    "& 'C:\\Users\\spdlq\\miniconda3\\shell\\condabin\\conda-hook.ps1'; conda activate dororo"
+  ]
+}
