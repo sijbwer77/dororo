@@ -31,8 +31,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework', # Django로 API 만드는 프레임워크
-    'rest_framework_simplejwt', # DRF 에서 JWT 인증할 때 필요한 라이브러리
+    'rest_framework',  # Django로 API 만드는 프레임워크
+    'rest_framework_simplejwt',  # DRF 에서 JWT 인증할 때 필요한 라이브러리
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,27 +41,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # GPT가 말로는, 만든 앱들 여기에 입력해야한다는데...
-    'rest_framework',
+    # 내가 만든 앱들
     'apps.users',
     'apps.learning',
     'apps.consultation',
     'apps.gamification',
     'apps.message',
-
 ]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
-}
+    ),
 
-REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",  # ← 이게 있어야 폼 UI가 뜸
+        "rest_framework.renderers.BrowsableAPIRenderer",  # 브라우저에서 폼 UI 보이게
     ],
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,7 +94,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-'''
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -109,6 +107,7 @@ DATABASES = {
         #'NAME': ':memory:'
     }
 }
+
 '''
 DATABASES = {
     'default': {
@@ -120,6 +119,8 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+'''
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

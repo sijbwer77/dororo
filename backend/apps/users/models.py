@@ -1,33 +1,39 @@
-# backend/apps/users/models.py
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from django.conf import settings
 
 
-class LocalAccount(models.Model):
+class TimeStampedModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        abstract = True
+
+
+class LocalAccount(TimeStampedModel):
+    class Role(models.TextChoices):
+        STUDENT_PARENT = 'SP', '학생/학부모'
+        MANAGER = 'MG', '매니저'
+
     user = models.OneToOneField(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         primary_key=True,
         related_name='local_account',
         db_column='user_id',
     )
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
     nickname = models.CharField(max_length=50)
-    type = models.CharField(max_length=20)   # 필요하면 'student', 'parent' 등으로 사용
-    role = models.CharField(max_length=20)   # 'SP'(학생/학부모), 'MG'(매니저) 등
-    created_at = models.DateTimeField(auto_now_add=True)
+    account_type = models.CharField(max_length=20, default='local')
+    role = models.CharField(max_length=20, choices=Role.choices)
 
     class Meta:
         db_table = 'local_account'
 
 
-class SocialAccount(models.Model):
-    # ERD 상에 id / user_id / id_hash / social_id / provider
-    id = models.AutoField(primary_key=True)
+class SocialAccount(TimeStampedModel):
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='social_accounts',
         db_column='user_id',
