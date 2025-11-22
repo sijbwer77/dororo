@@ -1,0 +1,195 @@
+/* app/signup/signup.module.css */
+
+/* --- 1. 전체 레이아웃 (Desktop - 246) --- */
+.pageLayout {
+  position: relative;
+  width: 1536px;
+  height: 845px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+}
+
+/* --- 2. 로고 (ChatGPT Image...) --- */
+.logo {
+  position: absolute;
+  width: 148px;
+  height: 35px;
+  left: 0px;
+  top: 11px;
+}
+
+/* --- 3. 제목 ('회원정보입력') --- */
+.title {
+  position: absolute;
+  /* width: 98px; (자동 너비 사용) */
+  height: 25px;
+  left: 29px;
+  top: 103px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 28px;
+  color: #000000;
+  /* (수정) 텍스트가 가운데 정렬되지 않도록 left 정렬 유지 */
+  text-align: left; 
+}
+
+/* --- 4. 배경 및 구분선 --- */
+
+/* Rectangle 200 (라벨 배경) */
+.labelBackground {
+  position: absolute;
+  width: 325px;
+  height: 367px;
+  left: 29px;
+  top: 138px;
+  background: #DBE8F4;
+}
+
+/* Line (수평 구분선) */
+.horizontalLine {
+  position: absolute;
+  width: 1478px;
+  height: 0px;
+  left: calc(50% - 1478px/2); 
+  border: 1px solid #0A5FAE;
+}
+.line1 { top: 139px; } 
+.line2 { top: 200px; } 
+.line3 { top: 261px; } 
+.line4 { top: 322px; } 
+.line5 { top: 383px; } 
+.line6 { top: 444px; } 
+.line7 { top: 505px; } 
+
+
+/* --- 5. 폼 요소 스타일 --- */
+
+/* Base Label style */
+.label {
+  position: absolute; 
+  left: 49px; 
+  width: 103px; 
+  height: 34px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  display: flex;
+  align-items: center;
+  color: #000000;
+}
+/* Specific Label vertical positions */
+.labelName { top: 147px; }     
+.labelId { top: 214px; left: 49px; width: 51px; } 
+.labelPw { top: 275px; left: 49px; width: 64px; } 
+.labelPwConfirm { top: 336px; } 
+.labelEmail { top: 395px; }     
+.labelPhone { top: 456px; }     
+
+
+/* Base Input style (단일 입력 필드) */
+.inputField {
+  box-sizing: border-box;
+  position: absolute;
+  width: 431px;
+  height: 37px;
+  left: 370px; 
+  border: 1px solid #AEAEAE;
+  padding: 0 10px;
+  font-size: 16px;
+}
+
+.inputName { top: 151px; }
+.inputId { top: 212px; }
+.inputPw { top: 273px; }
+.inputPwConfirm { top: 334px; }
+
+/* 이메일 그룹 */
+.emailGroup {
+  position: absolute;
+  left: 370px;
+  top: 395px;
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+}
+.inputEmailPart1 {
+  box-sizing: border-box;
+  width: 212px;
+  height: 37px;
+  border: 1px solid #AEAEAE;
+  padding: 0 10px;
+  font-size: 16px;
+}
+.atSymbol {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 33px;
+  color: #000000;
+}
+.inputEmailPart2 {
+  box-sizing: border-box;
+  width: 273px;
+  height: 37px;
+  border: 1px solid #AEAEAE;
+  padding: 0 10px;
+  font-size: 16px;
+}
+
+/* 휴대폰 번호 그룹 */
+.phoneGroup {
+  position: absolute;
+  left: 375px; 
+  top: 456px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.phonePrefix {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 33px;
+  color: #000000;
+}
+.phoneDash {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 33px;
+  color: #000000;
+  margin: 0 -5px; 
+}
+.inputPhonePart {
+  box-sizing: border-box;
+  width: 212px;
+  height: 37px;
+  border: 1px solid #AEAEAE;
+  padding: 0 10px;
+  font-size: 16px;
+}
+
+/* --- 6. 버튼 ('회원 가입 완료') --- */
+.submitButton {
+  position: absolute;
+  width: 157px;
+  height: 47px;
+  left: calc(50% - 157px/2 + 0.5px); 
+  top: 566px;
+  background: #0A5FAE;
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

@@ -1,75 +1,83 @@
-from rest_framework import viewsets, permissions
-from rest_framework.exceptions import PermissionDenied
+# apps/message/views.py
+from django.utils import timezone
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
 
-from .models import MessageRoom, Message, MessageRoomMember
+from .models import CourseMessage, CourseMessageRecipient
 from .serializers import (
-    MessageRoomSerializer,
-    MessageRoomCreateSerializer,
-    MessageSerializer,
+    MessageListSerializer,
+    MessageDetailSerializer,
     MessageCreateSerializer,
 )
 
 
-class MessageRoomViewSet(viewsets.ModelViewSet):
+class CourseMessageViewSet(viewsets.GenericViewSet):
     """
-    내가 속한 채팅방 목록 / 생성
+    /api/chat/messages/
+      GET  : 메일함 리스트 (강의별, 받은/보낸 선택)
+      POST : 메일 보내기
+    /api/chat/messages/<id>/
+      GET  : 메일 상세 + 읽음 처리
     """
+
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # 로그인한 유저가 멤버인 방만
-        return (
-            MessageRoom.objects
-            .filter(room_members__user=self.request.user)
-            .distinct()
-        )
-
-    def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
-            return MessageRoomCreateSerializer
-        return MessageRoomSerializer
-
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        ctx['request'] = self.request
-        return ctx
-
-
-class MessageViewSet(viewsets.ModelViewSet):
-    """
-    채팅 메시지 조회/작성
-    GET  /api/chat/messages/?room=1
-    POST /api/chat/messages/ { "room": 1, "content": "안녕" }
-    """
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        qs = Message.objects.all()
-        room_id = self.request.query_params.get('room')
-        if room_id:
-            qs = qs.filter(room_id=room_id)
-
-        # 내가 멤버인 방의 메시지만
-        return qs.filter(
-            room__room_members__user=self.request.user
-        ).distinct()
-
-    def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
-            return MessageCreateSerializer
-        return MessageSerializer
-
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        ctx['request'] = self.request
-        return ctx
-
-    def perform_create(self, serializer):
-        room = serializer.validated_data['room']
         user = self.request.user
+        box = self.request.query_params.get("box", "inbox")  # inbox / sent
+        course_id = self.request.query_params.get("course")
 
-        # 방 멤버인지 확인
-        if not MessageRoomMember.objects.filter(room=room, user=user).exists():
-            raise PermissionDenied('이 방의 멤버가 아닙니다.')
+        if box == "sent":
+            qs = CourseMessage.objects.filter(
+                sender=user,
+                is_deleted_by_sender=False,
+            )
+        else:  # inbox
+            links = CourseMessageRecipient.objects.filter(
+                recipient=user,
+                deleted_from_inbox=False,
+            )
+            qs = CourseMessage.objects.filter(recipient_links__in=links)
 
-        serializer.save(sender=user)
+        if course_id and course_id != "all":
+            qs = qs.filter(course_id=course_id)
+
+        return qs.distinct()
+
+    # ------- list (메일함 목록) -------
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = MessageListSerializer(
+            queryset, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
+
+    # ------- retrieve (상세 보기 + 읽음 처리) -------
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        try:
+            message = self.get_queryset().get(pk=pk)
+        except CourseMessage.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # 내가 받은 메일이면 읽음 처리
+        try:
+            link = CourseMessageRecipient.objects.get(
+                message=message, recipient=request.user
+            )
+            if not link.is_read:
+                link.is_read = True
+                link.read_at = timezone.now()
+                link.save()
+        except CourseMessageRecipient.DoesNotExist:
+            pass
+
+        serializer = MessageDetailSerializer(message, context={"request": request})
+        return Response(serializer.data)
+
+    # ------- create (메일 보내기) -------
+    def create(self, request, *args, **kwargs):
+        serializer = MessageCreateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        message = serializer.save()
+        detail = MessageDetailSerializer(message, context={"request": request})
+        return Response(detail.data, status=status.HTTP_201_CREATED)

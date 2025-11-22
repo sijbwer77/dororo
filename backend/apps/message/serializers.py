@@ -1,103 +1,157 @@
+# apps/message/serializers.py
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from .models import MessageRoom, Message, MessageRoomMember
+from apps.learning.models import Course
+from .models import CourseMessage, CourseMessageRecipient
 
 User = get_user_model()
 
 
 class SimpleUserSerializer(serializers.ModelSerializer):
-    # LocalAccount가 있으면 거기서 nickname, role 뽑고
-    # 없어도 에러 안 나게 안전하게 처리
     nickname = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'nickname', 'role')
+        fields = ("id", "username", "nickname", "role")
 
     def get_nickname(self, obj):
-        local = getattr(obj, 'local_account', None)
-        return getattr(local, 'nickname', None)
+        local = getattr(obj, "local_account", None)
+        return getattr(local, "nickname", None)
 
     def get_role(self, obj):
-        local = getattr(obj, 'local_account', None)
-        return getattr(local, 'role', None)
+        local = getattr(obj, "local_account", None)
+        return getattr(local, "role", None)
 
 
-class MessageSerializer(serializers.ModelSerializer):
+class SimpleCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ("id", "title")
+
+
+class MessageListSerializer(serializers.ModelSerializer):
+    """
+    왼쪽 '전체 메시지함' 리스트용 (제목, 첫 줄, 날짜, 읽음여부)
+    """
+    course = SimpleCourseSerializer(read_only=True)
     sender = SimpleUserSerializer(read_only=True)
-    is_mine = serializers.SerializerMethodField()
+    is_read = serializers.SerializerMethodField()
+    preview = serializers.SerializerMethodField()
 
     class Meta:
-        model = Message
+        model = CourseMessage
         fields = (
-            'id',
-            'room',
-            'sender',
-            'content',
-            'created_at',
-            'updated_at',
-            'is_mine',
+            "id",
+            "course",
+            "sender",
+            "subject",
+            "preview",
+            "sent_at",
+            "is_read",
         )
-        read_only_fields = ('id', 'sender', 'created_at', 'updated_at', 'is_mine')
 
-    def get_is_mine(self, obj):
-        request = self.context.get('request')
+    def get_is_read(self, obj):
+        """
+        현재 로그인 유저 기준 읽음 여부
+        """
+        request = self.context.get("request")
         if not request or request.user.is_anonymous:
-            return False
-        return obj.sender_id == request.user.id
+            return True
+
+        try:
+            link = obj.recipient_links.get(recipient=request.user)
+            return link.is_read
+        except CourseMessageRecipient.DoesNotExist:
+            # 내가 보낸 메일(발신함)일 수도 있으니까 일단 읽은 걸로 취급
+            return True
+
+    def get_preview(self, obj):
+        return obj.body[:50]  # 첫 줄 / 앞부분만 잘라서 리스트에 표시
 
 
-class MessageCreateSerializer(serializers.ModelSerializer):
+class MessageDetailSerializer(serializers.ModelSerializer):
+    """
+    오른쪽 상세 보기용
+    """
+    course = SimpleCourseSerializer(read_only=True)
+    sender = SimpleUserSerializer(read_only=True)
+    recipients = serializers.SerializerMethodField()
+    is_read = serializers.SerializerMethodField()
+
     class Meta:
-        model = Message
-        fields = ('room', 'content')
-
-
-class MessageRoomSerializer(serializers.ModelSerializer):
-    members = SimpleUserSerializer(many=True, read_only=True)
-    last_message = serializers.SerializerMethodField()
-
-    class Meta:
-        model = MessageRoom
+        model = CourseMessage
         fields = (
-            'id',
-            'name',
-            'members',
-            'created_at',
-            'updated_at',
-            'last_message',
+            "id",
+            "course",
+            "sender",
+            "recipients",
+            "subject",
+            "body",
+            "sent_at",
+            "is_read",
         )
 
-    def get_last_message(self, obj):
-        last_msg = obj.messages.order_by('-created_at').first()
-        if not last_msg:
-            return None
-        return MessageSerializer(last_msg, context=self.context).data
+    def get_recipients(self, obj):
+        links = obj.recipient_links.select_related("recipient")
+        users = [link.recipient for link in links]
+        return SimpleUserSerializer(users, many=True).data
+
+    def get_is_read(self, obj):
+        request = self.context.get("request")
+        if not request or request.user.is_anonymous:
+            return True
+
+        try:
+            link = obj.recipient_links.get(recipient=request.user)
+            return link.is_read
+        except CourseMessageRecipient.DoesNotExist:
+            return True
 
 
-class MessageRoomCreateSerializer(serializers.ModelSerializer):
-    # 같이 들어갈 유저 id 리스트
-    member_ids = serializers.ListField(
-        child=serializers.IntegerField(),
-        write_only=True,
+class MessageCreateSerializer(serializers.Serializer):
+    """
+    메일 보내기용 (프론트에서 POST 할 때 쓸 것)
+    """
+    course_id = serializers.IntegerField()
+    subject = serializers.CharField(max_length=200)
+    body = serializers.CharField()
+    recipient_ids = serializers.ListField(
+        child=serializers.IntegerField(), allow_empty=False
     )
 
-    class Meta:
-        model = MessageRoom
-        fields = ('id', 'name', 'member_ids')
+    def validate_course_id(self, value):
+        if not Course.objects.filter(id=value).exists():
+            raise serializers.ValidationError("존재하지 않는 강의입니다.")
+        return value
+
+    def validate_recipient_ids(self, value):
+        if not value:
+            raise serializers.ValidationError("최소 1명 이상에게 보내야 합니다.")
+        return value
 
     def create(self, validated_data):
-        request = self.context['request']
-        creator = request.user
-        member_ids = set(validated_data.pop('member_ids', []))
-        member_ids.add(creator.id)
+        request = self.context["request"]
+        sender = request.user
 
-        room = MessageRoom.objects.create(**validated_data)
+        course = Course.objects.get(id=validated_data["course_id"])
+        subject = validated_data["subject"]
+        body = validated_data["body"]
+        recipient_ids = validated_data["recipient_ids"]
 
-        users = User.objects.filter(id__in=member_ids)
+        message = CourseMessage.objects.create(
+            course=course,
+            sender=sender,
+            subject=subject,
+            body=body,
+        )
+
+        users = User.objects.filter(id__in=recipient_ids).distinct()
         for u in users:
-            MessageRoomMember.objects.create(room=room, user=u)
+            CourseMessageRecipient.objects.create(
+                message=message,
+                recipient=u,
+            )
 
-        return room
+        return message

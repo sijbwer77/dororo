@@ -1,8 +1,8 @@
+# apps/message/urls.py
 from rest_framework.routers import DefaultRouter
-from .views import MessageRoomViewSet, MessageViewSet
+from .views import CourseMessageViewSet
 
 router = DefaultRouter()
-router.register(r'rooms', MessageRoomViewSet, basename='message-room')
-router.register(r'messages', MessageViewSet, basename='message')
+router.register(r"messages", CourseMessageViewSet, basename="course-message")
 
 urlpatterns = router.urls
