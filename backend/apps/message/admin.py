@@ -5,7 +5,7 @@ from .models import MessageRoom, MessageRoomMember, Message
 @admin.register(MessageRoom)
 class MessageRoomAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created_at', 'updated_at')
-    filter_horizontal = ('members',)
+    #filter_horizontal = ('members',)
 
 
 @admin.register(MessageRoomMember)
