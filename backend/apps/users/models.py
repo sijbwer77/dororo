@@ -22,7 +22,7 @@ class LocalAccount(TimeStampedModel):
         related_name='local_account',
         db_column='user_id',
     )
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, unique=True)
     nickname = models.CharField(max_length=50)
     account_type = models.CharField(max_length=20, default='local')
     role = models.CharField(max_length=20, choices=Role.choices)
