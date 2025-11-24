@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.consultation',
     'apps.gamification',
     'apps.message',
+    'apps.group'
 
 ]
 REST_FRAMEWORK = {

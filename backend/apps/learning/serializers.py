@@ -26,10 +26,17 @@ class AssignmentSerializer(serializers.ModelSerializer):
         model = Assignment
         fields = "__all__"
 
+# 조회용
 class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
-        fields = "__all__"
+        fields = "__all__" # 전체 확인 가능
+# 학생 제출용
+class SubmissionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ['file', 'assignment', 'student'] #입력받을 인자만 저장
+
 
 class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:

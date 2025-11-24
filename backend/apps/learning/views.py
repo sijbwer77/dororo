@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status
 from django.utils import timezone
-from rest_framework.decorators import action #회색뜨는데 괜찮으려나
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import (
     Course,
@@ -18,6 +18,7 @@ from .serializers import (
     StudentEnrollmentSerializer,
     AssignmentSerializer,
     SubmissionSerializer,
+    SubmissionCreateSerializer,
     ScheduleSerializer,
     LessonSerializer,
     NoticeSerializer,
@@ -66,20 +67,29 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     queryset = Assignment.objects.all()
     serializer_class = AssignmentSerializer
 
+# 여기 코드 문제정말많습니다 다시짜야할것같아요
+# 제출/ 제출확인/ 채점 이렇게 각 API로 분리 고려
 class SubmissionViewSet(viewsets.ModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
-
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return SubmissionCreateSerializer
+        return SubmissionSerializer
+    
     def create(self, request, *args, **kwargs):
-        """
-        - 마감 시간(due_date) 이후에는 제출 불가
-        - 같은 학생/과제에 대해 1회만 제출하게 하고 싶으면 여기서 추가 체크
-        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         assignment = serializer.validated_data["assignment"]
         student = serializer.validated_data["student"]
+        file = serializer.validated_data.get("file")
+
+        # 파일 필요
+        if not file:
+            return Response({"detail": "파일을 업로드해야 합니다."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         # 마감 체크
         now = timezone.now()
@@ -88,26 +98,28 @@ class SubmissionViewSet(viewsets.ModelViewSet):
                 {"detail": "마감 시간이 지나 제출할 수 없습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if not serializer.validated_data.get("file"):
-            return Response({"detail": "파일을 업로드해야 합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # 기존 제출 있는지 확인
         existing_submission = Submission.objects.filter(
             assignment=assignment, student=student
         ).first()
+
         if existing_submission:
-            for field, value in serializer.validated_data.items():
-                setattr(existing_submission, field, value)
+            # 파일만 덮어쓰기
+            existing_submission.file = file
             existing_submission.submitted_at = now
             existing_submission.status = "submitted"
-            existing_submission.grade = None
+            existing_submission.grade = None  # 평가 초기화 (원하면 유지 가능)
             existing_submission.save()
 
-            refreshed_serializer = self.get_serializer(existing_submission)
-            return Response(refreshed_serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                SubmissionSerializer(existing_submission).data,
+                status=status.HTTP_200_OK
+            )
 
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        # 첫 제출
+        serializer.save(submitted_at=now, status="submitted")
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 #____________관리자/강사 전용 API___(수정 많이 필요함)___________
