@@ -1,0 +1,187 @@
+/* app/login.module.css */
+
+/* --- 1. 전체 레이아웃 --- */
+/* 'Desktop - 133' 스타일 적용 */
+.pageLayout {
+  width: 1536px;
+  height: 845px; 
+  background: #FFFFFF;
+  margin: 0 auto; /* 페이지 자체를 브라우저 중앙에 */
+  
+  /* Flexbox로 자식 요소 정렬 */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 모든 자식을 가로 중앙에 */
+  
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* --- 2. 헤더 (로고) --- */
+/* 'ChatGPT Image...' (로고) */
+.header {
+  margin-top: 45px; /* 피그마 top: 45px 적용 */
+  width: 509px;
+  height: 131px;
+}
+
+/* 'Line 1' (메인 선) */
+.mainLine {
+  width: 1031px;
+  border-top: 1px solid #0A5FAE;
+  transform: matrix(1, 0, 0, 1, 0, 0);
+  margin-top: 25px; 
+}
+
+/* --- 3. 메인 콘텐츠 (폼 + 공지) --- */
+.mainContainer {
+  display: flex;
+  width: 1031px; /* 메인 선과 너비 맞춤 */
+  justify-content: center;
+  margin-top: 101px; 
+  gap: 101px; 
+}
+
+/* --- 3-1. 왼쪽 로그인 폼 --- */
+.loginSection {
+  width: 465px; /* 'Line 66' 너비 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 'Start Your Learning...' */
+.title {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 43px;
+  color: #0A5FAE;
+  height: 45px; /* 피그마 높이값 */
+}
+
+/* 'Line 66' */
+.sectionLine {
+  width: 465px;
+  border-top: 1px solid #0A5FAE;
+  margin-top: 6px; 
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 라벨과 인풋을 양쪽으로 */
+  margin-top: 53px; 
+}
+
+/* 'ID', 'PW' 라벨 */
+.label {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 34px;
+  color: #0A5FAE;
+}
+
+/* 'Rectangle 8', 'Rectangle 9' (입력창) */
+.inputField {
+  width: 358px;
+  height: 58px;
+  background: #BFDBFE;
+  opacity: 0.3;
+  border-radius: 12px;
+  border: none;
+  padding: 0 10px; 
+  font-size: 20px;
+}
+/* 두 번째 inputGroup만 간격 조절 */
+.inputGroup + .inputGroup {
+  margin-top: 31px; 
+}
+
+/* 'Rectangle 10' (로그인 버튼) */
+.loginButton {
+  width: 442.14px;
+  height: 57px;
+  background: rgba(10, 95, 174, 0.8);
+  border-radius: 12px;
+  border: none;
+  margin-top: 39px; 
+
+  /* 'Log in' 텍스트 스타일 */
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 43px;
+  color: #FFFFFF;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* 'Line 68' (버튼 아래 선) */
+.bottomLine {
+  width: 465px;
+  border-top: 1px solid #0A5FAE;
+  margin-top: 33px; 
+}
+
+/* '회원가입' */
+.signupLink {
+  margin-top: 15px; 
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 23px;
+  color: #8F9091; /* (수정) 회색으로 변경 */
+  text-align: center;
+  text-decoration: none;
+  font-weight: 500; /* (수정) 기본 폰트 굵기로 변경 */
+}
+.signupLink:hover {
+  text-decoration: underline;
+}
+
+/* --- 3-2. 오른쪽 공지사항 --- */
+.infoSection {
+  width: 465px; /* 'Line 3' 너비 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 'NOTICE', 'CAMP' 제목 + 아이콘 */
+.infoBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 43px; /* 폰트 line-height */
+}
+
+/* 'Line 3', 'Line 67' (공지사항 밑줄) */
+.infoLine {
+  width: 465px;
+  border-top: 1px solid #0A5FAE;
+  margin-top: -1px; 
+}
+
+/* 'NOTICE', 'CAMP' 제목 */
+.infoTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 43px;
+  color: #0A5FAE;
+}
+
+/* '+' 아이콘 */
+.plusIcon {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 39px;
+  color: #0A5FAE;
+  cursor: pointer;
+}
+
+/* 두 번째 infoBox만 간격 조절 */
+.infoBox:not(:first-child) {
+  margin-top: 159px; 
+}

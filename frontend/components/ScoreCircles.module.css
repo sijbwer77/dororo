@@ -1,0 +1,46 @@
+/* components/ScoreCircles.module.css */
+
+.scoreCircles {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  justify-content: flex-end;  /* 오른쪽 정렬이면 이렇게, 왼쪽 정렬 원하면 flex-start */
+  align-items: center;
+  /* 혹시 상위에서 pointer-events를 건드려도 이쪽은 클릭 가능하게 */
+  pointer-events: auto;
+}
+
+.circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #8f9091;
+  background-color: #ffffff;
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;              /* 기본 손가락 모양 */
+  outline: none;
+
+  /* 클릭 시 살짝 애니메이션 느낌 */
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+
+.circle:hover {
+  transform: scale(1.05);
+}
+
+/* 채워진 상태 */
+.filled {
+  background-color: #0a5fae;
+}
+
+/* (선택) 안에 숫자 쓰고 싶을 때 */
+.circleLabel {
+  font-size: 10px;
+  color: #ffffff;
+}

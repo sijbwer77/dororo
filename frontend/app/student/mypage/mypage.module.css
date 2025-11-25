@@ -1,0 +1,244 @@
+/* app/student/mypage/mypage.module.css */
+
+/* --- 1. 전체 레이아웃 ('Desktop - 7') --- */
+.pageLayout {
+  width: 1590px;
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+  display: flex; 
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- 2. 왼쪽 사이드바 ('Rectangle 34') --- */
+.sidebar {
+  width: 298px;
+  height: 889px;
+  max-height: 98%;
+  background: #BFDBFE;
+  border-radius: 25px;
+  margin-top: 28px;
+ /* margin-left: 45px;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+}
+.sidebarLogo {
+  width: 147px;
+  height: 38px;
+  margin-top: 11px;
+}
+.profileIcon {
+  width: 184px;
+  height: 184px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+/* '마이 페이지' 제목 + 아이콘 */
+.sidebarTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 14px; 
+  margin-top: 33px;
+  width: 100%;
+  padding-left: 10px;
+}
+.sidebarTitleIcon {
+  width: 25px; /*아이콘의 크기를 고정*/
+  height: 32px; /*아이콘의 크기를 고정*/
+  flex-shrink:0; /*텍스트가 길어져도 아이콘이 찌그러지는 것을 방지*/
+}
+.sidebarTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.0;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+/* 마이페이지 메뉴 */
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ⭐ flex-start → center 로 변경 */
+  gap: 40px;
+  padding-left: 0;       /* ⭐ 왼쪽 패딩 제거 */
+}
+
+.menuItem {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 38px;
+  color: #0A5FAE;
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+ /* padding: 0 15px; */
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%; 
+  height: 43px; 
+  box-sizing: border-box;
+  /*margin-left: -15px;*/
+}
+
+/* '점' 아이콘을 담을 영역 */
+.menuIcon {
+  width: 30px; 
+  height: 30px; 
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* (추가!) '점' 아이콘 CSS */
+.menuIconDot {
+  width: 8px;  
+  height: 8px; 
+  background-color: #0A5FAE; /* 점 색상 */
+  border-radius: 50%; /* 동그랗게 */
+}
+
+.menuItem.active {
+  background: rgba(10, 95, 174, 0.5);
+  color: #FFFFFF;
+}
+
+/* (추가!) 활성화 시 '점' 색상 변경 */
+.menuItem.active .menuIconDot {
+  background-color: #FFFFFF; /* 흰색 점 */
+}
+
+
+/* --- 3. 오른쪽 메인 콘텐츠 ('개인 정보' 영역) --- */
+.mainContent {
+  flex: 1; 
+  padding: 40px 90px;
+  overflow-y: auto; 
+}
+
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 23px; 
+}
+.profileName {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 36px;
+  color: #000000;
+  margin: 0;
+}
+
+/* 개인 정보 섹션 */
+.infoSection {
+  width: 1044px;
+  max-width: 100%;
+  margin: 100px auto 0 auto;
+}
+.infoTitleBar {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+}
+.infoTitle {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 28px;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+.pencilIcon {
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pencilIcon:hover {
+  background-color: #f0f0f0; 
+}
+
+.titleLine {
+  width: 100%;
+  height: 0px;
+  border: 2px solid #0A5FAE;
+  margin-top: 5px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 80px 1fr; 
+  align-items: center;
+  row-gap: 34px; 
+  padding: 40px 0;
+}
+
+.infoLabel {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 28px;
+  color: #000000;
+  padding-left: 3px; 
+}
+.infoValue {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 28px;
+  color: #555; 
+}
+
+.infoInput {
+  font-family: 'Inter';
+  font-size: 20px;
+  color: #000000;
+  padding: 8px 12px;
+  border: 1px solid #0A5FAE;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.infoLine {
+  grid-column: 1 / -1; 
+  width: 100%;
+  border-top: 1px solid #A5A5A5;
+  margin-top: -17px; 
+  margin-bottom: -17px; 
+}
+.infoLine:first-of-type {
+  margin-top: -17px;
+  margin-bottom: -17px;
+}
+
+.bottomLine {
+  width: 100%;
+  height: 0px;
+  border: 2px solid #0A5FAE;
+  margin-top: 5px;
+}

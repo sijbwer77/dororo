@@ -1,0 +1,317 @@
+/* app/student/course/[id]/team/meeting/[meetingId]/meetingDetail.module.css */
+
+/* --- 전체 레이아웃 --- */
+.pageLayout {
+  width: 1590px;
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+  display: flex; 
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- 사이드바 (기존 통일) --- */
+
+
+/* --- 메인 콘텐츠 (2단 분할) --- */
+.mainContent {
+  flex: 1;
+  padding: 32px 45px; /* 팀 페이지와 동일한 여백 */
+  display: flex;
+  gap: 34px; /* (1092 - 1058) 디자인 간격 반영 */
+  height: 100%;
+}
+
+/* --- (A) 회의록 상세 섹션 ('Rectangle 25') --- */
+.meetingDetailSection {
+  width: 714px; /* 고정 너비 */
+  height: 781px;
+  background: #FFFFFF;
+  border: 1px solid #BFDBFE;
+  border-radius: 25px;
+  position: relative; /* 내부 요소 배치를 위해 */
+  overflow: hidden; /* 둥근 모서리 유지 */
+}
+
+/* 상단 배경 ('Rectangle 44') */
+.meetingHeaderBg {
+  width: 100%;
+  height: 161px;
+  background: rgba(191, 219, 254, 0.37);
+  padding-top: 48px;
+  padding-left: 40px;
+  box-sizing: border-box;
+}
+.meetingTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 50px;
+  color: #020202;
+  margin: 0;
+}
+
+/* 띠 배경 ('Rectangle 45') */
+.meetingStripe {
+  width: 100%;
+  height: 53px;
+  background: #E8F2FF;
+  margin-top: -6px; /* 위치 미세 조정 */
+}
+
+/* 내용 영역 */
+.meetingBody {
+  padding: 30px 50px; /* 'left: 394px' 고려하여 여백 설정 */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 20px;
+  color: #000000;
+  margin: 0;
+}
+
+.contentBody {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #000000;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 하단 플러스 버튼 ('+') */
+.plusArea {
+  margin-top: 150px; /* 적절한 위치로 내림 */
+  padding-left: 20px;
+}
+.plusText {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 30px;
+  color: #949BA4;
+  cursor: pointer;
+}
+
+
+/* --- (B) 오른쪽 패널 ('Rectangle 27') --- */
+.rightPanel {
+  width: 406px;
+  height: 711px;
+  margin-top: 68px; /* (101px - 33px) */
+  position: relative;
+}
+
+/* 탭 버튼 그룹 */
+.tabButtons {
+  position: absolute;
+  top: -68px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+}
+
+.tabCircle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s; /* 색상 변경 시 부드럽게 */
+  background: #E0E0E0; 
+}
+
+/* 채팅 탭 (노란색) */
+.chatTab.active {
+  background: rgba(226, 184, 11, 0.55);
+}
+/* 업로드 탭 (초록색) */
+.uploadTab.active {
+  background: #B4DEC6;
+}
+/* (참고) 디자인상 둘 다 색이 칠해져 있어서 active 구분은 투명도나 테두리로 할 수 있습니다 */
+
+
+/* 패널 본문 박스 */
+.panelContent {
+  width: 100%;
+  height: 100%;
+  background: #FFFFFF;
+  border: 1px solid #BFDBFE;
+  border-radius: 25px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 업로드 화면 컨테이너 */
+.uploadContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 170px; /* 아이콘 위치 'top: 270px' 고려 */
+}
+
+.uploadHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.uploadGuideText {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 17px;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+/* 파일 리스트 */
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 0 25px; /* 'left: 1118px' 고려 */
+  box-sizing: border-box;
+  
+  /* 아래로 정렬되도록 margin-top 조정 (디자인상 아래쪽에 위치) */
+  margin-top: auto; 
+  margin-bottom: 20px;
+}
+
+.fileItemLink {
+  width: 100%;
+  height: 49px;
+  background: #F0F7FE;
+  border-radius: 15px;
+  
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  
+  font-family: 'Inter';
+  font-size: 17px;
+  color: #000000;
+  
+  /* 링크 밑줄 제거 */
+  text-decoration: none; 
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+.fileItemLink:hover {
+  background-color: #E0EFFE; /* 호버 시 약간 진하게 */
+}
+
+.pagination {
+  margin-bottom: 40px;
+  font-family: 'Inter';
+  font-size: 17px;
+  color: #8FC1FF;
+  text-align: center;
+}
+
+/* 채팅 임시 화면 */
+.chatContainer {
+  padding: 20px;
+  text-align: center;
+}
+.tempMessage {
+  color: #888;
+  margin-top: 50%;
+}
+
+/* ... 기존 코드 (맨 아래에 추가) ... */
+
+/* --- 채팅 화면 스타일 (Team 페이지와 동일) --- */
+.chatContainer {
+  height: 100%;
+  background: rgba(191, 219, 254, 0.12); 
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box; /* 중요 */
+}
+
+.messagesArea {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.messageRow {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+
+.myMessage {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.otherMessage {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.msgSender {
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.msgBubble {
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.myMessage .msgBubble {
+  background: #FFFFFF;
+  border: 0.5px solid #949BA4;
+}
+
+.otherMessage .msgBubble {
+  background: #DBDEE1;
+  border: 0.5px solid #949BA4;
+}
+
+.msgTime {
+  font-size: 10px;
+  color: #555;
+  margin-top: 3px;
+}
+
+.chatInputBox {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid #D1D1D6;
+  border-radius: 16.5px;
+  padding: 5px 15px;
+  height: 40px;
+}
+
+.chatInput {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}

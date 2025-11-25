@@ -1,0 +1,142 @@
+/* app/SelectRole.module.css */
+
+/* --- 1. 전체 레이아웃 ('Desktop - 126') --- */
+.pageLayout {
+  width: 1536px;
+  height: 845px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- 2. 헤더 (로고 & 선) --- */
+.header {
+  width: 1212px; 
+  margin-top: 92px; 
+  padding-left: 0px; 
+}
+
+.headerLine {
+  width: 1212px;
+  border-top: 1px solid #0A5FAE;
+  transform: rotate(0.09deg);
+  margin-top: 55px; 
+}
+
+/* (추가됨) 역할 선택 페이지 제목 */
+.roleSelectionTitle {
+  margin-top: 30px; 
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 30px;
+  color: #0A5FAE;
+}
+
+/* --- 3. 메인 박스 컨테이너 --- */
+.boxContainer {
+  display: flex;
+  justify-content: center;
+  gap: 109px; 
+  margin-top: 30px; /* 제목과 간격 조절 */
+}
+
+/* --- 4-1. 학생 박스 --- */
+.roleBoxStudent {
+  width: 437px;
+  height: 496px;
+  background: rgba(191, 219, 254, 0.4);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; 
+  align-items: center;
+  padding: 40px 0; 
+  text-decoration: none;
+  transition: transform 0.2s ease-in-out;
+}
+
+.iconWrapperStudent {
+  height: 150px;
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.roleButtonStudent {
+  width: 258px;
+  height: 63px;
+  background: #FFFFFF;
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.roleTextStudent {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 46px;
+  color: #0A5FAE;
+}
+
+/* --- 4-2. 매니저 박스 --- */
+.roleBoxManager {
+  width: 437px;
+  height: 496px;
+  background: #BFDBFE;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 40px 0;
+  text-decoration: none;
+  transition: transform 0.2s ease-in-out;
+}
+
+.iconWrapperManager {
+  height: 150px;
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.iconWrapperManager > img,
+.iconWrapperStudent > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.roleButtonManager {
+  width: 258px;
+  height: 63px;
+  background: rgba(26, 54, 108, 0.58);
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.roleTextManager {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 46px;
+  color: #FFFFFF;
+}
+
+.roleBoxStudent:hover,
+.roleBoxManager:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+}

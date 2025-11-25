@@ -1,0 +1,172 @@
+/* app/student/student.module.css */
+
+/* --- 1. 전체 레이아웃 ('Desktop - 134') --- */
+.pageLayout {
+  width: 1590px; /* 새 너비 */
+  height: 903px; /* 새 높이 */
+  background: #FFFFFF;
+  margin: 0 auto; /* 페이지 중앙 정렬 */
+  
+  display: flex; 
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- 2. 왼쪽 사이드바 ('Rectangle 28') --- */
+.sidebar {
+  width: 298px; /* 새 너비 */
+  height: 889px; /* 새 높이 */
+  max-height: 98%; 
+  background: #BFDBFE;
+  border-radius: 25px;
+  
+  margin-top: 28px; /* 새 top: 28px */
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+}
+
+/* 'ChatGPT Image...' (로고) */
+.sidebarLogo {
+  margin-top: 11px; /* (계산된 간격) top: 39px - 부모 top: 28px */
+  width: 147px; /* 새 너비 */
+  height: 38px; /* 새 높이 */
+}
+
+/* 'profile-circle' */
+.profileIcon {
+  width: 184px; /* 새 너비 */
+  height: 184px; /* 새 높이 */
+  margin-top: 9px; /* (계산된 간격) top: 86px - (top: 39px + height: 38px) */
+  overflow: hidden; /* SVG가 둥근 모서리를 넘지 않게 */
+}
+
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  /* (수정!) CSS의 top 값 기준 (433-369 = 64px) */
+  gap: 66px; 
+  /* (수정!) 프로필(top:86, h:184)과 메뉴(top:312) 사이 간격 */
+  margin-top: 56px; 
+}
+
+.menuItem {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 38px;
+  color: #0A5FAE;
+  
+  display: flex;
+  align-items: center;
+  /* (수정!) gap과 padding은 .menuLink로 이동 */
+  border-radius: 8px;
+  cursor: pointer;
+  
+  width: 100%; /* 'Rectangle 33' 너비 */
+  height: 43px; /* 'Rectangle 33' 높이 */
+  box-sizing: border-box;
+}
+
+/* (추가!) <Link> 태그가 li를 꽉 채우도록 */
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 15px;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit; /* 부모(.menuItem)의 글자색을 상속 */
+  border-radius: 8px; /* li와 동일하게 */
+}
+
+
+.menuIcon {
+  width: 40px; /* 아이콘 영역 너비 고정 */
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 'Rectangle 33' (활성화된 메뉴 배경) */
+.menuItem.active {
+  background: rgba(10, 95, 174, 0.5);
+  color: #FFFFFF; /* 활성화 시 글자색 흰색 */
+}
+
+/* (삭제!) .sidebarFooter, .footerIcon은 components/SideBarFooter.module.css로 이동됨 */
+
+
+/* --- 3. 오른쪽 메인 콘텐츠 (강의 카드 목록) --- */
+.mainContent {
+  flex: 1; 
+  padding-top: 61px; /* Card 1의 top: 61.32px */
+  padding-left: 89px; /* Card 1 left(387px) - Sidebar width(298px) = 89px */
+  overflow-y: auto; 
+}
+
+/* (중요!) 그리드 레이아웃 */
+.courseGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 339px); 
+  gap: 72.5px 89.05px; 
+  justify-content: left; /* 왼쪽 정렬 */
+}
+
+/* --- 4. 강의 카드 --- */
+.courseCard {
+  width: 339px; 
+  height: 260px; 
+  background: #FFFFFF;
+  border: 1px solid #BFDBFE;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  text-decoration: none; 
+  overflow: hidden; 
+  transition: transform 0.2s ease-in-out;
+}
+.courseCard:hover {
+  transform: scale(1.03); 
+}
+
+.cardHeader {
+  width: 100%;
+  height: 158px; 
+  border-radius: 12px 12px 0 0; 
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.cardCategory {
+  font-family: 'KoPubWorldDotum', 'Kokoro';
+  font-weight: 500;
+  font-size: 28px;
+  color: #FFFFFF;
+}
+
+.cardBody {
+  padding: 15px;
+}
+
+.cardTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 38px;
+  color: #000000;
+  margin: 0;
+}
