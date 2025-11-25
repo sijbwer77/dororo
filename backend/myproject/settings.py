@@ -154,14 +154,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- [추가] CORS 설정 (Front: Next.js 3000번 포트 허용) ---
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
-CORS_ALLOW_CREDENTIALS = True  # 쿠키(세션) 주고받기 허용
+# --- CORS / CSRF 설정 (개발용) ---
+CORS_ALLOW_ALL_ORIGINS = True          # ✅ 일단 전부 허용
+CORS_ALLOW_CREDENTIALS = True          # 세션 쿠키 같이 주고받기
 
-# settings.py 맨 아래에 추가
-
+# 프론트에서 오는 요청을 CSRF 신뢰 대상으로 추가
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.56.1:3000",
 ]
