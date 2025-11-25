@@ -1,0 +1,239 @@
+/* ==========================================================
+   1. 전체 레이아웃
+========================================================== */
+.pageLayout {
+  position: relative;
+  width: 1590px;
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto;
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* ==========================================================
+   2. 왼쪽 사이드바
+========================================================== */
+.sidebar {
+  width: 298px;
+  height: 889px;
+  background: #BFDBFE;
+  border-radius: 25px;
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+/* 로고 + 프로필 */
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebarLogo {
+  width: 147px;
+  height: 38px;
+  margin-top: 11px;
+}
+
+.profileIcon {
+  width: 184px;
+  height: 184px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+/* 타이틀 + 메뉴 묶음 */
+.sidebarMainGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+}
+
+/* DIMC 타이틀 */
+.sidebarTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding-left: 10px;
+}
+
+.sidebarTitleIcon {
+  width: 25px;
+  height: 32px;
+}
+
+.sidebarTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 28px;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+/* 메뉴 리스트 */
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  padding-left: 0px;
+}
+
+/* 메뉴 아이템 */
+.menuItem {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 23px;
+  line-height: 38px;
+  color: #0A5FAE;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 43px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 링크 전체 */
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+}
+
+/* 점 */
+.menuIcon {
+  width: 30px; 
+  height: 30px; 
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menuIconDot {
+  width: 8px;  
+  height: 8px; 
+  background-color: #0A5FAE; /* 점 색상 */
+  border-radius: 50%; /* 동그랗게 */
+}
+
+/* 활성화 메뉴 */
+.menuItem.active {
+  background: rgba(10, 95, 174, 0.5);
+  color: #FFFFFF;
+}
+
+.menuItem.active .menuIconDot {
+  background-color: #FFFFFF;
+}
+
+/* 푸터 */
+.sidebarFooter {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+/* ==========================================================
+   3. 오른쪽 메인 콘텐츠 (SVG 배경 적용)
+========================================================== */
+.mainContent {
+  position: absolute;
+  left: 357px;
+  top: 32px;
+  width: 1126px;
+  height: 781px;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+/* 완성된 SVG 배경 한 장으로 모든 디자인 해결 */
+.waveLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: url("/wave.svg") no-repeat center;
+  background-size: 140% auto;
+}
+
+/* 텍스트 영역 */
+.contentLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 80px;
+  padding-left: 80px;
+}
+
+/* 메인 텍스트 */
+.dimcTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 100px;
+  color: #FFFFFF;
+  text-shadow: 0px 5px 7px rgba(0, 0, 0, 0.6);
+  margin: 0;
+}
+
+.dimcSubtitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 35px;
+  color: #FFFFFF;
+  margin: 10px 0 20px 0;
+}
+
+.dimcDescription {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 1.5;
+  color: #FFFFFF;
+  width: 800px;
+  text-align: left;
+}
+
+/* 버튼 */
+.assessButton {
+  position: absolute;
+  bottom: 20px;
+  right: 450px;
+  width: 201px;
+  height: 74px;
+  background: rgba(11, 153, 230, 0.55);
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.assessButton:hover {
+  background: rgba(11, 153, 230, 0.9);
+}

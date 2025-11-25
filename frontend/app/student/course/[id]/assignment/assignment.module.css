@@ -1,0 +1,94 @@
+.pageLayout {
+  width: 1590px;
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+  display: flex; 
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- 3. 오른쪽 메인 콘텐츠 ('과제' 영역) --- */
+.mainContent {
+  flex: 1; 
+  padding: 48px 50px; /* top: 48px */
+  overflow-y: auto; 
+  height: 100%;
+}
+
+/* 'Rectangle 38' (파란색 헤더) */
+.header {
+  width: 1110px;
+  max-width: 100%;
+  height: 55px;
+  background: #84AED6;
+  opacity: 0.9;
+  
+  display: flex;
+  align-items: center;
+  padding-left: 13px; /* (373px - 360px) */
+  gap: 36px; /* (426px - (373px + 37px)) */
+}
+.arrowIcon {
+  width: 37px;
+  height: 37px;
+}
+.mainTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 46px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+/* 'Rectangle 114' (과제 목록 전체 박스) */
+.assignmentList {
+  width: 1110px;
+  max-width: 100%;
+  height: auto; /* 403px 고정 대신 */
+  min-height: 403px;
+  background: #FFFFFF;
+  border: 1px solid #0A5FAE;
+  
+  display: flex;
+  flex-direction: column;
+}
+
+/* 'Group 13793' (과제 1개) */
+.assignmentItem {
+  display: flex;
+  align-items: center;
+  padding: 20px 32px; /* (계산) 114-49-55 = 10, 392-360=32 */
+  gap: 33px; /* (계산) 464 - (392+39) */
+  text-decoration: none;
+  color: #000000;
+  border-bottom: 1px solid #A5A5A5; /* (Line 41, 42...) */
+}
+.assignmentItem:hover {
+  background-color: #f9f9f9;
+}
+
+.assignmentIcon {
+  width: 39px;
+  height: 39px;
+}
+
+.assignmentDetails {
+  display: flex;
+  flex-direction: column;
+}
+.assignmentTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 40px;
+  color: #000000;
+}
+.assignmentDeadline {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: #8F9091;
+}

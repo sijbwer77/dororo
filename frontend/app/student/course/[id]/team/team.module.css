@@ -1,0 +1,268 @@
+/* app/student/course/[id]/team/team.module.css */
+
+/* --- 1. 전체 레이아웃 (공통) --- */
+.pageLayout {
+  width: 1590px;
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+  display: flex; 
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- 3. 오른쪽 메인 콘텐츠 (팀 페이지 전용) --- */
+.mainContent {
+  flex: 1; 
+  padding: 32px 45px; 
+  overflow-y: auto; 
+  height: 100%;
+  
+  display: flex; /* 좌우 배치 */
+  gap: 38px; 
+}
+
+/* 왼쪽 섹션 (팀 정보) */
+.teamListSection {
+  width: 714px; 
+  height: 780px;
+  background: #FFFFFF;
+  border: 1px solid #BFDBFE;
+  border-radius: 25px;
+  padding: 40px;
+  box-sizing: border-box;
+}
+.mainTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 50px;
+  margin: 0 0 30px 0;
+}
+.teamInfoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.subInfoRow {
+  padding-left: 40px;
+  font-size: 20px;
+  color: #555;
+}
+
+/* 오른쪽 섹션 (채팅/업로드) */
+.teamWorkSection {
+  width: 406px; 
+  height: 711px;
+  margin-top: 68px; 
+  position: relative;
+}
+
+.sidebarGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 탭 버튼 */
+.tabButtons {
+  position: absolute;
+  top: -68px; 
+  left: 50%;
+  transform: translate(-50%);
+  display: flex;
+  gap: 20px;
+}
+.tabButton {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #E0E0E0; 
+}
+.tabButton.activeTab:nth-child(1) { /* 채팅 */
+  background: rgba(226, 184, 11, 0.55); 
+}
+.tabButton.activeTab:nth-child(2) { /* 업로드 */
+  background: #B4DEC6; 
+}
+
+/* 탭 내용 컨테이너 */
+.workContent {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #BFDBFE;
+  border-radius: 25px;
+  background: #FFFFFF; 
+  overflow: hidden; 
+}
+
+/* 채팅 화면 */
+.chatContainer {
+  height: 100%;
+  background: rgba(191, 219, 254, 0.12); 
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+.messagesArea {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.messageRow {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+.myMessage {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.otherMessage {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.msgSender {
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.msgBubble {
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+.myMessage .msgBubble {
+  background: #FFFFFF;
+  border: 0.5px solid #949BA4;
+}
+.otherMessage .msgBubble {
+  background: #DBDEE1;
+  border: 0.5px solid #949BA4;
+}
+.msgTime {
+  font-size: 10px;
+  color: #555;
+  margin-top: 3px;
+}
+.chatInputBox {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid #D1D1D6;
+  border-radius: 16.5px;
+  padding: 5px 15px;
+}
+.chatInput {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+/* 업로드 화면 */
+.uploadContainer {
+  height: 100%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fileUploadBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+  cursor: pointer;
+}
+.uploadText {
+  color: #0A5FAE;
+  font-size: 17px;
+}
+.fileList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fileItem {
+  background: #F0F7FE;
+  padding: 12px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 17px;
+}
+.pagination {
+  margin-top: auto;
+  color: #8FC1FF;
+  font-size: 17px;
+}
+
+/* ... 기존 코드 ... */
+
+.subListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* ✅ (수정됨) 네모 박스 제거 및 텍스트 스타일 적용 */
+.addButton {
+  background: transparent; /* 배경 투명 */
+  border: none;            /* 테두리 제거 */
+  cursor: pointer;
+  
+  /* 위치 맞춤 (subInfoRow와 들여쓰기 동일하게) */
+  padding-left: 40px; 
+  
+  /* 텍스트 스타일 */
+  font-size: 24px;
+  color: #555555; /* 회색 (또는 원하시는 색상 #0A5FAE 등) */
+  line-height: 1;
+  
+  display: flex;
+  align-items: center;
+  
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.addButton:hover {
+  opacity: 1;
+  color: #000000;
+}
+
+/* app/student/course/[id]/team/team.module.css 하단 */
+
+/* 클릭 가능한 회의록 링크 스타일 */
+.subInfoRowLink {
+  padding-left: 40px;
+  font-size: 20px;
+  color: #555;
+  text-decoration: none; /* 밑줄 제거 */
+  display: block;        /* 영역 전체 클릭 가능 */
+  cursor: pointer;
+}
+
+.subInfoRowLink:hover {
+  color: #0A5FAE;        /* 마우스 올리면 파란색 */
+  font-weight: 500;
+}
