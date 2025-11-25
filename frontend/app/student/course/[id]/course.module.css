@@ -4,152 +4,20 @@
 .pageLayout {
   position: relative;
   width: 1590px;
-  
-  /* (1. 수정!) 높이를 845px 고정 대신, '화면 전체 높이'로 변경 */
   height: 903px; 
   background: #FFFFFF;
   margin: 0 auto; 
-  
-  /* (2. 수정!) 페이지 전체의 스크롤을 막음 */
-  /*overflow: hidden; */
-  
   display: flex; 
   box-sizing: border-box; /* (추가) */
 }
 
-/* --- 2. 왼쪽 사이드바 ('Rectangle 28') --- */
-.sidebar {
-  width: 298px;
-  height: 889px;
-  max-height: 98%;
-  background: #BFDBFE;
-  border-radius: 25px;
-  
-  margin-top: 28px; /*32*/
-  margin-left: 0px;
-  
-  /* (중요!) 자식 요소(헤더, 메뉴, 푸터)를 세로로 배치 */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* 헤더/메뉴는 위, 푸터는 아래로 */
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.sidebarTop {
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-}
-
-/* 로고 ('ChatGPT Image...') */
-.sidebarLogo {
-  width: 147px;
-  height: 38px;
-  margin-top: 11px; /* (top: 42px - 부모 top: 32px) */
-}
-
-/* 프로필 ('profile-circle') */
-.profileIcon {
-  width: 184px;
-  height: 184px;
-  margin-top: 9px; /* (top: 83px - (top: 42px + h: 33px)) */
-  overflow: hidden;
-}
-
-/* (수정!) '과목명' + '아이콘' 컨테이너 */
-.courseTitleContainer {
-  display: flex;
-  align-items: flex-start;
-  /*justify-content: center; /* 아이콘과 텍스트를 중앙 정렬 */
-  gap: 10px; /* 아이콘과 텍스트 사이 간격 */
-  margin-top: 33px; /* (top: 277px - (top: 83px + h: 161px)) */
-  width: 100%;
-}
-
-/* '과목명' 아이콘 (책 모양) */
-.courseTitleIcon {
-  width: 29px;
-  height: 26px;
-  flex-shrink: 0;
-  /*margin-top: 8px*/
-}
-
-/* '과목명' 텍스트 */
-.courseTitle {
-  font-family: 'KoPubWorldDotum';
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 1.0;
-  color: #0A5FAE;
-  margin: 0; /* h2 태그의 기본 마진 제거 */
-}
-
-/* --- 과목 메뉴 --- */
-.sidebarMenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* 메뉴 아이템들을 중앙 정렬 */
-  gap: 40px; /* (404-337=67) (468-404=64) ... -> 23px로 재조정 */
-  margin-top: 56px; /* (top: 337px - (top: 277px + h: 43px)) */
-}
-
-.menuItem {
-  font-family: 'KoPubWorldDotum';
-  font-weight: 500;
-  font-size: 23px;
-  line-height: 38px;
-  color: #0A5FAE;
-  
-  display: flex;
-  align-items: center;
-  gap: 15px; 
-  padding: 0 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  
-  width: 268px; 
-  height: 43px; 
-  box-sizing: border-box;
-}
-
-/* '점' 아이콘을 담을 영역 */
-.menuIcon {
-  width: 30px; 
-  height: 30px; 
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* '점' 아이콘 CSS */
-.menuIconDot {
-  width: 8px;  
-  height: 8px; 
-  background-color: #0A5FAE; 
-  border-radius: 50%; 
-}
-
-/* 활성화된 메뉴의 '점' 색상 변경 */
-.menuItem.active .menuIconDot {
-  background-color: #FFFFFF; 
-}
-
-/* 'Rectangle 33' (활성화된 메뉴 배경) */
-.menuItem.active {
-  background: rgba(10, 95, 174, 0.5);
-  color: #FFFFFF;
-}
 
 /* --- 3. 오른쪽 메인 콘텐츠 ('NOTICE' 영역) --- */
 .mainContent {
   flex: 1; 
   padding: 32px 50px; 
   overflow-y: auto; 
+  height: 100% /*11/18 추가*/
 }
 
 .mainTitle {

@@ -6,10 +6,10 @@ import styles from "./student.module.css";
 import Image from "next/image";
 import Link from "next/link"; 
 import { usePathname } from 'next/navigation'; // 현재 주소 확인용
-import { FAKE_COURSES } from "../../data/mock-courses.js"; 
+import { FAKE_COURSES } from "@/data/mock-courses.js"; 
 
 // (✅ 수정!) 이 줄이 빠져서 오류가 났습니다.
-import SideBarFooter from "../../components/SideBarFooter.js"; 
+import SideBarFooter from "@/components/SideBarFooter.js"; 
 
 // 'href' (링크 주소)가 추가된 메뉴
 const sidebarMenus = [
@@ -26,7 +26,7 @@ const sidebarMenus = [
   { 
     text: "DIMC", 
     iconPath: "/note.svg",
-    href: "#" // (임시)
+    href: '/student/dimc' // (임시)
   },
   { 
     text: "CHALLENGE", 
@@ -36,7 +36,7 @@ const sidebarMenus = [
   { 
     text: "강의 만족도 조사", 
     iconPath: "/Task.svg",
-    href: "#" // (임시)
+    href: "/student/eval" // (임시)
   },
 ];
 

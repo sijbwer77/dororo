@@ -1,0 +1,192 @@
+/* app/student/course/[id]/assignment/[assignmentId]/assignmentDetail.module.css */
+
+/* --- 1. 전체 레이아웃 (공통) --- */
+.pageLayout {
+  width: 1590px; /* (이전 페이지들과 통일) */
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto; 
+  display: flex; 
+  box-sizing: border-box; 
+}
+
+/* --- 3. 오른쪽 메인 콘텐츠 ('과제 상세' 영역) --- */
+.mainContent {
+  flex: 1; 
+  padding: 32px 50px; 
+  overflow-y: auto; 
+  height: 100%; 
+  display: flex;
+  flex-direction: column;
+}
+
+/* 상단 정보 ('과제 4', '마감...') */
+.topInfo {
+  border-bottom: 1px solid #A5A5A5; /* Line 42 */
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.assignmentTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 1.2;
+  color: #000000;
+  margin: 0 0 10px 0;
+}
+.infoRow {
+  display: flex;
+  gap: 20px;
+}
+.infoLabel {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 18px;
+  color: #000000;
+}
+
+/* 상세 내용 박스 */
+.detailBox {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 파일 링크 ('과제 4.pdf') */
+.fileLink {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 20px;
+  color: #0B99E6;
+  cursor: pointer;
+  text-decoration: underline;
+  align-self: flex-start;
+}
+
+/* 설명 텍스트 */
+.description {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #000000;
+  white-space: pre-line; /* 줄바꿈 허용 */
+}
+
+/* --- 제출 영역 (제출 전 / 제출 후) --- */
+/* 미제출 상태 (파일 업로드) */
+.uploadArea {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* 버튼을 오른쪽으로 */
+  gap: 10px;
+}
+.uploadBox {
+  width: 100%;
+  height: 200px; /* 적절한 높이 설정 */
+  border: 1px solid #AEAEAE; /* Rectangle 119 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  background: #FAFAFA; /* 살짝 회색 배경 추가 */
+  cursor: pointer;
+}
+.uploadText {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 17px;
+  color: #0A5FAE;
+}
+
+.submitButton {
+  width: 192px; /* Rectangle 118 */
+  height: 48px;
+  background: #649CD6;
+  color: #FFFFFF;
+  border: none;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 제출 완료 상태 (파란색 박스) */
+.submittedArea {
+  margin-top: auto;
+  width: 100%;
+  height: 150px; 
+  border: 1px solid #0A5FAE;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+.checkIcon {
+  /* 아이콘 크기 */
+  width: 50px; 
+  height: 54px;
+  margin-bottom: 25px;
+}
+.submittedTextContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.submittedTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 30px;
+  color: #269556; /* 녹색 */
+}
+.submittedFile {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 20px;
+  color: #0B99E6; /* 파란색 */
+}
+
+/* --- 하단 네비게이션 (이전/다음 버튼) --- */
+.navigationBar {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid #A5A5A5; 
+  display: flex;
+  justify-content: space-between;
+}
+
+.navButton {
+  width: 96px;
+  height: 47px;
+  background-color: #649CD6;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.navButton:hover {
+    opacity: 0.8;
+}
+
+.navButtonText {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 20px;
+  color: #000000;
+}
+
+.selectedFileContent {
+  display: flex;
+  flex-direction: row; /* ✅ 가로 정렬로 변경 (아이콘 - 텍스트 순) */
+  align-items: center; /* 세로 중앙 정렬 */
+  gap: 10px;           /* 아이콘과 텍스트 사이 간격 */
+}

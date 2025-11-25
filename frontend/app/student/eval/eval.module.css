@@ -1,0 +1,508 @@
+/* app/student/강의평가/eval.module.css */
+
+
+   .pageLayout {
+  position: relative;
+  width: 1590px;
+  height: 903px;
+  background: #FFFFFF;
+  margin: 0 auto;
+  display: flex;
+  box-sizing: border-box;
+}
+
+
+.sidebar {
+  width: 298px;
+  height: 889px;
+  background: #BFDBFE;
+  border-radius: 25px;
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+/* 로고 + 프로필 */
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebarLogo {
+  width: 147px;
+  height: 38px;
+  margin-top: 11px;
+}
+
+.profileIcon {
+  width: 184px;
+  height: 184px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+/* 타이틀 + 메뉴 묶음 */
+.sidebarMainGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+}
+
+/* DIMC 타이틀 */
+.sidebarTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding-left: 10px;
+}
+
+.sidebarTitleIcon {
+  width: 25px;
+  height: 32px;
+}
+
+.sidebarTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 28px;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+/* 메뉴 리스트 */
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  padding-left: 0px;
+}
+
+/* 메뉴 아이템 */
+.menuItem {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 23px;
+  line-height: 38px;
+  color: #0A5FAE;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 43px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 링크 전체 */
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+}
+
+/* 점 */
+.menuIcon {
+  width: 30px; 
+  height: 30px; 
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menuIconDot {
+  width: 8px;  
+  height: 8px; 
+  background-color: #0A5FAE; /* 점 색상 */
+  border-radius: 50%; /* 동그랗게 */
+}
+
+/* 활성화 메뉴 */
+.menuItem.active {
+  background: rgba(10, 95, 174, 0.5);
+  color: #FFFFFF;
+}
+
+.menuItem.active .menuIconDot {
+  background-color: #FFFFFF;
+}
+
+/* 푸터 */
+.sidebarFooter {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+.evalMain {
+  position: absolute;
+  left: 357px;
+  top: 32px;
+  width: 1126px;
+  height: 781px;
+  background: #ffffff;
+  border-radius: 25px;
+  box-sizing: border-box;
+  padding: 32px 40px 40px 40px;
+  border: 1px solid #aeaeae;
+}
+
+/* 상단 텍스트 영역 */
+.evalTitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 37px;
+  color: #000000;
+  margin: 0 0 8px 0;
+}
+
+.evalPeriod {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 34px;
+  color: #000000;
+  margin: 0 0 8px 0;
+}
+
+.evalNotice {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 32px;
+  color: #000000;
+  margin: 0 0 24px 0;
+}
+
+/* ================================
+   2. 강의 목록 테이블
+================================ */
+
+/* app/student/강의평가/eval.module.css */
+
+/* ================================
+   1. 오른쪽 메인 영역
+================================ */
+
+.evalMain {
+  position: absolute;
+  left: 357px;
+  top: 32px;
+  width: 1126px;
+  height: 781px;
+  background: #ffffff;
+  border-radius: 25px;
+  box-sizing: border-box;
+  padding: 32px 40px 40px 40px;
+  border: 1px solid #aeaeae;
+}
+
+/* 상단 텍스트 영역 */
+.evalTitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 37px;
+  color: #000000;
+  margin: 0 0 8px 0;
+}
+
+.evalPeriod {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 34px;
+  color: #000000;
+  margin: 0 0 8px 0;
+}
+
+.evalNotice {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 32px;
+  color: #000000;
+  margin: 0 0 24px 0;
+}
+
+/* ================================
+   2. 강의 목록 테이블
+================================ */
+
+.evalTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 16px;
+  border: 1px solid #aeaeae;
+}
+
+/* 헤더 */
+.evalTable thead th {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  color: #000000;
+  padding: 14px 8px;
+  border-bottom: 1px solid #aeaeae;
+  border-right: 1px solid #aeaeae;
+  background: rgba(132, 174, 214, 0.5); /* #84AED6 50% */
+}
+
+.evalTable thead th:last-child {
+  border-right: none;
+}
+
+/* 본문 셀 공통 */
+.evalTable tbody td {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: #000000;
+  padding: 14px 16px;
+  border-bottom: 1px solid #aeaeae;
+  border-right: 1px solid #aeaeae;
+  height: 80px;
+}
+
+.evalTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.evalTable tbody td:last-child {
+  border-right: none;
+}
+
+/* 컬럼별 정렬 / 폭 */
+.colCategory {
+  width: 60%;
+  text-align: left;
+}
+
+.colTeacher {
+  width: 120px;
+  text-align: center;
+}
+
+.colAction {
+  width: 140px;
+  text-align: center;
+}
+
+/* 강의명 셀 */
+.cellTitle {
+  text-align: left;
+}
+
+.category {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #000000;
+}
+
+/* 강사 셀 */
+.cellTeacher {
+  text-align: center;
+  font-size: 20px;
+}
+
+/* 버튼 셀 */
+.cellAction {
+  text-align: center;
+}
+
+/* 평가하기 버튼 */
+.evalButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: none;
+  background: #0a5fae;
+  color: #ffffff;
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.evalButton:hover {
+  background: #08477f;
+}
+
+/* ================================
+   3. 평가 모달(드래그 가능)
+================================ */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 200;
+}
+
+/* 드래그되는 창 자체 */
+.modalWindow {
+  position: fixed;
+  width: 640px;
+  height: 720px;
+  background: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+/* 상단 회색 영역 (드래그 핸들) */
+.modalHeader {
+  background: #d9d9d9;
+  border-bottom: 1px solid #000000;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  cursor: default; /* 여기 잡고 드래그 */
+}
+
+/* 왼쪽: 강의명/강사 */
+.modalHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modalCourseTitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 20px;
+  color: #000000;
+}
+
+.modalTeacher {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 18px;
+  color: #000000;
+}
+
+/* 오른쪽: 5~1 척도 안내 */
+.modalHeaderRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.scaleBox {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.scaleNumbers {
+  display: flex;
+  gap: 20px;
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 20px;
+}
+
+.scaleCircles {
+  display: flex;
+  gap: 20px;
+}
+
+/* 맨 위 작은 동그라미들 */
+.scaleCircle {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #8f9091;
+}
+
+/* 닫기 버튼 X */
+.modalCloseButton {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 12px;
+}
+
+/* 모달 본문 */
+.modalBody {
+  padding: 16px 20px 70px 20px;
+  height: calc(100% - 120px); /* header + footer 제외 */
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* 질문 한 줄 */
+.questionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.questionText {
+  width: 45%;
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 18px;
+  color: #000000;
+}
+
+/* 모달 하단 완료 버튼 영역 */
+.modalFooter {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.submitButton {
+  width: 140px;
+  height: 44px;
+  border-radius: 15px;
+  border: 1px solid #000000;
+  background: #d9d9d9;
+  opacity: 0.9;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background: #c0c0c0;
+}
