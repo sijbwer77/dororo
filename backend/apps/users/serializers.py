@@ -59,7 +59,7 @@ class SignupSerializer(serializers.Serializer):
             account_type="local"
         )
         return user
-
+'''
 # --- 2. 로그인 Serializer ---
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -81,7 +81,7 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
-    
+'''
 # apps/users/serializers.py (LoginSerializer 부분만 수정)
 
 class LoginSerializer(serializers.Serializer):

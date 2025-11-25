@@ -1,99 +1,286 @@
 // app/signup/form/page.js
 
 'use client';
-import { useSearchParams, useRouter } from 'next/navigation'; // (수정) useRouter 추가
-import styles from '../signup.module.css'; // signup.module.css 사용
+
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Image from 'next/image';
+import styles from '../signup.module.css';
+
+// .env.local 에 NEXT_PUBLIC_API_BASE_URL 없으면 기본으로 127.0.0.1 사용
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000';
 
 export default function SignupFormPage() {
-  const router = useRouter(); // (추가) useRouter 훅 사용
-  const searchParams = useSearchParams(); 
-  const role = searchParams.get('role'); // student 또는 admin
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // /signup/form?role=student or /signup/form?role=admin
+  const roleParam = searchParams.get('role'); // 'student' | 'admin'
 
-  const roleName = role === 'student' ? '학생/학부모' : '매니저';
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    // 실제 회원가입 로직 (e.g., 입력값 검증 및 API 호출)
-    console.log(`${roleName} 역할로 회원가입 시도`);
-    
-    // (수정) alert 대신 사용자 정의 모달을 사용하거나, 바로 이동하는 것이 좋습니다.
-    // 여기서는 alert 후 바로 이동합니다.
-    alert(`회원가입이 완료되었습니다.`);
-    
-    // (수정) 회원가입 완료 후 로그인 페이지인 루트 경로로 이동
-    router.push('/'); 
+  // ----------------- 회원가입 요청 -----------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    // 1) 프론트 role → 백엔드 url용 role(sp / mg)으로 변환
+    let backendRole = null;
+    if (roleParam === 'student') backendRole = 'sp';
+    else if (roleParam === 'admin') backendRole = 'mg';
+    else {
+      setError('역할 정보가 없습니다. 처음 화면에서 다시 들어와 주세요.');
+      setLoading(false);
+      return;
+    }
+
+    // 2) form 데이터 한 번에 읽기
+    const formData = new FormData(e.currentTarget);
+
+    const full_name = formData.get('full_name')?.toString().trim() || '';
+    const username = formData.get('username')?.toString().trim() || '';
+    const password1 = formData.get('password1')?.toString() || '';
+    const password2 = formData.get('password2')?.toString() || '';
+    const email1 = formData.get('email1')?.toString().trim() || '';
+    const email2 = formData.get('email2')?.toString().trim() || '';
+    const phone1 = formData.get('phone1')?.toString().trim() || '010';
+    const phone2 = formData.get('phone2')?.toString().trim() || '';
+    const phone3 = formData.get('phone3')?.toString().trim() || '';
+    const nickname = formData.get('nickname')?.toString().trim() || '';
+
+    // 백엔드가 기대하는 필드 이름에 맞춰 payload 구성
+    const payload = {
+      full_name,
+      username,
+      password1,
+      password2,
+      nickname,
+      email: email1 && email2 ? `${email1}@${email2}` : '', // 둘 다 비었으면 빈 문자열
+      phone1,
+      phone2,
+      phone3,
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/users/signup/${backendRole}/`, {
+        // 만약 urls.py에서 prefix가 /api/users/가 아니면 위 주소 수정하면 됨
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // 세션 로그인 유지
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error('signup error', data);
+
+        // 백엔드에서 오는 에러 형식(SignupSerializer & DRF 기본)에 맞춰 메시지 뽑기
+        if (data.username && data.username[0]) {
+          setError(data.username[0]); // 아이디 중복 등
+        } else if (data.non_field_errors && data.non_field_errors[0]) {
+          setError(data.non_field_errors[0]); // 비번 불일치 등
+        } else if (typeof data === 'string') {
+          setError(data);
+        } else {
+          setError('회원가입에 실패했습니다.');
+        }
+        return;
+      }
+
+      // 성공: 백엔드에서 이미 login(request, user) 호출함
+      console.log('signup success', data);
+      // 원하는 페이지로 이동 (홈/로그인 등)
+      router.push('/');
+    } catch (err) {
+      console.error(err);
+      setError('네트워크 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ----------------- 화면 -----------------
   return (
     <div className={styles.pageLayout}>
-      
-      {/* 2. 로고 */}
+      {/* 로고 */}
       <div className={styles.logo}>
         <Image
-          src="/doro-logo.svg" 
+          src="/doro-logo.svg"
           alt="DORO 로고"
           width={148}
           height={35}
-          priority={true}
+          priority
         />
       </div>
 
-      {/* 3. 제목 ('회원정보입력') - 역할에 따라 텍스트를 추가합니다. */}
-      <h1 className={styles.title}>
-        {roleName} - 회원정보입력
-      </h1>
-      
-      {/* 4. 배경 및 구분선 */}
+      {/* 상단 파란 라인 */}
+      <div className={styles.line1}></div>
+
+      {/* 제목 */}
+      <h2 className={styles.title}>회원정보입력</h2>
+
+      {/* 레이블 배경 박스 */}
       <div className={styles.labelBackground}></div>
 
-      <div className={`${styles.horizontalLine} ${styles.line1}`}></div>
-      <div className={`${styles.horizontalLine} ${styles.line2}`}></div>
-      <div className={`${styles.horizontalLine} ${styles.line3}`}></div>
-      <div className={`${styles.horizontalLine} ${styles.line4}`}></div>
-      <div className={`${styles.horizontalLine} ${styles.line5}`}></div>
-      <div className={`${styles.horizontalLine} ${styles.line6}`}></div>
-      <div className={`${styles.horizontalLine} ${styles.line7}`}></div>
-
-      {/* 5. 폼 요소들 */}
-        
+      <form onSubmit={handleSubmit}>
         {/* 이름 */}
-        <label className={`${styles.label} ${styles.labelName}`} htmlFor="name">이름</label>
-        <input type="text" id="name" className={`${styles.inputField} ${styles.inputName}`} required />
+        <label
+          htmlFor="full_name"
+          className={`${styles.label} ${styles.labelName}`}
+        >
+          이름
+        </label>
+        <input
+          id="full_name"
+          name="full_name"
+          type="text"
+          className={`${styles.inputField} ${styles.inputName}`}
+          required
+        />
 
         {/* 아이디 */}
-        <label className={`${styles.label} ${styles.labelId}`} htmlFor="id">아이디</label>
-        <input type="text" id="id" className={`${styles.inputField} ${styles.inputId}`} required />
+        <label
+          htmlFor="username"
+          className={`${styles.label} ${styles.labelId}`}
+        >
+          아이디
+        </label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          className={`${styles.inputField} ${styles.inputId}`}
+          required
+        />
 
         {/* 비밀번호 */}
-        <label className={`${styles.label} ${styles.labelPw}`} htmlFor="password">비밀번호</label>
-        <input type="password" id="password" className={`${styles.inputField} ${styles.inputPw}`} required />
+        <label
+          htmlFor="password1"
+          className={`${styles.label} ${styles.labelPw}`}
+        >
+          비밀번호
+        </label>
+        <input
+          id="password1"
+          name="password1"
+          type="password"
+          className={`${styles.inputField} ${styles.inputPw}`}
+          required
+        />
 
         {/* 비밀번호 확인 */}
-        <label className={`${styles.label} ${styles.labelPwConfirm}`} htmlFor="passwordConfirm">비밀번호 확인</label>
-        <input type="password" id="passwordConfirm" className={`${styles.inputField} ${styles.inputPwConfirm}`} required />
+        <label
+          htmlFor="password2"
+          className={`${styles.label} ${styles.labelPwConfirm}`}
+        >
+          비밀번호 확인
+        </label>
+        <input
+          id="password2"
+          name="password2"
+          type="password"
+          className={`${styles.inputField} ${styles.inputPwConfirm}`}
+          required
+        />
 
-        {/* 이메일 (Group 302) */}
-        <label className={`${styles.label} ${styles.labelEmail}`} htmlFor="emailPart1">이메일</label>
+        {/* 이메일 */}
+        <label
+          htmlFor="email1"
+          className={`${styles.label} ${styles.labelEmail}`}
+        >
+          이메일
+        </label>
         <div className={styles.emailGroup}>
-          <input type="text" id="emailPart1" className={styles.inputEmailPart1} placeholder="아이디" required />
+          <input
+            id="email1"
+            name="email1"
+            type="text"
+            className={`${styles.inputField} ${styles.inputEmailPart1}`}
+            placeholder="example"
+          />
           <span className={styles.atSymbol}>@</span>
-          <input type="text" id="emailPart2" className={styles.inputEmailPart2} placeholder="도메인" required />
+          <input
+            id="email2"
+            name="email2"
+            type="text"
+            className={`${styles.inputField} ${styles.inputEmailPart2}`}
+            placeholder="domain.com"
+          />
         </div>
 
-        {/* 휴대폰 번호 (Group 301) */}
-        <label className={`${styles.label} ${styles.labelPhone}`} htmlFor="phonePart2">휴대폰 번호</label>
+        {/* 휴대폰 번호 */}
+        <label
+          htmlFor="phone2"
+          className={`${styles.label} ${styles.labelPhone}`}
+        >
+          휴대폰 번호
+        </label>
         <div className={styles.phoneGroup}>
           <span className={styles.phonePrefix}>010</span>
           <span className={styles.phoneDash}>-</span>
-          <input type="text" id="phonePart2" className={styles.inputPhonePart} maxLength="4" required />
+          <input
+            id="phone2"
+            name="phone2"
+            type="text"
+            className={`${styles.inputField} ${styles.inputPhonePart}`}
+            required
+          />
           <span className={styles.phoneDash}>-</span>
-          <input type="text" id="phonePart3" className={styles.inputPhonePart} maxLength="4" required />
+          <input
+            id="phone3"
+            name="phone3"
+            type="text"
+            className={`${styles.inputField} ${styles.inputPhonePart}`}
+            required
+          />
+          {/* phone1은 010 고정값으로 hidden 전송 */}
+          <input type="hidden" name="phone1" value="010" />
         </div>
 
-        {/* 6. 버튼 ('회원 가입 완료') */}
-        <button type="button" onClick={handleSubmit} className={styles.submitButton}>
-          회원 가입
+        {/* 닉네임 (디자인에 없으면 안 써도 되지만, 백엔드에 맞춰 옵션으로 넣어둠) */}
+        {/* 필요 없으면 이 블록은 지워도 됨 */}
+        {/* 
+        <label
+          htmlFor="nickname"
+          className={`${styles.label} ${styles.labelNickname}`}
+        >
+          닉네임
+        </label>
+        <input
+          id="nickname"
+          name="nickname"
+          type="text"
+          className={`${styles.inputField} ${styles.inputNickname}`}
+        />
+        */}
+
+        {/* 에러 메시지 */}
+        {error && (
+          <p
+            style={{
+              position: 'absolute',
+              top: 620,
+              left: 370,
+              color: 'red',
+              fontSize: '14px',
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        {/* 제출 버튼 */}
+        <button
+          type="submit"
+          className={styles.submitButton}
+          disabled={loading}
+        >
+          {loading ? '처리 중...' : '회원가입 완료'}
         </button>
+      </form>
     </div>
   );
 }
