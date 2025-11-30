@@ -35,11 +35,11 @@ export default function StudentDashboard() {
 
         let data = await res.json();
 
-        // 🎨 프론트용 color, category 임시 추가
+        // 프론트용 color, category 임시 추가
         data = data.map((c) => ({
           ...c,
           color: getRandomColor(),
-          category: c.status === "in_progress" ? "진행중" : "강의",
+          category: c.course_type || "강의", // D1 · 기초 · 1 이런 거 보여주는 코드
         }));
 
         setCourses(data);
