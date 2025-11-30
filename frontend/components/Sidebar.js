@@ -3,68 +3,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import { FAKE_COURSES } from "@/data/mock-courses";
 import SideBarFooter from "@/components/SideBarFooter";
 
-export default function Sidebar({ courseId, variant = "course" }) {
+export default function Sidebar({ courseId }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const isMypage = variant === "mypage";
-
-  if (isMypage) {
-    const tabParam = searchParams.get("tab");
-    const mypageMenus = [
-      { text: "내 정보", href: "/student/mypage?tab=info", key: "info" },
-      { text: "My Level", href: "/student/mypage?tab=level", key: "level" },
-      { text: "1:1 상담", href: "/student/mypage?tab=counsel", key: "counsel" },
-      { text: "수업 일정", href: "/student/mypage?tab=schedule", key: "schedule" },
-    ];
-
-    const activeTab = mypageMenus.some((m) => m.key === tabParam) ? tabParam : "info";
-
-    return (
-      <nav className={styles.sidebar}>
-        <div className={styles.sidebarGroup}>
-          <div className={styles.sidebarTop}>
-            <div className={styles.sidebarLogo}>
-              <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} />
-            </div>
-            <div className={styles.profileIcon}>
-              <Image src="/profile-circle.svg" alt="Profile" width={184} height={184} />
-            </div>
-          </div>
-
-          <div className={styles.courseTitleContainer}>
-            <div className={styles.courseTitleIcon}>
-              <Image src="/man.svg" alt="마이 페이지" width={25} height={32} />
-            </div>
-            <h2 className={styles.courseTitle}>마이 페이지</h2>
-          </div>
-
-          <ul className={styles.sidebarMenu}>
-            {mypageMenus.map((menu) => {
-              const isActive = activeTab === menu.key;
-              return (
-                <li key={menu.text} className={`${styles.menuItem} ${isActive ? styles.active : ""}`}>
-                  <Link href={menu.href} className={styles.menuLink}>
-                    <div className={styles.menuIcon}>
-                      <span className={styles.menuIconDot}></span>
-                    </div>
-                    {menu.text}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <SideBarFooter />
-      </nav>
-    );
-  }
 
   const course = FAKE_COURSES.find((c) => c.id === Number(courseId));
   const courseName = course ? course.title : "과목 상세";

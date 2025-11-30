@@ -1,0 +1,140 @@
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px; 
+}
+
+.profileAvatar {
+  position: relative;
+  width: 246px;
+  height: 246px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profilePreview {
+  object-fit: cover;
+}
+
+.uploadLabel {
+  font-family: 'Inter';
+  font-size: 14px;
+  color: #0A5FAE;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.fileInput {
+  display: none;
+}
+
+.profileName {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 36px;
+  color: #000000;
+  margin: 0;
+}
+
+.infoSection {
+  width: 1044px;
+  max-width: 100%;
+  margin: 100px auto 0 auto;
+}
+
+.infoTitleBar {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+}
+
+.infoTitle {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 28px;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+.pencilIcon {
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pencilIcon:hover {
+  background-color: #f0f0f0; 
+}
+
+.titleLine {
+  width: 100%;
+  height: 0px;
+  border: 2px solid #0A5FAE;
+  margin-top: 5px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 150px 1fr; 
+  align-items: center;
+  row-gap: 34px; 
+  padding: 40px 0;
+}
+
+.infoLabel {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 28px;
+  color: #000000;
+  padding-left: 3px; 
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.infoValue {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 28px;
+  color: #555; 
+}
+
+.infoInput {
+  font-family: 'Inter';
+  font-size: 20px;
+  color: #000000;
+  padding: 8px 12px;
+  border: 1px solid #0A5FAE;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.infoLine {
+  grid-column: 1 / -1; 
+  width: 100%;
+  border-top: 1px solid #A5A5A5;
+  margin-top: -17px; 
+  margin-bottom: -17px; 
+}
+
+.infoLine:first-of-type {
+  margin-top: -17px;
+  margin-bottom: -17px;
+}
+
+.bottomLine {
+  width: 100%;
+  height: 0px;
+  border: 2px solid #0A5FAE;
+  margin-top: 5px;
+}
