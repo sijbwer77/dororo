@@ -68,7 +68,9 @@ export default function CourseDetailPage() {
             <div key={notice.id} className={styles.noticeCard}>
               <h3>{notice.title}</h3>
               <span>작성일: {notice.created_at?.slice(0, 10)}</span>
-              <p>{notice.content}</p>
+              <div className={styles.detailArea}>
+                <p>{notice.content}</p>
+              </div>
             </div>
           ))}
         </div>
