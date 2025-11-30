@@ -1,0 +1,589 @@
+.schedulePageWrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.scheduleLayout {
+  width: 100%;
+  max-width: 1150px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+  padding: 0 0 24px 0;
+  min-height: 800px; /* 기본 높이 확보하되 컨텐츠가 늘면 자동 확장 */
+  position: relative;
+  margin-top: -28px; /* 메인 패딩은 유지하고, 사이드바 top(28px)과 시각적으로 맞춤 */
+}
+
+.scheduleTopLine {
+  width: 100%;
+  border-top: 1px solid #AEAEAE;
+  margin: 0 0 18px 0; /* 상단 여백 제거해 사이드바와 같은 높이에서 시작 */
+}
+
+.scheduleHeader {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.dayLabelRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px; /* 요일 사이 간격 */
+  width: 100%;
+  max-width: 900px; /* 캘린더 폭과 맞춤 */
+  margin: 0 auto 0 0; /* 전체적으로 왼쪽 정렬 */
+  padding: 0;
+  justify-items: center;
+}
+
+.dayLabel {
+  height: 22px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 22px;
+  color: #202020;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #4A1DD5;
+  border-radius: 8px;
+  border: none;
+  padding: 8px 14px;
+  font-family: 'Inter';
+  font-size: 16px;
+  font-weight: 600;
+  color: #ECECEC;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(74, 29, 213, 0.18);
+}
+
+.addIcon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+
+.addIcon::before,
+.addIcon::after {
+  content: '';
+  position: absolute;
+  background: #ECECEC;
+  border-radius: 2px;
+}
+
+.addIcon::before {
+  width: 100%;
+  height: 1.5px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.addIcon::after {
+  height: 100%;
+  width: 1.5px;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.scheduleBody {
+  display: grid;
+  grid-template-columns: minmax(900px, 1fr) 240px;
+  column-gap: 16px;
+  padding: 0;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+.weekShell {
+  width: 100%;
+  height: 100%;
+}
+
+.weekGrid {
+  position: relative;
+  width: 100%;
+  min-height: 800px; /* 기본 높이 */
+  height: auto; /* 더 많은 일정이 있을 때 세로로 확장 */
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-auto-rows: minmax(120px, 1fr); /* 각 셀 최소 높이 보장 후 비율 유지 */
+  background-image:
+    linear-gradient(to right, rgba(174, 174, 174, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(174, 174, 174, 0.5) 1px, transparent 1px);
+  background-size: calc(100% / 7) 100%, 100% calc(100% / 5);
+  background-position: left top;
+  border: 1px solid rgba(174, 174, 174, 0.55);
+  box-sizing: border-box;
+}
+
+.dayCell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.dayNumber {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-family: 'KoPubWorldDotum';
+  font-size: 13px;
+  color: #6b6b6b;
+}
+
+.dayToday {
+  background: rgba(74, 29, 213, 0.08);
+  border: 1px solid rgba(74, 29, 213, 0.35);
+  box-sizing: border-box;
+}
+
+.dayToday .dayNumber {
+  color: #4A1DD5;
+  font-weight: 700;
+}
+
+.scheduleCard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  min-width: 64px;
+  height: 26px;
+  box-sizing: border-box;
+  align-self: flex-start;
+  justify-self: center;
+  margin-top: 20px;
+  white-space: nowrap;
+}
+
+.userEventCard {
+  background: inherit;
+  border: inherit;
+}
+
+.detailModal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 20;
+}
+
+.detailContent {
+  width: 360px;
+  background: #FFFFFF;
+  border: 1px solid #727272;
+  border-radius: 16px;
+  padding: 18px 20px 16px;
+  box-sizing: border-box;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.detailTitle {
+  margin: 0;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 18px;
+  color: #202020;
+}
+
+.detailClose {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #F23F43;
+  line-height: 1;
+}
+
+.detailDelete {
+  background: #F23F43;
+  color: #FFFFFF;
+  border: 1px solid #F23F43;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detailEdit {
+  background: #ECECEC;
+  color: #202020;
+  border: 1px solid #727272;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'KoPubWorldDotum';
+  font-size: 14px;
+  color: #202020;
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: #8F9091;
+}
+
+.detailValue {
+  font-weight: 600;
+  color: #202020;
+  text-align: right;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cardLabel {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  color: #202020;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardDanger {
+  background: #F9F2F2;
+  border: 1px solid #FEE1E1;
+}
+
+.dotDanger {
+  background: #BA1717;
+}
+
+.cardInfo {
+  background: #F0F8FF;
+  border: 1px solid #C0E1FF;
+}
+
+.dotInfo {
+  background: #006FD5;
+}
+
+.cardWarning {
+  background: #FCFAF1;
+  border: 1px solid #F9ECAA;
+}
+
+.dotWarning {
+  background: #F3DE71;
+}
+
+.cardPurple {
+  background: rgba(193, 104, 229, 0.21);
+  border: 1px solid rgba(156, 19, 183, 0.42);
+}
+
+.dotPurple {
+  background: #9C13B7;
+}
+
+.cardNeutral {
+  background: rgba(174, 174, 174, 0.49);
+  border: 1px solid #8F9091;
+}
+
+.cardNone {
+  background: transparent;
+  border: 1px solid #d0d0d0;
+}
+.dotNeutral {
+  background: #8F9091;
+}
+
+.dotNone {
+  display: none;
+}
+
+.todayPanel {
+  position: relative;
+  padding-top: 6px;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.todayDivider {
+  width: 100%;
+  border-top: 1px solid #AEAEAE;
+}
+
+.todayHeader {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 26px;
+  color: #000000;
+  margin-top: 16px;
+}
+
+.todayEmpty {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 14px;
+  color: #8F9091;
+}
+
+.todayItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.todayTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 20px;
+  color: #4A1DD5;
+}
+
+.todayMeta {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 13px;
+  color: #6B6B6B;
+}
+
+.addPanel {
+  position: absolute;
+  width: 320px;
+  height: 450px;
+  right: 20px;
+  top: 72px;
+  background: #FFFFFF;
+  border: 1px solid #727272;
+  border-radius: 18px;
+  box-sizing: border-box;
+  padding: 14px 0 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.panelClose {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  right: 12px;
+  top: 6px;
+  border: 1px solid #F23F43;
+  background: #F23F43;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.panelClose::before,
+.panelClose::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 14px;
+  background: #FFFFFF;
+  border-radius: 1px;
+  transform-origin: center;
+}
+
+.panelClose::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.panelClose::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.panelRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 24px;
+}
+
+.panelRow {
+  min-height: 64px;
+  border-top: 1px solid #AEAEAE;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.panelRow:first-of-type {
+  border-top: 1px solid #AEAEAE;
+}
+
+.panelRowLabel {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #8F9091;
+  white-space: nowrap;
+}
+
+.panelRowValue {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #202020;
+}
+
+.panelSelect {
+  flex: 1;
+  margin-left: 12px;
+  border: none;
+  outline: none;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #202020;
+  background: transparent;
+  text-align: right;
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  padding-right: 10px;
+  min-width: 150px;
+}
+
+.panelSelect option {
+  color: #202020;
+}
+
+.panelTextInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #202020;
+  background: transparent;
+}
+
+.panelTextInput::placeholder {
+  color: #8F9091;
+}
+
+.panelRow.dateRow {
+  position: relative;
+}
+
+.panelDateInput {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px;
+  height: 32px;
+  opacity: 1;
+  cursor: pointer;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  display: block;
+  pointer-events: auto;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #202020;
+  text-align: right;
+}
+
+.panelTextareaRow {
+  min-height: 140px;
+  align-items: flex-start;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.panelTextarea {
+  width: 100%;
+  height: 100%;
+  min-height: 110px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 15px;
+  color: #202020;
+  background: transparent;
+}
+
+.panelTextarea::placeholder {
+  color: #8F9091;
+}
+
+.panelFooter {
+  margin-top: auto;
+  border-top: 1px solid #AEAEAE;
+  padding: 12px 16px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.panelSubmit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 18px;
+  height: 34px;
+  min-width: 66px;
+  background: #3818D9;
+  color: #ECECEC;
+  border: none;
+  border-radius: 8px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}

@@ -1,0 +1,155 @@
+.attendanceMain {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.attendanceFrame {
+  position: relative;
+  width: 100%;
+  max-width: 1180px;
+  background: #FFFFFF;
+  padding: 18px 24px 32px;
+  box-sizing: border-box;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backIcon {
+  font-family: 'Inter';
+  font-size: 20px;
+  color: #0A5FAE;
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.pageTitle {
+  margin: 0;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 30px;
+  color: #0A5FAE;
+}
+
+.headerDivider {
+  width: 100%;
+  border-top: 2px solid #0A5FAE;
+  margin: 8px 0 18px;
+}
+
+.previewControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.previewLabel {
+  font-family: 'Inter';
+  font-size: 14px;
+  color: #0A5FAE;
+}
+
+.previewSelect {
+  padding: 4px 8px;
+  border: 1px solid #0A5FAE;
+  border-radius: 6px;
+  font-family: 'Inter';
+  font-size: 14px;
+  color: #0A5FAE;
+  background: #FFFFFF;
+}
+
+.loadingText {
+  font-family: 'Inter';
+  font-size: 14px;
+  color: #0A5FAE;
+  margin-bottom: 12px;
+}
+
+.boardWrap {
+  position: relative;
+  width: 100%;
+  max-width: 1044px;
+  margin: 0 auto;
+}
+
+.boardImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.stamp {
+  position: absolute;
+  width: 245px;
+  height: auto;
+  left: 100px;
+  top: 100px;
+  transform: rotate(-5deg);
+}
+
+.stampDay2 {
+  left: 400px;
+  top: 100px;
+}
+
+.stampDay3 {
+  left: 710px;
+  top: 100px;
+}
+
+.stampDay4 {
+  left: 100px;
+  top: 410px;
+}
+
+.stampDay5 {
+  left: 400px;
+  top: 410px;
+}
+
+.stampDay6 {
+  left: 730px;
+  top: 410px;
+}
+
+.stampCurrent {
+  filter:
+    drop-shadow(0 0 3px #9ae6ff)
+    drop-shadow(0 0 9px #0A5FAE)
+    drop-shadow(0 0 18px #0A5FAE);
+  animation: neonPulse 1.8s ease-in-out infinite;
+  cursor: pointer;
+}
+
+@keyframes neonPulse {
+  0% {
+    filter:
+      drop-shadow(0 0 2px #c0f2ff)
+      drop-shadow(0 0 8px #0A5FAE)
+      drop-shadow(0 0 14px #0A5FAE);
+    transform: rotate(-5deg) scale(1);
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 6px #e8faff)
+      drop-shadow(0 0 18px #0A5FAE)
+      drop-shadow(0 0 26px #0A5FAE);
+    transform: rotate(-5deg) scale(1.02);
+  }
+  100% {
+    filter:
+      drop-shadow(0 0 2px #c0f2ff)
+      drop-shadow(0 0 8px #0A5FAE)
+      drop-shadow(0 0 14px #0A5FAE);
+    transform: rotate(-5deg) scale(1);
+  }
+}
