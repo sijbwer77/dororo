@@ -11,8 +11,10 @@ from .views_teacher import (
 )
 
 from .views_student import (
-    MyInfoAPIView,
     StudentCoursesAPIView,
+    StudentCourseNoticesAPIView,
+
+    MyInfoAPIView,
     StudentCourseDetailAPIView,
     StudentCourseAssignmentsAPIView,
     StudentCourseAttendanceAPIView,
@@ -23,6 +25,7 @@ router = DefaultRouter()
 
 urlpatterns = [
     path('student/courses/', StudentCoursesAPIView.as_view(), name='student-courses'),
+    path('student/course/<int:course_id>/notices/', StudentCourseNoticesAPIView.as_view()),
 
     path('user/me/', MyInfoAPIView.as_view(), name='user-me'),
     path('student/course/<int:course_id>/', StudentCourseDetailAPIView.as_view(), name='student-course-detail'),

@@ -39,7 +39,7 @@ export default function StudentDashboard() {
         data = data.map((c) => ({
           ...c,
           color: getRandomColor(),
-          category: c.course_type || "강의", // D1 · 기초 · 1 이런 거 보여주는 코드
+          category: c.course_type || "_", // D1 · 기초 · 1 이런 거 보여주는 코드
         }));
 
         setCourses(data);

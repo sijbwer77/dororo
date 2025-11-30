@@ -8,7 +8,44 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 
 from .models import Course, Assignment, Attendance
-from .serializers import CourseListSerializer, AssignmentSerializer, AttendanceSerializer
+from .serializers import CourseListSerializer,StudentNoticeSerializer
+from .serializers import AssignmentSerializer, AttendanceSerializer
+
+
+# 강의 목록
+class StudentCoursesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        student = request.user
+
+        
+        enrollments = student.enrollments.select_related("course")
+        courses = [e.course for e in enrollments]
+
+        serializer = CourseListSerializer(courses, many=True)
+        return Response(serializer.data)
+
+class StudentCourseNoticesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student = request.user
+
+        # 학생이 수강 중인 강의인지 확인
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+
+        # 해당 강의의 공지 리스트 가져오기
+        notices = course.notices.order_by('-created_at')
+
+        # 학생 전용 NoticeSerializer로 응답
+        serializer = StudentNoticeSerializer(notices, many=True)
+        return Response(serializer.data)
+
+
 
 
 # 1) 내 정보
@@ -30,20 +67,6 @@ class MyInfoAPIView(APIView):
             "phone_number": local.phone_number if local else "",
             "role": local.role if local else "",
         })
-
-# 학생 강의 목록
-class StudentCoursesAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        student = request.user
-
-        # 이 유저가 수강 중인 강의들 (StudentEnrollment 통해서)
-        enrollments = student.enrollments.select_related("course")
-        courses = [e.course for e in enrollments]
-
-        serializer = CourseListSerializer(courses, many=True)
-        return Response(serializer.data)
 
 # 3) 학생 강의 상세
 class StudentCourseDetailAPIView(APIView):

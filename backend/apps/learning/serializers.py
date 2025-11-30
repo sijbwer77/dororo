@@ -11,12 +11,15 @@ from .models import (
     TeacherAssignmentRequest,
 )
 
-
 class CourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['id', 'title','course_type', 'status']
 
+class StudentNoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
+        fields = ['id', 'title', 'content', 'created_at']
 
 
 
