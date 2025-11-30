@@ -1,0 +1,285 @@
+.counselLayout {
+  width: 100%;
+  max-width: 1320px;
+  height: 840px;
+  max-height: 840px;
+  margin: 0 auto;
+  border: 1px solid #BFDBFE;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  background: #FFFFFF;
+  box-sizing: border-box;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.counselListPane {
+  border-right: 1px solid #BFDBFE;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.counselHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.counselTitle {
+  margin: 0;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 40px;
+  color: #000000;
+}
+
+.counselNewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #c6d9f7;
+  border: 1px solid #c6d9f7;
+  border-radius: 18px;
+  padding: 10px 18px;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 600;
+  font-size: 16px;
+  color: #000000;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.counselList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.counselItem {
+  border: 1px solid #BFDBFE;
+  border-radius: 10px;
+  padding: 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  background: #f8fbff;
+  position: relative;
+}
+
+.counselItemActive {
+  background: #e9f2ff;
+  border-color: #7faee6;
+}
+
+.counselItemTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.counselItemTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 16px;
+  color: #000000;
+}
+
+.counselItemDate {
+  margin-top: 6px;
+  font-family: 'Inter';
+  font-size: 12px;
+  color: #777;
+}
+
+.counselDeleteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #ffffff;
+  border: 1px solid #d9534f;
+  color: #d9534f;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.counselStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 14px;
+  font-family: 'Inter';
+  font-size: 12px;
+  color: #0A5FAE;
+  background: #e3eeff;
+}
+
+.statusProgress {
+  background: #e3eeff;
+  color: #0A5FAE;
+}
+
+.statusDone {
+  background: #e7f6ea;
+  color: #2e7d32;
+}
+
+.counselChatPane {
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 12px;
+}
+
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chatTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chatTitleLarge {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 26px;
+  color: #000000;
+}
+
+.chatTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 22px;
+  color: #000000;
+}
+
+.chatSubtitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 14px;
+  color: #555;
+}
+
+.chatStatusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4CAF50;
+  display: inline-block;
+}
+
+.chatEndBtn {
+  min-width: 90px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #0A5FAE;
+  color: #0A5FAE;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 600;
+}
+
+.chatWindow {
+  flex: 1;
+  min-height: 420px;
+  border: 1px solid #BFDBFE;
+  border-radius: 12px;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chatBubble {
+  max-width: 70%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #E8F2FF;
+  align-self: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chatMine {
+  align-self: flex-end;
+  background: #C6D9F7;
+}
+
+.chatText {
+  font-family: 'Inter';
+  font-size: 15px;
+  color: #000000;
+}
+
+.chatTimestamp {
+  font-size: 12px;
+  color: #555;
+  align-self: flex-end;
+}
+
+.chatEmpty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 14px;
+}
+
+.chatInputRow {
+  display: flex;
+  gap: 10px;
+}
+
+.chatInput {
+  flex: 1;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.chatInput:disabled {
+  background: #f3f3f3;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.chatSendBtn {
+  min-width: 70px;
+  padding: 10px 12px;
+  background: #0A5FAE;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'KoPubWorldDotum';
+  font-weight: 600;
+}
+
+.chatSendBtn:disabled {
+  background: #d0d7e2;
+  color: #777;
+  cursor: not-allowed;
+}
+
+.chatHint {
+  font-size: 12px;
+  color: #777;
+}

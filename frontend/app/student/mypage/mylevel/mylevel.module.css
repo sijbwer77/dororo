@@ -1,0 +1,184 @@
+.myLevelLayout {
+  position: relative;
+  width: 100%;
+  max-width: 1044px;
+  background: #FFFFFF;
+  border-radius: 25px;
+  padding: 32px 40px 48px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.myLevelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stageLabel {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 48px;
+  text-transform: uppercase;
+  color: #0A5FAE;
+  margin: 0;
+}
+
+.attendanceBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: #0A5FAE;
+  border: none;
+  border-radius: 26px;
+  padding: 6px 18px;
+  font-family: 'KoPubWorldDotum';
+  font-size: 19px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.stageDivider {
+  width: 100%;
+  border-top: 2px solid #0A5FAE;
+  margin-top: 8px;
+}
+
+.myLevelCanvas {
+  position: relative;
+  width: 100%;
+  max-width: 840px;
+  aspect-ratio: 4 / 3;
+  margin: 48px auto 40px;
+  border-radius: 25px;
+  overflow: hidden;
+}
+
+.canvasBg {
+  object-fit: cover;
+  object-position: center;
+}
+
+.stageSubmarine {
+  position: absolute;
+  top: 57%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stageSubmarine img {
+  width: 180px;
+  height: auto;
+  max-width: 180px;
+}
+
+.stageSubmarine img.redSubmarine {
+  width: 266px;
+  max-width: 266px;
+  transform: translate(-26px, 10px);
+}
+
+.stageSubmarine img.blueSubmarine {
+  width: 266px;
+  max-width: 266px;
+  transform: translate(-20px, 4px);
+}
+
+.stageSubmarine img.fullSubmarine {
+  width: 288px;
+  max-width: 288px;
+  transform: translate(-8px, 6px);
+}
+
+/* exp bar */
+.expBar {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+}
+
+.expLabel {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  color: #0A5FAE;
+  text-transform: uppercase;
+}
+
+.expTrackWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 24px;
+  border: 1px solid #0A5FAE;
+  border-radius: 15px;
+  background: #FFFFFF;
+  box-sizing: border-box;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 15px;
+  background: #0A5FAE;
+  position: relative;
+}
+
+.expValue {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 25px;
+  color: #0A5FAE;
+  white-space: nowrap;
+}
+
+.expBadge {
+  position: absolute;
+  top: -46px;
+  transform: translate(-50%, 0);
+}
+
+/* Stage 2 */
+.stageTwoLayout {
+  background: #FFFFFF;
+}
+
+.stageTwoCanvas {
+  position: relative;
+  width: 100%;
+  max-width: 1044px;
+  aspect-ratio: 1044 / 701;
+  padding-bottom: 48px; /* extra vertical space to prevent bottom cropping on step 6 */
+  margin: 48px auto 56px;
+  border-radius: 30px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.stageTwoBackdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.3), transparent 70%);
+}
+
+.stageTwoBadge {
+  position: absolute;
+  pointer-events: none;
+}
+
+.stageTwoBadgeShark {
+  bottom: auto;
+  left: auto;
+}
+
+.stageTwoBadgeSubmarine {
+  bottom: -10px;
+  right: 80px;
+}
