@@ -1,7 +1,7 @@
-
+from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import (
-    CourseViewSet,
+
+from .views_teacher import (
     AssignmentViewSet,
     SubmissionViewSet,
     ScheduleViewSet,
@@ -10,17 +10,32 @@ from .views import (
     AttendanceViewSet,
 )
 
+from .views_student import (
+    MyInfoAPIView,
+    StudentCoursesAPIView,
+    StudentCourseDetailAPIView,
+    StudentCourseAssignmentsAPIView,
+    StudentCourseAttendanceAPIView,
+)
+
+
 router = DefaultRouter()
-router.register(r'courses', CourseViewSet)
-router.register(r'assignments', AssignmentViewSet)
-router.register(r'submissions', SubmissionViewSet)
-router.register(r'schedule', ScheduleViewSet)
-router.register(r'lessons', LessonViewSet)
-router.register(r'notices', NoticeViewSet)
-router.register(r'attendances', AttendanceViewSet)
 
-# 관리자/강사 전용
-#router.register(r'enroll', StudentEnrollmentViewSet)
-#router.register(r'teacher-requests', TeacherAssignmentRequestViewSet)
+urlpatterns = [
+    path('student/courses/', StudentCoursesAPIView.as_view(), name='student-courses'),
 
-urlpatterns = router.urls
+    path('user/me/', MyInfoAPIView.as_view(), name='user-me'),
+    path('student/course/<int:course_id>/', StudentCourseDetailAPIView.as_view(), name='student-course-detail'),
+    path('student/course/<int:course_id>/assignments/', StudentCourseAssignmentsAPIView.as_view(), name='student-course-assignments'),
+    path('student/course/<int:course_id>/attendance/', StudentCourseAttendanceAPIView.as_view(), name='student-course-attendance'),
+]
+
+router = DefaultRouter()
+router.register('assignments', AssignmentViewSet)
+router.register('submissions', SubmissionViewSet)
+router.register('schedule', ScheduleViewSet)
+router.register('lessons', LessonViewSet)
+router.register('notices', NoticeViewSet)
+router.register('attendances', AttendanceViewSet)
+
+urlpatterns += router.urls

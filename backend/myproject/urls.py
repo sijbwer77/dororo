@@ -19,14 +19,15 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 
-from apps.learning.views import CourseViewSet
 
 router = DefaultRouter()
-router.register(r'courses', CourseViewSet, basename='courses')
 
 urlpatterns = [
+    path("api/", include("apps.learning.urls")),
+
+    #검토 필요
+    path("api/", include("apps.users.urls")),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path("api/", include("apps.users.urls")),
     path('api/learning/',include('apps.learning.urls')),
 ]

@@ -11,7 +11,20 @@ from .models import (
     TeacherAssignmentRequest,
 )
 
-class CourseSerializer(serializers.ModelSerializer):
+
+class CourseListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', 'title', 'description', 'status']
+
+
+
+
+
+
+
+
+class CourseManageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = "__all__"

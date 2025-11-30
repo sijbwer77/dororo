@@ -108,8 +108,6 @@ DATABASES = {
         'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': ':memory:'
     }
 }
 '''
@@ -117,7 +115,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'LMS',
         'USER': 'postgres',
         'PASSWORD': '1212',
         'HOST': 'localhost',

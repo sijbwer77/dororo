@@ -14,7 +14,6 @@ from .models import (
     TeacherAssignmentRequest,
 )
 from .serializers import (
-    CourseSerializer,
     StudentEnrollmentSerializer,
     AssignmentSerializer,
     SubmissionSerializer,
@@ -25,10 +24,6 @@ from .serializers import (
     AttendanceSerializer,
     TeacherAssignmentRequestSerializer,
 )
-
-class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
 
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()

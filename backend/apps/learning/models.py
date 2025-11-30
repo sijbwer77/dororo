@@ -15,6 +15,7 @@ class Course(models.Model):
         ('in_progress', '강의 진행중'),
         ('finished', '종료'),
     ]
+    course_type = models.CharField(max_length=50, default="",null=True, blank=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses", null=True, blank=True)
