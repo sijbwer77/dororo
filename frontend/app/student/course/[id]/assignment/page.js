@@ -41,7 +41,7 @@ export default function AssignmentPage() {
             <Link 
               href={`/student/course/${courseId}/assignment/${assignment.id}`} 
               key={assignment.id} 
-              className={styles.assignmentItem}
+              className={`${styles.assignmentItem} ${assignment.isSubmitted ? styles.submitted : styles.notSubmitted}`}
             >
               <div className={styles.assignmentIcon}>
                 <Image src="/assignment-icon.svg" alt="과제 아이콘" width={40} height={40} />
