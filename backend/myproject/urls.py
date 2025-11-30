@@ -29,4 +29,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path("api/", include("apps.users.urls")),
     path('api/learning/',include('apps.learning.urls')),
+    path("api/chat/", include("apps.message.urls")),
+    path("api-auth/", include("rest_framework.urls")),
+    path("api/gamification/", include("apps.gamification.urls")),
 ]
