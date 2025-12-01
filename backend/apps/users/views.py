@@ -19,12 +19,12 @@ class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
+        serializer = LoginSerializer(data=request.data)  #시리얼라이저에 검증 요청
+        if serializer.is_valid(): #로그인 성공 실패 분기점
             user = serializer.validated_data['user']
             
             # 로그인 처리 (세션 생성)
-            login(request, user)
+            login(request, user) #로그인된 상태로 인정
             
             account = user.local_account
             return Response({
