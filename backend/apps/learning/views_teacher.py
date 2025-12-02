@@ -70,7 +70,7 @@ class SubmissionViewSet(viewsets.ModelViewSet):
     
     def get_serializer_class(self):
         if self.action == 'create':
-            return SubmissionCreateSerializer
+            return SubmissionSerializer
         return SubmissionSerializer
     
     def create(self, request, *args, **kwargs):
