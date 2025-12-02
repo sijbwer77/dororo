@@ -20,7 +20,7 @@ class AttendanceStatusView(APIView):
     """
     GET /api/attendance/status/
 
-    - 명세서에 맞게 1~6일차 출석 상태를 내려준다.
+    - 1~6일차 출석 상태를 '날짜 기준'으로 내려준다.
     - 상태 값: "done" | "current" | "upcoming"
     """
 
@@ -28,32 +28,51 @@ class AttendanceStatusView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        attendance_count = get_attendance_count(user)
+        today = timezone.now().date()
 
-        def get_status(idx: int) -> str:
-            """
-            idx: 1 ~ 6 (일차)
-            """
-            if attendance_count >= 6:
-                return "done"
+        # 이 유저의 가장 첫 LMS 출석/접속 날짜를 1일차 기준으로 사용
+        qs = DailyLmsAccess.objects.filter(user=user).order_by("date")
+        if qs.exists():
+            start_date = qs.first().date
+        else:
+            # 아직 아무 기록 없으면 오늘이 1일차
+            start_date = today
 
-            if idx <= attendance_count:
-                return "done"
-            elif idx == attendance_count + 1:
-                return "current"
+        statuses = []
+
+        for i in range(6):
+            date = start_date + timedelta(days=i)
+            obj = DailyLmsAccess.objects.filter(user=user, date=date).first()
+
+            has_accessed = obj.has_accessed if obj else False
+            is_checked = obj.is_checked if obj else False
+
+            # 날짜 기준으로 status 계산
+            if date < today:
+                status_str = "done" if is_checked else "upcoming"
+            elif date == today:
+                if is_checked:
+                    status_str = "done"
+                else:
+                    # 오늘이지만 아직 안 찍었으면 current
+                    # (has_accessed는 지금은 크게 안 써도 됨)
+                    status_str = "current"
             else:
-                return "upcoming"
+                # 아직 오지 않은 날
+                status_str = "upcoming"
+
+            statuses.append(status_str)
 
         data = {
-            "firstDayStatus": get_status(1),
-            "secondDayStatus": get_status(2),
-            "thirdDayStatus": get_status(3),
-            "fourthDayStatus": get_status(4),
-            "fifthDayStatus": get_status(5),
-            "sixthDayStatus": get_status(6),
+            "firstDayStatus": statuses[0],
+            "secondDayStatus": statuses[1],
+            "thirdDayStatus": statuses[2],
+            "fourthDayStatus": statuses[3],
+            "fifthDayStatus": statuses[4],
+            "sixthDayStatus": statuses[5],
         }
-        return Response(data, status=status.HTTP_200_OK)
 
+        return Response(data, status=status.HTTP_200_OK)
 
 class MyLevelView(APIView):
     """
