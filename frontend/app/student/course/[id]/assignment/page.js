@@ -74,8 +74,13 @@ export default function AssignmentPage() {
           {assignments.map((assignment) => (
             <Link 
               href={`/student/course/${courseId}/assignment/${assignment.id}`} 
+<<<<<<< HEAD
               key={assignment.id}
               className={styles.assignmentItem}
+=======
+              key={assignment.id} 
+              className={`${styles.assignmentItem} ${assignment.isSubmitted ? styles.submitted : styles.notSubmitted}`}
+>>>>>>> main
             >
               <div className={styles.assignmentIcon}>
                 <Image src="/assignment-icon.svg" alt="과제" width={40} height={40} />

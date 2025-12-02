@@ -107,10 +107,14 @@ export default function DIMCPage() {
             지금 나의 DIMC 역량을 평가하고, 나에게 어울리는 상어 유형을
             확인해보세요!
           </p>
-
-          <Link href="/student/dimc/assessment" className={styles.assessButton}>
+          <a
+            href="https://dimctest.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.assessButton}
+          >
             테스트하러 가기
-          </Link>
+          </a>
         </div>
       </main>
     </div>

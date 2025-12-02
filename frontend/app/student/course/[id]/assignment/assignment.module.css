@@ -92,3 +92,13 @@
   line-height: 28px;
   color: #8F9091;
 }
+
+/* 제출된 과제 — 아이콘 검정색 */
+.submitted .assignmentIcon img {
+  filter: grayscale(100%) brightness(0);
+}
+
+/* 미제출 과제 — 아이콘 파란색(#0A5FAE) */
+.notSubmitted .assignmentIcon img {
+  filter: brightness(0) saturate(100%) invert(34%) sepia(83%) saturate(1604%) hue-rotate(192deg) brightness(90%) contrast(92%);
+}

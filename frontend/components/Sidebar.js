@@ -9,8 +9,8 @@ import { FAKE_COURSES } from "@/data/mock-courses";
 import SideBarFooter from "@/components/SideBarFooter";
 
 export default function Sidebar({ courseId }) {
-  const pathname = usePathname(); // 1. 현재 주소 가져오기
-  
+  const pathname = usePathname();
+
   const course = FAKE_COURSES.find((c) => c.id === Number(courseId));
   const courseName = course ? course.title : "과목 상세";
 
