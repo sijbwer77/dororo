@@ -4,7 +4,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from '../signup.module.css';
-import { signupSP, signupMG } from '@/lib/api';
+import { signupSP, signupMG } from '@/lib/users';
 
 export default function SignupFormPage() {
   const router = useRouter();
