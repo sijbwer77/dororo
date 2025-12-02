@@ -1,0 +1,75 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modalBox {
+  position: relative;
+  width: 480px;
+  height: 260px;
+  background: #ffffff;
+  border: 2px solid #0A5FAE;
+  border-radius: 14px;
+  padding: 35px 30px 20px 30px;
+  box-sizing: border-box;
+}
+
+.closeBtn {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+
+.message {
+  font-family: 'KoPubWorldDotum';
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 34px;
+  color: #000000;
+  margin-top: 20px;
+}
+
+.buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 45px;
+}
+
+.confirmBtn {
+  width: 130px;
+  height: 40px;
+  background: #0A5FAE;
+  color: white;
+  border: none;
+  font-family: 'KoPubWorldDotum';
+  font-size: 20px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  width: 130px;
+  height: 40px;
+  background: white;
+  border: 1px solid #0A5FAE;
+  color: #0A5FAE;
+  font-family: 'KoPubWorldDotum';
+  font-size: 20px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+}
