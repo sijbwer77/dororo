@@ -88,33 +88,23 @@ class TodayAttendanceStampView(APIView):
 
 
 class AttendanceMapView(APIView):
-    """
-    GET /api/gamification/attendance-map/
-
-    출석 맵(1~6일차) 상태 내려주는 API.
-
-    response 예:
-    {
-      "days": [
-        { "index": 1, "date": "2025-11-25", "status": "done" | "current" | "upcoming" },
-        ...
-        { "index": 6, "date": "2025-11-30", "status": "current" }
-      ],
-      "today_index": 6
-    }
-    """
-
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
         today = timezone.now().date()
 
+        # 이 유저의 가장 첫 LMS 접속/도장 날짜를 1일차 기준으로 사용
+        qs = DailyLmsAccess.objects.filter(user=user).order_by("date")
+        if qs.exists():
+            start_date = qs.first().date
+        else:
+            # 아직 아무 기록 없으면 오늘이 1일차
+            start_date = today
+
         days = []
-        # day1 ~ day6 (day6 = today)
         for i in range(6):
-            # 0 -> 5일 전, 5 -> 오늘
-            date = today - timedelta(days=(5 - i))
+            date = start_date + timedelta(days=i)
             obj = DailyLmsAccess.objects.filter(user=user, date=date).first()
 
             has_accessed = obj.has_accessed if obj else False
@@ -140,8 +130,16 @@ class AttendanceMapView(APIView):
                 }
             )
 
+        delta_days = (today - start_date).days
+        if delta_days < 0:
+            today_index = 1
+        elif delta_days >= 6:
+            today_index = 6
+        else:
+            today_index = delta_days + 1
+
         data = {
             "days": days,
-            "today_index": 6,
+            "today_index": today_index,
         }
         return Response(data)

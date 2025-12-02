@@ -1,6 +1,6 @@
-'use client'; 
+'use client';
 
-import { useState } from 'react'; 
+import { useState, useEffect } from 'react'; 
 import styles from "./mypage.module.css";
 import scheduleStyles from "./schedule.module.css";
 import Image from "next/image";
@@ -8,6 +8,7 @@ import { FAKE_USER_DATA } from "@/data/mock-user.js";
 import { getStageInfo } from "./stageConfig.js";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { getMyLevel } from "@/lib/gamification.js";
 
 const TABS = [
   { text: "내 정보", key: "info" },
@@ -60,10 +61,44 @@ function CounselView() {
   );
 }
 
+/** ✅ My Level: 게이미피케이션 API(getMyLevel) 사용 */
 function MyLevelView() {
-  const CURRENT_EXP = 50;
+  const [levelData, setLevelData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getMyLevel(); // /api/gamification/my-level/
+        if (!cancelled) {
+          setLevelData(data);
+        }
+      } catch (e) {
+        console.error("MyLevel API 에러:", e);
+        if (!cancelled) setError(e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // TODO: 나중에 유저 성향(A/B/C/D)이 생기면 userData에서 가져오기
   const CURRENT_TRAIT = "D";
-  const stage = getStageInfo(CURRENT_EXP, CURRENT_TRAIT);
+
+  // 출석+과제+문제풀이 합산 점수 (백엔드 통합 점수)
+  const currentExp = levelData?.total_score ?? 0;
+
+  const stage = getStageInfo(currentExp, CURRENT_TRAIT);
   const showSubmarine = Boolean(stage.submarine?.src);
   const submarineClass =
     stage.submarine?.variant === "red"
@@ -74,6 +109,51 @@ function MyLevelView() {
       ? styles.fullSubmarine
       : "";
 
+  // exp 숫자는 백엔드 cur/max 우선 사용
+  const expCurrent =
+    levelData?.step_exp_current ??
+    stage.displayCurrent ??
+    0;
+  const expMax =
+    levelData?.step_exp_max ??
+    stage.displayTarget ??
+    0;
+
+  if (loading && !levelData) {
+    return (
+      <section className={styles.myLevelLayout}>
+        <header className={styles.myLevelHeader}>
+          <h2 className={styles.stageLabel}>My Level</h2>
+          <Link href="/student/mypage/attendance" className={styles.attendanceBtn}>
+            <Image src="/calendar-star.svg" alt="calendar" width={24} height={24} />
+            <span>출결 현황 체크</span>
+          </Link>
+        </header>
+        <div className={styles.stageDivider}></div>
+        <p style={{ padding: "24px" }}>레벨 정보를 불러오는 중...</p>
+      </section>
+    );
+  }
+
+  if (error && !levelData) {
+    return (
+      <section className={styles.myLevelLayout}>
+        <header className={styles.myLevelHeader}>
+          <h2 className={styles.stageLabel}>My Level</h2>
+          <Link href="/student/mypage/attendance" className={styles.attendanceBtn}>
+            <Image src="/calendar-star.svg" alt="calendar" width={24} height={24} />
+            <span>출결 현황 체크</span>
+          </Link>
+        </header>
+        <div className={styles.stageDivider}></div>
+        <p style={{ padding: "24px", color: "red" }}>
+          레벨 정보를 불러오지 못했습니다. 나중에 다시 시도해 주세요.
+        </p>
+      </section>
+    );
+  }
+
+  // STAGE 2 레이아웃
   if (stage.type === "stage2") {
     return (
       <section className={`${styles.myLevelLayout} ${styles.stageTwoLayout}`}>
@@ -89,9 +169,9 @@ function MyLevelView() {
         <div
           className={styles.stageTwoCanvas}
           style={
-                stage.background
-                  ? {
-                      backgroundImage: `url(${stage.background})`,
+            stage.background
+              ? {
+                  backgroundImage: `url(${stage.background})`,
                   backgroundSize: "contain",
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "center top",
@@ -127,13 +207,14 @@ function MyLevelView() {
             />
           </div>
           <span className={styles.expValue}>
-            {stage.displayCurrent} / {stage.displayTarget}
+            {expCurrent} / {expMax}
           </span>
         </div>
       </section>
     );
   }
 
+  // 기본 STAGE 레이아웃
   return (
     <section className={styles.myLevelLayout}>
       <header className={styles.myLevelHeader}>
@@ -175,7 +256,9 @@ function MyLevelView() {
             style={{ left: `${stage.progressPercent}%` }}
           />
         </div>
-        <span className={styles.expValue}>{stage.displayCurrent} / {stage.displayTarget}</span>
+        <span className={styles.expValue}>
+          {expCurrent} / {expMax}
+        </span>
       </div>
     </section>
   );

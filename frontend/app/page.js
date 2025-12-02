@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './login.module.css';
-import { login } from '@/lib/api';
+import { login } from '@/lib/users';
 
 export default function LoginPage() {
   const router = useRouter();
