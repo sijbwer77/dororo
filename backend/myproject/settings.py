@@ -50,6 +50,11 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",  # 브라우저에서 폼 UI 보이게
     ],
+    "DEFAULT_PARSER_CLASSES": [
+    "rest_framework.parsers.JSONParser",
+    "rest_framework.parsers.MultiPartParser",
+    "rest_framework.parsers.FormParser",
+]
 }
 
 

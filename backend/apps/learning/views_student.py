@@ -4,11 +4,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
-from .models import Course, Assignment, Attendance
-from .serializers import CourseListSerializer,StudentNoticeSerializer
+
+from .models import Course, Assignment, Attendance, Submission
+from .serializers import StudentCourseListSerializer, StudentNoticeSerializer, StudentAssignmentSerializer, SubmissionSerializer
 from .serializers import AssignmentSerializer, AttendanceSerializer
 
 
@@ -23,9 +26,10 @@ class StudentCoursesAPIView(APIView):
         enrollments = student.enrollments.select_related("course")
         courses = [e.course for e in enrollments]
 
-        serializer = CourseListSerializer(courses, many=True)
+        serializer = StudentCourseListSerializer(courses, many=True)
         return Response(serializer.data)
 
+# 강의별 공지
 class StudentCourseNoticesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -44,6 +48,92 @@ class StudentCourseNoticesAPIView(APIView):
         # 학생 전용 NoticeSerializer로 응답
         serializer = StudentNoticeSerializer(notices, many=True)
         return Response(serializer.data)
+
+
+class StudentAssignmentsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student = request.user
+
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+        assignments = Assignment.objects.filter(course=course).order_by("due_date")
+        serializer = StudentAssignmentSerializer(assignments, many=True)
+        return Response(serializer.data)
+
+
+from rest_framework.parsers import MultiPartParser, FormParser
+
+class StudentAssignmentDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get(self, request, course_id, assignment_id):
+        student = request.user
+
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+
+        assignment = get_object_or_404(
+            Assignment,
+            id=assignment_id,
+            course=course
+        )
+
+        submission = Submission.objects.filter(
+            assignment=assignment,
+            student=student
+        ).first()
+
+        return Response({
+            "id": assignment.id,
+            "title": assignment.title,
+            "description": assignment.description,
+            "due_date": assignment.due_date,
+            "file": assignment.file.url if assignment.file else None,
+            "submitted": submission is not None,
+            "submitted_file": submission.file.url if submission else None,
+        })
+
+    def post(self, request, course_id, assignment_id):
+        student = request.user
+
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+        
+        print("FILES:", request.FILES)
+        print("DATA:", request.data)
+        assignment = get_object_or_404(
+            Assignment, id=assignment_id, course=course
+        )
+        
+        file = request.FILES.get("file")
+        
+
+        if not file:
+            return Response({"detail": "file is required"}, status=400)
+
+        now = timezone.now()
+        if assignment.due_date < now:
+            return Response({"detail": "마감 시간이 지났습니다"}, status=400)
+
+        submission, created = Submission.objects.get_or_create(
+            assignment=assignment,
+            student=student
+        )
+
+        submission.file = file
+        submission.submitted_at = now
+        submission.status = "submitted"
+        submission.save()
+        return Response(SubmissionSerializer(submission).data, status=200)
 
 
 
@@ -68,37 +158,6 @@ class MyInfoAPIView(APIView):
             "role": local.role if local else "",
         })
 
-# 3) 학생 강의 상세
-class StudentCourseDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, course_id):
-        student = request.user
-
-        # 수강 중인지 확인
-        course = get_object_or_404(
-            Course.objects.filter(enrollments__student=student),
-            id=course_id
-        )
-
-        return Response(CourseSerializer(course).data)
-
-
-# 4) 강의 과제 목록
-class StudentCourseAssignmentsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, course_id):
-        student = request.user
-        
-        # 본인 강의인지 확인
-        get_object_or_404(
-            Course.objects.filter(enrollments__student=student),
-            id=course_id
-        )
-
-        assignments = Assignment.objects.filter(course_id=course_id)
-        return Response(AssignmentSerializer(assignments, many=True).data)
 
 
 # 5) 강의 출석 목록

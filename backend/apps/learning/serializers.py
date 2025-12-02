@@ -11,7 +11,7 @@ from .models import (
     TeacherAssignmentRequest,
 )
 
-class CourseListSerializer(serializers.ModelSerializer):
+class StudentCourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['id', 'title','course_type', 'status']
@@ -21,7 +21,15 @@ class StudentNoticeSerializer(serializers.ModelSerializer):
         model = Notice
         fields = ['id', 'title', 'content', 'created_at']
 
+class StudentAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = ["id", "title", "description", "due_date", "file", ]
 
+class SubmissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ["id", "assignment", "student", "file", "status", "grade", "submitted_at",]
 
 
 
@@ -47,11 +55,6 @@ class SubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Submission
         fields = "__all__" # 전체 확인 가능
-# 학생 제출용
-class SubmissionCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Submission
-        fields = ['file', 'assignment', 'student'] #입력받을 인자만 저장
 
 
 class ScheduleSerializer(serializers.ModelSerializer):

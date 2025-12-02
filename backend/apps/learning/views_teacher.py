@@ -17,7 +17,7 @@ from .serializers import (
     StudentEnrollmentSerializer,
     AssignmentSerializer,
     SubmissionSerializer,
-    SubmissionCreateSerializer,
+    SubmissionSerializer,
     ScheduleSerializer,
     LessonSerializer,
     NoticeSerializer,

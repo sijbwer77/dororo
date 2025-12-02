@@ -37,7 +37,7 @@ class NoticeAdmin(admin.ModelAdmin):
 from .models import Assignment
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
-    list_display = ('course','title','description','due_date',)
+    list_display = ('course','title','description','file','due_date',)
     search_fields = ('course__title','title')
     #list_filter = ()
     #readonly_fields = ()
