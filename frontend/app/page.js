@@ -6,15 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './login.module.css';
-import { login } from '@/lib/users';
-import { ensureCsrfCookie } from '@/lib/api';
-
-async function handleLogin() {
-  await login(id, pw);           // 세션 로그인
-  await ensureCsrfCookie();      // csrftoken 쿠키 받기
-  // -> 마이페이지로 이동
-}
-
+import { login } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
