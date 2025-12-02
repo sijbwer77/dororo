@@ -16,8 +16,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+
+
+router = DefaultRouter()
 
 urlpatterns = [
+    path("api/", include("apps.learning.urls")),
+
+    #검토 필요
+    path("api/", include("apps.users.urls")),
     path('admin/', admin.site.urls),
-    path('api/users/', include('apps.users.urls')),
+    path('api/', include(router.urls)),
+    path('api/learning/',include('apps.learning.urls')),
 ]

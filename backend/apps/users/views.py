@@ -1,50 +1,92 @@
-from django.shortcuts import render # 이건뭐지 drf 쓰면서 없어져도 되는 import 인가
+from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import StudentLoginSerializer
-from .serializers import StudentRegisterSerializer
+from .serializers import SignupSerializer, LoginSerializer
 
-#구글 관련 import
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from rest_framework_simplejwt.tokens import RefreshToken
+# 👇 [필수] 면제권 도구들
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import AllowAny
 
-# Create your views here.
+# --- 1. 통합 로그인 API ---
+# Django 경비원 통과 (csrf_exempt)
+@method_decorator(csrf_exempt, name='dispatch')
+class LoginAPIView(APIView):
+    # 👇 [추가됨] DRF 보안요원 철수! (로그인 할 땐 인증 검사 끄기)
+    authentication_classes = [] 
+    permission_classes = [AllowAny]
 
-class StudentLoginAPIView(APIView):
     def post(self, request):
-        serializer = StudentLoginSerializer(data=request.data)
+        serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            user = serializer.validated_data['user']
+            
+            # 로그인 처리 (세션 생성)
+            login(request, user)
+            
+            account = user.local_account
+            return Response({
+                "ok": True,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "first_name": user.first_name,
+                    "email": user.email,
+                    "local_account": {
+                        "role": account.role,
+                        "nickname": account.nickname,
+                    }
+                },
+                "role": account.role
+            }, status=status.HTTP_200_OK)
+            
+        return Response({
+            "ok": False, 
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+# --- 2. 로그아웃 API ---
+class LogoutAPIView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"ok": True})
+
+# --- 3. 회원가입 API ---
+# 회원가입도 토큰 검사 안 함
+@method_decorator(csrf_exempt, name='dispatch')
+class SignupAPIView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request, role):
+        role_upper = role.upper()
+        if role_upper not in ['SP', 'MG']:
+            return Response({"error": "잘못된 역할입니다."}, status=400)
+            
+        serializer = SignupSerializer(data=request.data, context={'role': role_upper})
+        if serializer.is_valid():
+            user = serializer.save()
+            login(request, user)
+            
+            return Response({
+                "id": user.id,
+                "username": user.username,
+                "role": role_upper
+            }, status=status.HTTP_201_CREATED)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class StudentRegisterAPIView(APIView):
-    def post(self, request):
-        serializer=StudentRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "회원가입 성공"}, status=201)
-        return Response(serializer.errors, status=400)
+# --- 4. 아이디 중복 확인 API ---
+class CheckUsernameAPIView(APIView):
+    authentication_classes = [] # 이것도 검사 없이 허용
+    permission_classes = [AllowAny]
 
-
-@api_view(["POST"])
-def google_login(request):
-    email = request.data.get("email")
-    name = request.data.get("name")
-
-    user, created = User.objects.get_or_create(
-        username=email, defaults={"email": email, "first_name": name}
-    )
-
-    refresh = RefreshToken.for_user(user)
-    
-    return Response({
-        "token": str(refresh.access_token),
-        "user": {
-            "email": email,
-            "name": name
-        }
-    })
-
+    def get(self, request):
+        username = request.query_params.get('username')
+        if not username:
+            return Response({"ok": False, "error": "username-required"}, status=400)
+        
+        exists = User.objects.filter(username=username).exists()
+        return Response({"ok": True, "exists": exists})
