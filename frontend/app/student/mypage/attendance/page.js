@@ -5,10 +5,16 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from './attendance.module.css';
 import layoutStyles from '../mypage.module.css';
-import {
-  getAttendanceStatus,
-  stampTodayAttendance,
-} from '@/lib/gamification';
+
+// status can be 'done' | 'current' | 'upcoming' | boolean
+const ATTENDANCE_STEPS = [
+  { label: '1일차', status: 'done' },
+  { label: '2일차', status: 'done' },
+  { label: '3일차', status: 'done' },
+  { label: '4일차', status: 'current' },
+  { label: '5일차', status: 'upcoming' },
+  { label: '6일차', status: 'upcoming' },
+];
 
 export default function AttendancePage() {
   const [firstDayStatus, setFirstDayStatus] = useState(null);
@@ -18,70 +24,71 @@ export default function AttendancePage() {
   const [fifthDayStatus, setFifthDayStatus] = useState(null);
   const [sixthDayStatus, setSixthDayStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isStamping, setIsStamping] = useState(false);
 
   const mapBackendStatus = (val) => {
-    if (val === true || val === 'T') return 'current';
-    if (val === false || val === 'F') return 'upcoming';
+    if (val === true || val === 'T') return 'current'; // 진행 중
+    if (val === false || val === 'F') return 'upcoming'; // 예정
     if (val === 'done' || val === 'current' || val === 'upcoming') return val;
     return 'upcoming';
   };
 
-  // 출석 현황 다시 불러오는 함수 (GET /api/attendance/status/)
-  const fetchStatus = async () => {
-    try {
-      const data = await getAttendanceStatus();
-
-      setFirstDayStatus(mapBackendStatus(data.firstDayStatus));
-      setSecondDayStatus(mapBackendStatus(data.secondDayStatus));
-      setThirdDayStatus(mapBackendStatus(data.thirdDayStatus));
-      setFourthDayStatus(mapBackendStatus(data.fourthDayStatus));
-      setFifthDayStatus(mapBackendStatus(data.fifthDayStatus));
-      setSixthDayStatus(mapBackendStatus(data.sixthDayStatus));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let mounted = true;
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('/api/attendance/status');
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        if (!mounted) return;
+        const raw = data?.firstDayStatus ?? data?.first ?? ATTENDANCE_STEPS[0].status;
+        const rawSecond =
+          data?.secondDayStatus ??
+          data?.second ??
+          data?.day2 ??
+          ATTENDANCE_STEPS[1].status;
+        const rawThird =
+          data?.thirdDayStatus ??
+          data?.third ??
+          data?.day3 ??
+          ATTENDANCE_STEPS[2].status;
+        const rawFourth =
+          data?.fourthDayStatus ??
+          data?.fourth ??
+          data?.day4 ??
+          ATTENDANCE_STEPS[3].status;
+        const rawFifth =
+          data?.fifthDayStatus ??
+          data?.fifth ??
+          data?.day5 ??
+          ATTENDANCE_STEPS[4].status;
+        const rawSixth =
+          data?.sixthDayStatus ??
+          data?.sixth ??
+          data?.day6 ??
+          ATTENDANCE_STEPS[5].status;
+        setFirstDayStatus(mapBackendStatus(raw));
+        setSecondDayStatus(mapBackendStatus(rawSecond));
+        setThirdDayStatus(mapBackendStatus(rawThird));
+        setFourthDayStatus(mapBackendStatus(rawFourth));
+        setFifthDayStatus(mapBackendStatus(rawFifth));
+        setSixthDayStatus(mapBackendStatus(rawSixth));
+      } catch (e) {
+        if (!mounted) return;
+        setFirstDayStatus(mapBackendStatus(ATTENDANCE_STEPS[0].status));
+        setSecondDayStatus(mapBackendStatus(ATTENDANCE_STEPS[1].status));
+        setThirdDayStatus(mapBackendStatus(ATTENDANCE_STEPS[2].status));
+        setFourthDayStatus(mapBackendStatus(ATTENDANCE_STEPS[3].status));
+        setFifthDayStatus(mapBackendStatus(ATTENDANCE_STEPS[4].status));
+        setSixthDayStatus(mapBackendStatus(ATTENDANCE_STEPS[5].status));
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
     fetchStatus();
+    return () => {
+      mounted = false;
+    };
   }, []);
-
-  // 도장 클릭했을 때: 오늘 도장 찍기 POST → 다시 상태 GET
-  const handleStampClick = async () => {
-    // 현재 찍을 수 있는 칸이 없으면 막기
-    const hasCurrent =
-      firstDayStatus === 'current' ||
-      secondDayStatus === 'current' ||
-      thirdDayStatus === 'current' ||
-      fourthDayStatus === 'current' ||
-      fifthDayStatus === 'current' ||
-      sixthDayStatus === 'current';
-
-    if (!hasCurrent || isStamping) return;
-
-    try {
-      setIsStamping(true);
-      const res = await stampTodayAttendance();
-      // 백엔드에서 400/200 메시지 내려줄 수 있으니까 로그만 찍어둠
-      console.log('stampTodayAttendance result:', res);
-
-      // 도장 찍고 나서 다시 출석 현황 불러오기
-      await fetchStatus();
-    } catch (err) {
-      console.error(err);
-      // 백엔드에서 내려준 detail이 있으면 띄워주기
-      const msg =
-        err?.detail ||
-        err?.message ||
-        '출석 처리 중 오류가 발생했습니다.';
-      alert(msg);
-    } finally {
-      setIsStamping(false);
-    }
-  };
 
   const isDone = firstDayStatus === 'done';
   const isCurrent = firstDayStatus === 'current';
@@ -131,21 +138,18 @@ export default function AttendancePage() {
             height={701}
             className={styles.boardImage}
           />
-
           {showFirstStamp && (
             <Image
               src="/attendance-stamp.svg"
               alt="attendance stamp"
               width={245}
               height={220}
-              className={`${styles.stamp} ${
-                isCurrent ? styles.stampCurrent : ''
-              }`}
-              // ✅ 현재 칸일 때만 클릭 가능
-              onClick={isCurrent && !isStamping ? handleStampClick : undefined}
+              className={`${styles.stamp} ${isCurrent ? styles.stampCurrent : ''}`}
+              onClick={() => {
+                if (isCurrent) setFirstDayStatus('done');
+              }}
             />
           )}
-
           {showSecondStamp && (
             <Image
               src="/attendance-stamp.svg"
@@ -155,14 +159,11 @@ export default function AttendancePage() {
               className={`${styles.stamp} ${styles.stampDay2} ${
                 isSecondCurrent ? styles.stampCurrent : ''
               }`}
-              onClick={
-                isSecondCurrent && !isStamping
-                  ? handleStampClick
-                  : undefined
-              }
+              onClick={() => {
+                if (isSecondCurrent) setSecondDayStatus('done');
+              }}
             />
           )}
-
           {showThirdStamp && (
             <Image
               src="/attendance-stamp.svg"
@@ -172,12 +173,11 @@ export default function AttendancePage() {
               className={`${styles.stamp} ${styles.stampDay3} ${
                 isThirdCurrent ? styles.stampCurrent : ''
               }`}
-              onClick={
-                isThirdCurrent && !isStamping ? handleStampClick : undefined
-              }
+              onClick={() => {
+                if (isThirdCurrent) setThirdDayStatus('done');
+              }}
             />
           )}
-
           {showFourthStamp && (
             <Image
               src="/attendance-stamp.svg"
@@ -187,12 +187,11 @@ export default function AttendancePage() {
               className={`${styles.stamp} ${styles.stampDay4} ${
                 isFourthCurrent ? styles.stampCurrent : ''
               }`}
-              onClick={
-                isFourthCurrent && !isStamping ? handleStampClick : undefined
-              }
+              onClick={() => {
+                if (isFourthCurrent) setFourthDayStatus('done');
+              }}
             />
           )}
-
           {showFifthStamp && (
             <Image
               src="/attendance-stamp.svg"
@@ -202,12 +201,11 @@ export default function AttendancePage() {
               className={`${styles.stamp} ${styles.stampDay5} ${
                 isFifthCurrent ? styles.stampCurrent : ''
               }`}
-              onClick={
-                isFifthCurrent && !isStamping ? handleStampClick : undefined
-              }
+              onClick={() => {
+                if (isFifthCurrent) setFifthDayStatus('done');
+              }}
             />
           )}
-
           {showSixthStamp && (
             <Image
               src="/attendance-stamp.svg"
@@ -217,9 +215,9 @@ export default function AttendancePage() {
               className={`${styles.stamp} ${styles.stampDay6} ${
                 isSixthCurrent ? styles.stampCurrent : ''
               }`}
-              onClick={
-                isSixthCurrent && !isStamping ? handleStampClick : undefined
-              }
+              onClick={() => {
+                if (isSixthCurrent) setSixthDayStatus('done');
+              }}
             />
           )}
         </div>
