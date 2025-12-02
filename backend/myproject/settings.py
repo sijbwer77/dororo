@@ -37,24 +37,31 @@ INSTALLED_APPS = [
     'apps.consultation',
     'apps.gamification',
     'apps.message',
-    'apps.group',
+    'apps.group'
+
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",  # 세션 인증
+        "rest_framework.authentication.SessionAuthentication", # [변경] 세션 인증
     ),
+
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",  # 브라우저에서 폼 UI 보이게
     ],
+    "DEFAULT_PARSER_CLASSES": [
+    "rest_framework.parsers.JSONParser",
+    "rest_framework.parsers.MultiPartParser",
+    "rest_framework.parsers.FormParser",
+]
 }
 
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',    # [추가] 무조건 맨 위!
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',  # [필수] 세션 유지
+    'django.contrib.sessions.middleware.SessionMiddleware', # [필수] 세션 유지
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -86,7 +93,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 '''
-# 원격 DB (필요하면 이걸로 교체)
+#원격 DB
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -98,8 +105,7 @@ DATABASES = {
     }
 }
 '''
-
-# 인화 로컬 DB
+#인화 DB
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -108,17 +114,15 @@ DATABASES = {
         'PASSWORD': '1234',
         'HOST': 'localhost',
         'PORT': '5432',
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': ':memory:',
     }
 }
 
 '''
-# 준석 DB (참고용)
+#준석 DB
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'LMS',
         'USER': 'postgres',
         'PASSWORD': '1212',
         'HOST': 'localhost',
@@ -126,8 +130,6 @@ DATABASES = {
     }
 }
 '''
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -164,39 +166,18 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # --- CORS / CSRF 설정 (개발용) ---
+CORS_ALLOW_ALL_ORIGINS = True          # 일단 전부 허용
+CORS_ALLOW_CREDENTIALS = True          # 세션 쿠키 같이 주고받기
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://192.168.56.1:3000",
-]
-
-CORS_ALLOW_CREDENTIALS = True
-
+# 프론트에서 오는 요청을 CSRF 신뢰 대상으로 추가
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://192.168.56.1:3000",
 ]
-
-# 세션 / CSRF 쿠키 설정 (여기서 403 났던 부분 정리 버전)
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_NAME = 'sessionid'
-SESSION_COOKIE_HTTPONLY = True
-
-# 개발 환경에서는 http라서 Secure는 False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
-
-# 프론트/백 둘 다 127.0.0.1로 접속한다고 가정
-SESSION_COOKIE_DOMAIN = '127.0.0.1'
-CSRF_COOKIE_DOMAIN = '127.0.0.1'
