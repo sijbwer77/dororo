@@ -1,54 +1,90 @@
+// app/student/course/[id]/assignment/page.js
+
 'use client';
 
-import styles from "./assignment.module.css"; // (1. 수정!) 'assignment.module.css'
+import { useEffect, useState } from "react";
+import styles from "./assignment.module.css";
 import Image from "next/image";
 import Link from "next/link"; 
-import { useRouter, useParams} from 'next/navigation'; 
+import { useRouter, useParams } from 'next/navigation';
 import Sidebar from "@/components/Sidebar.js";
-import { FAKE_ASSIGNMENTS } from "@/data/mock-assignments.js"; 
 
 export default function AssignmentPage() {
-  const router = useRouter(); 
-  const params = useParams(); 
-
-  const handleBack = () => router.back();
-  const handleHome = () => router.push('/student');
-  
+  const router = useRouter();
+  const params = useParams();
   const courseId = params.id;
+
+  const [assignments, setAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 📌 백엔드에서 과제 목록 가져오기
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/student/course/${courseId}/assignments/`,
+          {
+            credentials: "include", // 세션 유지
+          }
+        );
+
+        if (!res.ok) throw new Error("Failed to fetch assignments");
+
+        const data = await res.json();
+        setAssignments(data);
+      } catch (err) {
+        console.error("과제 목록 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAssignments();
+  }, [courseId]);
 
   return (
     <div className={styles.pageLayout}>
       
-      {/* 1. 왼쪽: 과목 전용 사이드바 (내용 동일, CSS 클래스만 변경) */}
+      {/* 왼쪽 사이드바 */}
       <Sidebar courseId={courseId} />
 
-      {/* 2. 오른쪽: 메인 콘텐츠 (과제 목록) */}
+      {/* 메인 콘텐츠 */}
       <main className={styles.mainContent}>
         
-        {/* 'Rectangle 38' (파란색 헤더) */}
+        {/* 파란색 헤더 */}
         <header className={styles.header}>
           <div className={styles.arrowIcon}>
-            <Image src="/arrow-down.svg" alt="아래 화살표" width={38} height={38} />
+            <Image src="/arrow-down.svg" alt="arrow" width={38} height={38} />
           </div>
           <h1 className={styles.mainTitle}>과제</h1>
         </header>
 
+        {/* 로딩 */}
+        {loading && (
+          <p style={{ padding: "20px" }}>불러오는 중...</p>
+        )}
+
+        {/* 과제 없음 */}
+        {!loading && assignments.length === 0 && (
+          <p style={{ padding: "20px" }}>등록된 과제가 없습니다.</p>
+        )}
+
         {/* 과제 목록 */}
         <div className={styles.assignmentList}>
-          {/* (4. 추가!) 가짜 과제 데이터를 .map()으로 반복 */}
-          {FAKE_ASSIGNMENTS.map((assignment) => (
-            // (중요!) 과제 상세 페이지로 링크
+          {assignments.map((assignment) => (
             <Link 
               href={`/student/course/${courseId}/assignment/${assignment.id}`} 
-              key={assignment.id} 
+              key={assignment.id}
               className={styles.assignmentItem}
             >
               <div className={styles.assignmentIcon}>
-                <Image src="/assignment-icon.svg" alt="과제 아이콘" width={40} height={40} />
+                <Image src="/assignment-icon.svg" alt="과제" width={40} height={40} />
               </div>
               <div className={styles.assignmentDetails}>
                 <span className={styles.assignmentTitle}>{assignment.title}</span>
-                <span className={styles.assignmentDeadline}>마감: {assignment.deadline}</span>
+                <span className={styles.assignmentDeadline}>
+                  마감: {assignment.due_date?.slice(0, 16).replace("T", " ")}
+                </span>
               </div>
             </Link>
           ))}

@@ -4,8 +4,6 @@
 
 import { useEffect, useState } from "react";
 import styles from "./course.module.css";
-import Image from "next/image";
-import Link from "next/link";
 import { useParams } from 'next/navigation';
 import Sidebar from "@/components/Sidebar.js";
 
