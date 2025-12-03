@@ -66,15 +66,25 @@ class Notice(models.Model):
         return f"[{self.course.title}] {self.title}"
 
 class Lesson(models.Model):
+    MATERIAL_TYPE_CHOICES = (
+        ('pdf', 'PDF'),
+        ('video', 'Video'),
+        ('etc', 'Etc'), 
+    )
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="weeks")
     week = models.PositiveIntegerField()
     title = models.CharField(max_length=200)
-
-    # 학습 내용
-    content = models.TextField(blank=True)  # 텍스트 설명
+    
+    material_type = models.CharField(
+        max_length=20,
+        choices=MATERIAL_TYPE_CHOICES,
+        default='pdf'
+    )
     file = models.FileField(upload_to='resources/lesson', blank=True, null=True)
     video_url = models.URLField(blank=True, null=True)
 
+    class Meta:
+        ordering = ["week", "id"]
 
     def __str__(self):
         return f"{self.course.title} - {self.week}주차: {self.title}"

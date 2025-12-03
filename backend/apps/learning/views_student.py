@@ -12,8 +12,6 @@ from django.utils import timezone
 
 from .models import Course, Assignment, Attendance, Submission
 from .serializers import StudentCourseListSerializer, StudentNoticeSerializer, StudentAssignmentSerializer, SubmissionSerializer
-from .serializers import AssignmentSerializer, AttendanceSerializer
-
 
 # 강의 목록
 class StudentCoursesAPIView(APIView):
@@ -21,7 +19,7 @@ class StudentCoursesAPIView(APIView):
 
     def get(self, request):
         student = request.user
-
+        print("DEBUG >> request.user =", request.user)
         
         enrollments = student.enrollments.select_related("course")
         courses = [e.course for e in enrollments]
@@ -136,9 +134,59 @@ class StudentAssignmentDetailAPIView(APIView):
         return Response(SubmissionSerializer(submission).data, status=200)
 
 
+from .serializers import LearningPageSerializer
+from .models import Course, Lesson
+
+class StudentCourseLessonsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student = request.user
+
+        # 학생이 수강 중인지 검증
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+
+        # 모든 Lesson 가져오기
+        lessons = Lesson.objects.filter(course=course).order_by("week", "id")
+
+        # ---- 주차별로 직접 묶기 ----
+        weeks_dict = {}
+        for lesson in lessons:
+            if lesson.week not in weeks_dict:
+                weeks_dict[lesson.week] = {
+                    "id": lesson.week,
+                    "title": f"{lesson.week}주차",
+                    "materials": []
+                }
+            weeks_dict[lesson.week]["materials"].append(lesson)
+
+        # WeekSerializer가 materials 리스트를 lesson 객체로 받아야 하므로
+        # 그대로 전달
+        week_list = [weeks_dict[w] for w in sorted(weeks_dict.keys())]
+
+        # ---- Progress 샘플 (진도 모델 있으면 교체) ----
+        progress_data = []
+        for week_num in sorted(weeks_dict.keys()):
+            progress_data.append({
+                "week": week_num,
+                "status": "completed"  # 임시 로직
+            })
+
+        payload = {
+            "course_id": course.id,
+            "course_title": course.title,
+            "weeks": week_list,
+            "progress": progress_data,
+        }
+
+        serializer = LearningPageSerializer(payload, context={"request": request})
+        return Response(serializer.data)
 
 
-# 1) 내 정보
+# 여기부터는 아직 코드 작성 안됨
 class MyInfoAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -158,9 +206,6 @@ class MyInfoAPIView(APIView):
             "role": local.role if local else "",
         })
 
-
-
-# 5) 강의 출석 목록
 class StudentCourseAttendanceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

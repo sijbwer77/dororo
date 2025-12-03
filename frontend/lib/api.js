@@ -11,7 +11,7 @@ async function fetchAPI(endpoint, options = {}) {
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    credentials: 'include', // 👈 [핵심] 세션 쿠키를 주고받기 위해 필수!
+    credentials: 'include',
   });
 
   const data = await res.json();
