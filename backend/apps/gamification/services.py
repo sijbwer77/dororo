@@ -12,6 +12,9 @@ from .constants import (
 )
 from .models import GamificationProfile, DailyLmsAccess
 
+from django.db.models import Q
+from learning.models import Submission
+
 
 @dataclass
 class ScoreSource:
@@ -99,14 +102,10 @@ def get_attendance_count(user) -> int:
 
 
 def get_assignment_count(user) -> int:
-    """
-    과제 제출 횟수.
-    TODO: 실제 과제 제출 모델이 생기면 여기서 count 쿼리 작성.
-    """
-    # 예시:
-    # from apps.learning.models import Submission
-    # return Submission.objects.filter(student=user, status="submitted").count()
-    return 0
+    return Submission.objects.filter(
+        student=user,
+        status='submitted',
+    ).count()
 
 
 def get_solved_problem_count(user) -> int:
