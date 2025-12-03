@@ -71,7 +71,7 @@ class Lesson(models.Model):
     title = models.CharField(max_length=200)
 
     # 학습 내용
-    content = models.TextField(blank=True)  # 텍스트 설명
+    # content = models.TextField(blank=True)  # 텍스트 설명
     file = models.FileField(upload_to='resources/lesson', blank=True, null=True)
     video_url = models.URLField(blank=True, null=True)
 

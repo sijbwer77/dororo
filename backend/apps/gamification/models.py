@@ -58,3 +58,29 @@ class DailyLmsAccess(models.Model):
 
     def __str__(self):
         return f"{self.user} / {self.date} / accessed={self.has_accessed}, checked={self.is_checked}"
+    
+class SolvedAcProgress(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="solvedac_progress",
+    )
+
+    # 처음 연동했을 때 solved.ac 값 (디버깅용 / 정보용)
+    baseline_solved_count = models.PositiveIntegerField(default=0)
+
+    # 마지막으로 solved.ac에서 읽어온 solvedCount
+    last_solved_count = models.PositiveIntegerField(default=0)
+
+    # 지금까지 "게이미피케이션 점수로 인정된 문제 개수"
+    #  → 이 숫자만큼은 평생 유지, 절대 줄어들지 않음
+    credited_solved_count = models.PositiveIntegerField(default=0)
+
+    # 마지막으로 동기화할 때 사용한 핸들 (핸들 변경 감지용)
+    last_handle = models.CharField(max_length=50, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        db_table = "solvedac_progress"
