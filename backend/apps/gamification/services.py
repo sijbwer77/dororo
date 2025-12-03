@@ -13,7 +13,7 @@ from .constants import (
 from .models import GamificationProfile, DailyLmsAccess
 
 from django.db.models import Q
-from learning.models import Submission
+from apps.learning.models import Submission
 
 
 @dataclass
