@@ -10,22 +10,25 @@ class GamificationProfile(models.Model):
     - progress : 전체 진행률 (0.0 ~ 1.0)
     """
 
-    user = models.OneToOneField( #한 유저당 딱 1개만 가질 수 있다
+    # 한 유저당 딱 1개만 가질 수 있다
+    user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE, #유저가 삭제되면 이 프로필 같이 삭제
-        related_name="gamification_profile", #이걸로 역참조 가능
+        on_delete=models.CASCADE,  # 유저가 삭제되면 이 프로필 같이 삭제
+        related_name="gamification_profile",  # user.gamification_profile 로 역참조
     )
 
-    total_score = models.PositiveIntegerField(default=0) #0이상의 정수만 허용
+    total_score = models.PositiveIntegerField(default=0)  # 0 이상의 정수만 허용
     stage = models.PositiveSmallIntegerField(default=1)
     step = models.PositiveSmallIntegerField(default=1)
-    progress = models.FloatField(default=0.0) #실수를 저장(진행률을 저장하니까 실수형)
 
-    created_at = models.DateTimeField(auto_now_add=True, editable=False) #admin에서 수정 못한다
+    # 전체 진행률 (0.0 ~ 1.0)
+    progress = models.FloatField(default=0.0)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
-        db_table = "gamification_profile" #실제 db에서의 이름
+        db_table = "gamification_profile"
 
     def __str__(self):
         return f"{self.user} / {self.total_score}점 (stage {self.stage}, step {self.step})"
@@ -42,24 +45,45 @@ class DailyLmsAccess(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="daily_lms_accesses", #역참조 가능 -> user에서 daily_lms_... 참조 가능하다
+        related_name="daily_lms_accesses",
     )
-    date = models.DateField() #연 월 일 저장
+    date = models.DateField()
 
-    has_accessed = models.BooleanField(default=False) #lms에 한번이라도 접속했는지
-    is_checked = models.BooleanField(default=False) #그 날짜에 출석도장을 눌렀는지
+    has_accessed = models.BooleanField(default=False)
+    is_checked = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
         db_table = "daily_lms_access"
-        unique_together = ("user", "date") #다른 열에 중복되면 안된다 -> 한 유저가 같은날에 또 만들 수 없음
+        # 한 유저가 같은 날짜에 중복 row 못 만들게
+        unique_together = ("user", "date")
 
     def __str__(self):
         return f"{self.user} / {self.date} / accessed={self.has_accessed}, checked={self.is_checked}"
-    
+
+
 class SolvedAcProgress(models.Model):
+    """
+    solved.ac 연동 상태 저장용.
+
+    - baseline_solved_count :
+        처음 연동했을 때 solved.ac 에서 읽어온 solvedCount
+        → 연동 이전에 풀었던 문제 수 (디버깅/정보용)
+
+    - last_solved_count :
+        마지막으로 solved.ac 에서 읽어온 solvedCount
+
+    - credited_solved_count :
+        지금까지 "게이미피케이션 점수로 인정된 문제 개수"
+        → 이 숫자만큼은 평생 유지, 절대 줄어들지 않음
+
+    - last_handle :
+        마지막으로 동기화할 때 사용한 solved.ac 핸들
+        → 핸들이 바뀌었는지 감지용
+    """
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -73,7 +97,6 @@ class SolvedAcProgress(models.Model):
     last_solved_count = models.PositiveIntegerField(default=0)
 
     # 지금까지 "게이미피케이션 점수로 인정된 문제 개수"
-    #  → 이 숫자만큼은 평생 유지, 절대 줄어들지 않음
     credited_solved_count = models.PositiveIntegerField(default=0)
 
     # 마지막으로 동기화할 때 사용한 핸들 (핸들 변경 감지용)
@@ -84,3 +107,10 @@ class SolvedAcProgress(models.Model):
 
     class Meta:
         db_table = "solvedac_progress"
+
+    def __str__(self):
+        return (
+            f"{self.user} / baseline={self.baseline_solved_count}, "
+            f"last={self.last_solved_count}, credited={self.credited_solved_count}, "
+            f"handle={self.last_handle}"
+        )
