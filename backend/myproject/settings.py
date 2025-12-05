@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'apps.message',
     'apps.group', 
     'apps.challenge',
-
+    "apps.eval",
 ]
 
 REST_FRAMEWORK = {

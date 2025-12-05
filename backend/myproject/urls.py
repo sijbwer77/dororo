@@ -33,4 +33,5 @@ urlpatterns = [
     path("api/", include("apps.gamification.urls")),
     path("api/", include("apps.challenge.urls")),
     path("api/", include("apps.message.urls")),
+    path("api/", include("apps.eval.urls")),
 ]
