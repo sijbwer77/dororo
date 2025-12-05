@@ -6,14 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "../layout.module.css";
 
-
 const MENUS = [
-  { key: "dashboard", label: "대시보드", icon: "/admin_home.svg", path: "/admin" },
-  { key: "notice",    label: "공지",     icon: "/admin_notification.svg", path: "/admin/notice" },
-  { key: "message",   label: "메시지",   icon: "/admin_message.svg", path: "/admin/message" },
-  { key: "course",    label: "강의 확인", icon: "/admin_course.svg", path: "/admin/course" },
-  { key: "eval",      label: "강의평가", icon: "/chart-pie.svg", path: "/admin/eval" },
-  { key: "counsel",   label: "상담",     icon: "/admin_talk.svg", path: "/admin/counsel" },
+  { key: "dashboard", label: "대시보드", icon: "/admin_home.svg", path: "/manage" },
+  { key: "notice",    label: "공지",     icon: "/admin_notification.svg", path: "/manage/notice" },
+  { key: "message",   label: "메시지",   icon: "/admin_message.svg", path: "/manage/message" },
+  { key: "course",    label: "강의 확인", icon: "/admin_course.svg", path: "/manage/course" },
+  { key: "eval",      label: "강의평가", icon: "/chart-pie.svg", path: "/manage/eval" },
+  { key: "counsel",   label: "상담",     icon: "/admin_talk.svg", path: "/manage/counsel" },
 ];
 
 export default function AdminSidebar() {
@@ -21,12 +20,15 @@ export default function AdminSidebar() {
 
   return (
     <aside className={styles.sidebar}>
-
       <nav className={styles.sidebarNav}>
         {MENUS.map((menu) => {
+          
+          // ✅ 활성화 조건 정확히 수정된 부분
           const isActive =
-            pathname === menu.path ||
-            (menu.path !== "/admin" && pathname.startsWith(menu.path));
+            // 대시보드는 ONLY "/manage"에서만 활성화
+            (menu.path === "/manage" && pathname === "/manage") ||
+            // 나머지 메뉴는 해당 path로 시작할 때 활성화
+            (menu.path !== "/manage" && pathname.startsWith(menu.path));
 
           return (
             <Link

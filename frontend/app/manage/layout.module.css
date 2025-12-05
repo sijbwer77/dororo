@@ -94,6 +94,16 @@
   width: 100%;
 }
 
+.sidebarItemActive::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #78a4cc;
+  opacity: 0.5;
+  border-radius: 0 20px 20px 0;
+  z-index: -1;
+}
+
 
 
 .sidebarItemIcon {

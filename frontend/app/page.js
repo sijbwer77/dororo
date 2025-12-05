@@ -24,7 +24,7 @@ export default function LoginPage() {
     // TODO: 실제로는 아이디/비밀번호를 확인하여 role을 얻은 후 리다이렉트해야 합니다.
     const tempUserId = document.getElementById('id').value;
     if (tempUserId === 'admin') {
-      router.replace('/admin');
+      router.replace('/manage');
     } else if (tempUserId === 'student') {
       router.replace('/student');
     } else {

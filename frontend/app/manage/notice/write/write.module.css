@@ -1,0 +1,133 @@
+/* 전체 레이아웃 */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* 헤더 */
+.header {
+  width: 100%;
+  height: 80px;
+  border-bottom: 1px solid #d3e3f2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+}
+
+.profile {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* 사이드바 */
+.layout {
+  display: flex;
+  width: 100%;
+}
+
+.sidebar {
+  width: 200px;
+  background: #dbe8f4;
+  height: calc(100vh - 80px);
+  padding-top: 30px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  cursor: pointer;
+}
+
+.menuItem span {
+  font-size: 16px;
+  color: #0a5fae;
+}
+
+.active {
+  background: #ffffff;
+  border-left: 4px solid #0a5fae;
+}
+
+/* 메인 */
+.main {
+  flex: 1;
+  padding: 40px;
+  position: relative;
+  margin-left: 115px;
+}
+
+/* 등록하기 버튼 */
+.submitBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 30px 40px;
+  background: #ffffff;
+  border: 1px solid #0a5fae;
+  color: #0a5fae;
+  font-size: 18px;
+  padding: 12px 35px;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+/* 양식 박스 */
+.formBox {
+  margin-top: 80px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.label {
+  width: 180px;
+  height: 55px;
+  background: #dbe8f4;
+  border: 1px solid #0a5fae;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 17px;
+}
+
+.input {
+  flex: 1;
+  height: 55px;
+  border: 1px solid #0a5fae;
+  padding-left: 15px;
+  font-size: 16px;
+}
+
+.fileUpload {
+  flex: 1;
+  height: 55px;
+  border: 1px solid #0a5fae;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 20px;
+  color: #606060;
+  cursor: pointer;
+}
+
+.fileUpload input {
+  display: none;
+}
+
+.textarea {
+  width: 100%;
+  height: 350px;
+  border: 1px solid #0a5fae;
+  padding: 20px;
+  font-size: 16px;
+  margin-top: 10px;
+  resize: none;
+}

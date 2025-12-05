@@ -1,0 +1,188 @@
+/* 전체 레이아웃: 왼쪽 패널 + 오른쪽 빈 화면 */
+.messageLayout {
+  display: flex;
+  width: 100%;
+  /* admin layout에서 이미 padding이 있으니까 여기선 안 줌 */
+}
+
+/* 사이드바 오른쪽부터 시작하는 왼쪽 패널 */
+.leftPane {
+  /* 사이드바 경계선 ~ 내부 세로선까지의 폭 느낌 */
+  width: 380px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 0;      /* 사이드바 경계선에서 조금 띄우기 */
+  box-sizing: border-box;
+  border-right: 1px solid #aeaeae;
+  height: 10000px;
+  margin-top: -82px;
+  padding-top: calc(20px + 82px);
+}
+
+/* 오른쪽은 그냥 흰 화면 */
+.rightPane {
+  flex: 1;
+  min-height: 600px;
+  background: #ffffff;
+}
+
+/* ===================== */
+/* 검색 박스             */
+/* ===================== */
+
+/* 검색 박스: 사이드바와 내부 선 사이의 공간에서 살짝 안쪽에 자리 */
+.searchBox {
+  position: relative;
+
+  width: 320px;
+  height: 48px;
+
+  /* 🔥 가운데 정렬 깨고, 왼쪽으로 붙이기 */
+  margin-top: -1px;
+  margin-right: 0;
+  margin-bottom: 24px;
+  margin-left: 5px;      /* 좀 띄우고 싶으면 5px, 8px 이런 식으로 */
+
+  border-radius: 15px;
+  border: 1px solid #d6d6d6;
+  background: #ffffff;
+
+  display: flex;
+  align-items: center;
+  padding: 0 40px 0 16px;
+  box-sizing: border-box;
+}
+
+
+.searchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: "KoPubWorldDotum";
+  font-size: 16px;
+  color: #000000;
+}
+
+.searchInput::placeholder {
+  color: #8f9091;
+}
+
+/* 돋보기 버튼 (오른쪽) */
+.searchButton {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 26px;
+  height: 26px;
+
+  border: none;
+  background: none;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ===================== */
+/* 강사 / 매니저 박스     */
+/* ===================== */
+
+/* ===================== */
+/* 강사 / 매니저 박스     */
+/* ===================== */
+
+.roleBox {
+  width: 424px;
+  margin-top: 0;
+  margin-left: -44px;
+
+  /* 🔥 일단 기존 테두리 완전 삭제 */
+  border: none;
+
+  /* 좌우 선만 유지하고 싶으면 이 두 줄만 */
+  border-left: 1px solid #aeaeae;
+  border-right: 1px solid #aeaeae;
+
+  border-radius: 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* 공통 줄 스타일 (기본은 선 없음) */
+.roleRow {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  box-sizing: border-box;
+  background: #ffffff;
+  cursor: pointer;
+
+  border: none;              /* 🔥 여기에서 가로선 전부 지움 */
+}
+
+/* 맨 위 선: 강사 위 (1px, 진한 선) */
+.roleRow:first-child {
+  border-top: 1px solid #aeaeae;
+}
+
+/* 강사/메니저 사이 선: 얇게 보이게 (0.5px 느낌) */
+.roleRow + .roleRow {
+  border-top: 0.5px solid #aeaeae;   /* ← 여기만 더 얇게 */
+}
+
+/* 맨 아래 선: 메니저 아래 (1px, 진한 선) */
+.roleRow:last-child {
+  border-bottom: 1px solid #aeaeae;
+}
+
+
+
+/* 왼쪽 아이콘 자리: 여기 svg 넣음 */
+.roleIcon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 텍스트: 강사 / 매니저 */
+.roleLabel {
+  font-family: "KoPubWorldDotum";
+  font-size: 18px;
+  font-weight: 500;
+  color: #000000;
+}
+
+/* ===================== */
+/* 반응형 (필요하면)      */
+/* ===================== */
+
+@media (max-width: 1200px) {
+  .messageLayout {
+    flex-direction: column;
+  }
+
+  .leftPane {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #aeaeae;
+  }
+
+  .rightPane {
+    min-height: 400px;
+  }
+
+  .searchBox,
+  .roleBox {
+    width: 90%;
+  }
+}
