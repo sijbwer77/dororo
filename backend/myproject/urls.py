@@ -32,4 +32,5 @@ urlpatterns = [
     path('api/learning/',include('apps.learning.urls')),
     path("api/", include("apps.gamification.urls")),
     path("api/", include("apps.challenge.urls")),
+    path("api/", include("apps.message.urls")),
 ]
