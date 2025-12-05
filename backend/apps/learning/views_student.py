@@ -12,8 +12,6 @@ from django.utils import timezone
 
 from .models import Course, Assignment, Attendance, Submission
 from .serializers import StudentCourseListSerializer, StudentNoticeSerializer, StudentAssignmentSerializer, SubmissionSerializer
-from .serializers import AssignmentSerializer, AttendanceSerializer
-
 
 # 강의 목록
 class StudentCoursesAPIView(APIView):
@@ -21,7 +19,7 @@ class StudentCoursesAPIView(APIView):
 
     def get(self, request):
         student = request.user
-
+        print("DEBUG >> request.user =", request.user)
         
         enrollments = student.enrollments.select_related("course")
         courses = [e.course for e in enrollments]
@@ -135,10 +133,13 @@ class StudentAssignmentDetailAPIView(APIView):
         submission.save()
         return Response(SubmissionSerializer(submission).data, status=200)
 
+class LessonAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
 
 
-# 1) 내 정보
+
+# 여기부터는 아직 코드 작성 안됨
 class MyInfoAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -158,9 +159,6 @@ class MyInfoAPIView(APIView):
             "role": local.role if local else "",
         })
 
-
-
-# 5) 강의 출석 목록
 class StudentCourseAttendanceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

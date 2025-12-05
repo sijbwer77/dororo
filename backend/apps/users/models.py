@@ -27,6 +27,13 @@ class LocalAccount(TimeStampedModel):
     account_type = models.CharField(max_length=20, default='local')
     role = models.CharField(max_length=20, choices=Role.choices)
 
+    solvedac_handel = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="백준/solved.ac 아이디 (선택)"
+    )
+
     class Meta:
         db_table = 'local_account'
 

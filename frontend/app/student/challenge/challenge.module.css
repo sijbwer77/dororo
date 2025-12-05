@@ -1,0 +1,491 @@
+/* 전체 레이아웃 */
+/* app/student/challenge/challenge.module.css */
+
+/* 전체 레이아웃 (eval 페이지와 동일한 틀) */
+.pageLayout {
+  position: relative;
+  width: 1590px;
+  height: 903px;
+  background: #ffffff;
+  margin: 0 auto;
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* ====== 사이드바 (eval.module.css 참고) ====== */
+.sidebar {
+  width: 298px;
+  height: 889px;
+  background: #BFDBFE;
+  border-radius: 25px;
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+/* 로고 + 프로필 */
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebarLogo {
+  width: 147px;
+  height: 38px;
+  margin-top: 11px;
+}
+
+.profileIcon {
+  width: 184px;
+  height: 184px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+/* 타이틀 + 메뉴 묶음 */
+.sidebarMainGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 80px;
+}
+
+/* CHALLENGE 타이틀 */
+.sidebarTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding-left: 10px;
+}
+
+.sidebarTitleIcon {
+  width: 25px;
+  height: 32px;
+}
+
+.sidebarTitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 28px;
+  color: #0a5fae;
+  margin: 0;
+}
+
+/* 메뉴 리스트 */
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  padding-left: 0;
+}
+
+/* 메뉴 아이템 */
+.menuItem {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 23px;
+  line-height: 38px;
+  color: #0a5fae;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 43px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 링크 전체 */
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+}
+
+/* 점 아이콘 */
+.menuIcon {
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menuIconDot {
+  width: 8px;
+  height: 8px;
+  background-color: #0a5fae;
+  border-radius: 50%;
+}
+
+/* 활성화 메뉴 */
+.menuItem.active {
+  background: rgba(10, 95, 174, 0.5);
+  color: #ffffff;
+}
+
+.menuItem.active .menuIconDot {
+  background-color: #ffffff;
+}
+
+/* 푸터 */
+.sidebarFooter {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 15px;
+}
+
+
+/* ====== 오른쪽 메인 영역 ====== */
+
+.challengeMain {
+  position: absolute;
+  left: 357px;
+  top: 32px;
+  width: 1126px;
+  height: 781px;
+  background: #ffffff;
+  border-radius: 25px;
+  box-sizing: border-box;
+  padding: 32px 40px 40px 40px;
+  border: 1px solid #aeaeae;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 상단 : seobin321 / 문제해결 / 아레나 */
+
+.challengeHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: "KoPubWorldDotum";
+  margin-bottom: 8px;
+}
+
+.challengeUserName {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 31px;
+  color: #000000;
+}
+
+.headerLabel {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: #000000;
+}
+
+.headerTrophyGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.headerNumber {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: #000000;
+}
+
+.headerBar {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: #000000;
+}
+
+.challengeHeaderDivider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #aeaeae;
+  margin-bottom: 24px;
+}
+
+/* 상단 카드 3개 */
+
+.challengeCardsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.challengeCard {
+  position: relative;
+  background: #e4f1ff; /* 전부 선명하게 */
+  border-radius: 10px;
+  padding: 30px 20px;
+  box-sizing: border-box;
+}
+
+/* 가운데 카드만 색 조금 더 진하게 */
+.challengeCard:nth-child(2) {
+  background: #c6e1ff;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: -15px;
+}
+
+.cardHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardLabel {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 15px;
+  color: #000000;
+}
+
+.cardSubText {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 13px;
+  color: #000000;
+}
+
+.cardSubTextRight {
+  margin-top: 36px;
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 15px;
+  color: #000000;
+}
+
+.cardMainValue {
+  margin-top: 32px;
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 38px;
+  color: #000000;
+}
+
+/* CLASS 2 원형 게이지 */
+
+.cardGaugeBox {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardGaugeCircle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 20px solid #0b99e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.cardGaugeText {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 18px;
+  color: #000000;
+  margin-top: -3px;
+}
+
+/* "오늘은 아직 문제를 풀지 않았어요" */
+
+.challengeInfoSection {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.challengeSectionTitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 38px;
+  margin: 0 0 8px 0;
+  color: #000000;
+}
+
+.challengeDivider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #aeaeae;
+}
+
+/* 마라톤 영역 */
+
+.marathonSection {
+  margin-top: 0px;
+  background: #f1f6ff; /* 연하지만 불투명한 배경 */
+  border-radius: 10px;
+  padding: 24px 28px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+/* 상단 타이틀 + 새로고침 */
+
+.marathonHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.marathonTitleArea {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.marathonIconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marathonTitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 16px;
+  color: #000000;
+}
+
+.marathonSubtitle {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 12px;
+  color: #8f9091;
+}
+
+.refreshButton {
+  width: 35px;
+  height: 35px;
+  border: none;
+  background: #f1f6ff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -14px;
+}
+
+/* A~E 라벨 */
+
+.marathonStagesHeader {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 18px;
+  color: #000000;
+  text-align: center;
+}
+
+/* 보상 행 */
+
+.marathonRewardRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.rewardItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 컵 아이콘 (색만 다르게) */
+.rewardIconCup,
+.rewardIconCupPrimary {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;              /* 아이콘 가운데 정렬용 */
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+
+.rewardScore {
+  font-family: "KoPubWorldDotum";
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 30px;
+  color: #000000;
+}
+
+.rewardPlus {
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #8f9091;
+}
+
+.rewardButton {
+  border: none;
+  background: transparent;
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #8f9091;
+  cursor: pointer;
+}
+
+/* 하단 난이도 / 퍼포먼스 / 거리 */
+
+.marathonFooter {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  font-family: "KoPubWorldDotum";
+  font-weight: 500;
+  font-size: 16px;
+  color: #000000;
+}
+
+.totalDistance {
+  margin-left: auto;
+  color: #8f9091;
+}
