@@ -24,7 +24,7 @@ export default function TeamPage() {
     async function fetchGroup() {
       try {
         const res = await fetch(
-          `http://localhost:8000/api/group/courses/${courseId}/my-group/`,
+          `http://localhost:8000/api/group/${courseId}/my-group/`,
           { credentials: "include" }
         );
         const data = await res.json();

@@ -2,15 +2,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
+from rest_framework import status, permissions
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
 from .models import Course, GroupMember
 from .serializers import GroupMemberSerializer
-
 
 class MyGroupView(APIView):
     permission_classes = [IsAuthenticated]
@@ -35,6 +30,42 @@ class MyGroupView(APIView):
 
         serializer = GroupMemberSerializer(membership)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+from .models import Group, GroupFile
+from .serializers import GroupFileSerializer
+from django.shortcuts import get_object_or_404
+
+class GroupFileListCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, group_id):
+        """그룹의 모든 파일 목록 조회"""
+        group = get_object_or_404(Group, id=group_id)
+
+        files = group.files.all()
+        serializer = GroupFileSerializer(files, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, group_id):
+        """파일 업로드"""
+        group = get_object_or_404(Group, id=group_id)
+
+        uploaded_file = request.FILES.get("file")
+        if not uploaded_file:
+            return Response({"error": "file is required"}, status=400)
+
+        group_file = GroupFile.objects.create(
+            group=group,
+            uploader=request.user,
+            file=uploaded_file,
+        )
+
+        serializer = GroupFileSerializer(group_file)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+#아래는 미구현됨 아직 테스트중
 
 # 그룹 메시지 - 수정중
 from .models import GroupMessage

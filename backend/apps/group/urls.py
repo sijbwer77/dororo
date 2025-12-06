@@ -3,10 +3,11 @@ from django.urls import path
 
 from .views import MyGroupView
 from .views import PageDetailView
-
+from .views import GroupFileListCreateView
 
 urlpatterns = [
-    path("courses/<int:course_id>/my-group/", MyGroupView.as_view()),
+    path("<int:course_id>/my-group/", MyGroupView.as_view()),
+    path("<int:group_id>/files/", GroupFileListCreateView.as_view()),
 
     #아래는 수정중
     # GET /api/group/<group_id>/messages/
