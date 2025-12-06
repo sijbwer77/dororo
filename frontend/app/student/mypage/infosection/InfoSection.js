@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import styles from './infosection.module.css';
+import Image from "next/image";
+import styles from "./infosection.module.css";
 
-export default function InfoSection({ isEditing, setIsEditing, userData, handleInputChange }) {
+export default function InfoSection({
+  isEditing,
+  setIsEditing,
+  userData,
+  handleInputChange,
+  saveChanges,
+}) {
   if (!userData) return null;
 
   return (
@@ -11,13 +17,13 @@ export default function InfoSection({ isEditing, setIsEditing, userData, handleI
       <header className={styles.profileHeader}>
         <div className={styles.profileAvatar}>
           <Image
-            src={userData.profileImage || '/profile-circle.svg'}
+            src={userData.profileImage || "/profile-circle.svg"}
             alt="프로필 아이콘"
             fill
-            sizes="246px"
             className={styles.profilePreview}
           />
         </div>
+
         {isEditing && (
           <label className={styles.uploadLabel}>
             프로필 이미지 변경
@@ -29,11 +35,12 @@ export default function InfoSection({ isEditing, setIsEditing, userData, handleI
                 const file = e.target.files?.[0];
                 if (!file) return;
                 const objectUrl = URL.createObjectURL(file);
-                handleInputChange({ target: { name: 'profileImage', value: objectUrl } });
+                handleInputChange({ target: { name: "profileImage", value: objectUrl } });
               }}
             />
           </label>
         )}
+
         <h1 className={styles.profileName}>{userData.name}</h1>
       </header>
 
@@ -41,7 +48,10 @@ export default function InfoSection({ isEditing, setIsEditing, userData, handleI
         <div className={styles.infoTitleBar}>
           <h2 className={styles.infoTitle}>개인 정보</h2>
 
-          <div className={styles.pencilIcon} onClick={() => setIsEditing(!isEditing)}>
+          <div
+            className={styles.pencilIcon}
+            onClick={isEditing ? saveChanges : () => setIsEditing(true)}
+          >
             {isEditing ? (
               <Image src="/save.svg" alt="저장" width={24} height={24} />
             ) : (
@@ -49,53 +59,56 @@ export default function InfoSection({ isEditing, setIsEditing, userData, handleI
             )}
           </div>
         </div>
+
         <div className={styles.titleLine}></div>
 
         <div className={styles.infoGrid}>
-          <span className={styles.infoLabel}>이름</span>
+          {/* 이름(nickname) */}
+          <span className={styles.infoLabel}>닉네임</span>
           {isEditing ? (
             <input
-              name="name"
+              name="nickname"
               className={styles.infoInput}
-              value={userData.name}
+              value={userData.nickname}
               onChange={handleInputChange}
             />
           ) : (
-            <span className={styles.infoValue}>{userData.name}</span>
+            <span className={styles.infoValue}>{userData.nickname}</span>
+          )}
+          <div className={styles.infoLine}></div>
+          
+          {/* 전화번호 */}
+          <span className={styles.infoLabel}>전화번호</span>
+          {isEditing ? (
+            <input
+              name="phone_number"
+              className={styles.infoInput}
+              value={userData.phone_number}
+              onChange={handleInputChange}
+            />
+          ) : (
+            <span className={styles.infoValue}>{userData.phone_number}</span>
           )}
           <div className={styles.infoLine}></div>
 
+          {/* 소속 */}
           <span className={styles.infoLabel}>소속</span>
-          {isEditing ? (
-            <input
-              name="organization"
-              className={styles.infoInput}
-              value={userData.organization}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <span className={styles.infoValue}>{userData.organization}</span>
-          )}
+          <span className={styles.infoValue}>{userData.role}</span>
           <div className={styles.infoLine}></div>
 
+          {/* ID */}
           <span className={styles.infoLabel}>ID</span>
           <span className={styles.infoValue}>{userData.username}</span>
           <div className={styles.infoLine}></div>
 
+          {/* 이메일 */}
           <span className={styles.infoLabel}>e-mail</span>
-          {isEditing ? (
-            <input
-              name="email"
-              type="email"
-              className={styles.infoInput}
-              value={userData.email}
-              onChange={handleInputChange}
-            />
-          ) : (
-            <span className={styles.infoValue}>{userData.email}</span>
-          )}
+          <span className={styles.infoValue}>{userData.email}</span>
           <div className={styles.infoLine}></div>
 
+
+
+          {/* solved.ac */}
           <span className={styles.infoLabel}>solved.ac ID</span>
           {isEditing ? (
             <input
@@ -103,12 +116,12 @@ export default function InfoSection({ isEditing, setIsEditing, userData, handleI
               className={styles.infoInput}
               value={userData.solvedAc}
               onChange={handleInputChange}
-              placeholder="예: johndoe123"
             />
           ) : (
-            <span className={styles.infoValue}>{userData.solvedAc || ''}</span>
+            <span className={styles.infoValue}>{userData.solvedAc || ""}</span>
           )}
         </div>
+
         <div className={styles.bottomLine}></div>
       </section>
     </>
