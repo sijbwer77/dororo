@@ -24,13 +24,10 @@ urlpatterns = [
     path("api/", include("apps.message.urls")),
     path("api/", include("apps.eval.urls")),
     path("api/", include("apps.schedule.urls")), 
-<<<<<<< HEAD
     re_path(r"^course_messages/(?P<path>.*)$", serve_course_message_file),
-=======
 
     
     path('api/', include(router.urls)),
->>>>>>> d2a2df64e03c8901c4b048eddd34b0c4fee02517
 ]
 
 if settings.DEBUG:
