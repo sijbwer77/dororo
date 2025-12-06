@@ -4,6 +4,38 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .models import Course, GroupMember
+from .serializers import GroupMemberSerializer
+
+
+class MyGroupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return Response(
+                {"detail": "Course not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # 현재 로그인한 유저가 해당 코스에서 속한 그룹 찾기
+        membership = GroupMember.objects.filter(
+            user=request.user,
+            group__course=course
+        ).select_related("group").first()
+
+        if membership is None:
+            return Response({"group": None}, status=status.HTTP_200_OK)
+
+        serializer = GroupMemberSerializer(membership)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 # 그룹 메시지 - 수정중
 from .models import GroupMessage
 
