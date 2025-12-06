@@ -20,8 +20,11 @@ export async function apiFetch(path, options = {}) {
   const url = `${API_BASE_URL}${path}`;
   const method = (options.method || 'GET').toUpperCase();
 
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+  // ⬇️ body가 FormData면 Content-Type을 직접 지정하지 않기
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {}),
   };
 
