@@ -8,6 +8,7 @@ from .views_student import (
     StudentCourseNoticesAPIView,
     StudentAssignmentsAPIView,
     StudentAssignmentDetailAPIView,
+    StudentCourseLessonsAPIView,
 
     MyInfoAPIView,
     StudentCourseAttendanceAPIView,
@@ -16,7 +17,8 @@ urlpatterns = [
     path('student/courses/', StudentCoursesAPIView.as_view(), name='student-courses'),
     path('student/course/<int:course_id>/notices/', StudentCourseNoticesAPIView.as_view()),
     path("student/course/<int:course_id>/assignments/", StudentAssignmentsAPIView.as_view()),
-    path("student/course/<int:course_id>/assignment/<int:assignment_id>/",StudentAssignmentDetailAPIView.as_view(),),
+    path("student/course/<int:course_id>/assignment/<int:assignment_id>/",StudentAssignmentDetailAPIView.as_view()),
+    path("student/courses/<int:course_id>/lessons/",StudentCourseLessonsAPIView.as_view()),
     
     #아래는 수정중
     path('user/me/', MyInfoAPIView.as_view(), name='user-me'),
