@@ -18,6 +18,9 @@ class ScheduleEventSerializer(serializers.ModelSerializer):
             "status",
             "type",
             "course",
+            "course_id",
+            "course_name",
+            "course_color",
         )
         read_only_fields = ("id", "type")
 
@@ -39,11 +42,6 @@ class ScheduleEventSerializer(serializers.ModelSerializer):
 
         validated_data["user"] = user
         validated_data["type"] = "personal"  # 강의 일정은 서버에서만 생성
-
-        # course_* 필드는 personal 일정에서는 굳이 안 씀
-        validated_data.pop("course_id", None)
-        validated_data.pop("course_name", None)
-        validated_data.pop("course_color", None)
 
         return super().create(validated_data)
 
