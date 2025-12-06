@@ -15,10 +15,64 @@ def _keyword_match(text: str, keywords: list[str]) -> bool:
     return any(kw.lower() in lower for kw in keywords)
 
 
-def _llm_suggest(text: str) -> tuple[SuggestionResult | None, str | None]:
-    """
-    간단한 LLM 추천. (result, error_message)를 반환.
-    """
+def _google_llm(text: str) -> tuple[SuggestionResult | None, str | None]:
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        return None, "GOOGLE_API_KEY not set"
+
+    system_prompt = (
+        "당신은 친절한 상담사입니다. 사용자의 메시지를 보고 간결한 안내와 다음 단계, "
+        "확인이 필요한 정보가 있다면 물어봐 주세요. 끝에 '이 안내로 해결되셨나요?'라는 "
+        "문구로 확인을 요청하세요."
+    )
+
+    model = os.getenv("GOOGLE_GENAI_MODEL", "gemini-1.5-flash")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    payload = {
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": text}],
+            }
+        ],
+        "generation_config": {
+            "temperature": 0.4,
+            "max_output_tokens": 256,
+        },
+    }
+
+    req = request.Request(
+        url,
+        data=json.dumps(payload).encode(),
+        headers={"Content-Type": "application/json"},
+    )
+    try:
+        with request.urlopen(req, timeout=15) as resp:
+            body = resp.read()
+        data = json.loads(body.decode())
+        candidates = data.get("candidates", [])
+        if candidates:
+            parts = candidates[0].get("content", {}).get("parts", [])
+            texts = [p.get("text", "") for p in parts if p.get("text")]
+            content = "\n".join(t.strip() for t in texts if t.strip())
+            if content:
+                return SuggestionResult(category="LLM", message=content), None
+    except Exception as e:
+        print("[LLM] google genai 호출 실패:", e, flush=True)
+        err_body = None
+        if isinstance(e, error.HTTPError):
+            try:
+                err_body = e.read().decode()
+                print("[LLM] HTTPError body:", err_body, flush=True)
+            except Exception:
+                pass
+        return None, err_body or str(e)
+
+    return None, "LLM 응답이 비어 있습니다."
+
+
+def _openai_llm(text: str) -> tuple[SuggestionResult | None, str | None]:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         return None, "OPENAI_API_KEY not set"
@@ -34,10 +88,7 @@ def _llm_suggest(text: str) -> tuple[SuggestionResult | None, str | None]:
                     "문구로 확인을 요청하세요."
                 ),
             },
-            {
-                "role": "user",
-                "content": text,
-            },
+            {"role": "user", "content": text},
         ],
         "max_tokens": 200,
         "temperature": 0.4,
@@ -64,7 +115,6 @@ def _llm_suggest(text: str) -> tuple[SuggestionResult | None, str | None]:
         if content:
             return SuggestionResult(category="LLM", message=content), None
     except Exception as e:
-        # 디버깅용 로그 (runserver 콘솔에 출력)
         print("[LLM] openai chat 호출 실패:", e, flush=True)
         err_body = None
         if isinstance(e, error.HTTPError):
@@ -73,9 +123,7 @@ def _llm_suggest(text: str) -> tuple[SuggestionResult | None, str | None]:
                 print("[LLM] HTTPError body:", err_body, flush=True)
             except Exception:
                 pass
-        # 에러 내용을 클라이언트에 노출할 땐 민감정보를 제거
-        safe_msg = err_body or str(e)
-        return None, safe_msg
+        return None, err_body or str(e)
 
     return None, "LLM 응답이 비어 있습니다."
 
@@ -191,27 +239,15 @@ def build_suggestion(text: str) -> SuggestionResult:
     if not normalized:
         return SuggestionResult(category=None, message=None)
 
-    llm_available = bool(os.getenv("OPENAI_API_KEY"))
-
-    # LLM 우선 사용 (키가 설정된 경우)
-    if llm_available:
-        llm_res, llm_err = _llm_suggest(normalized)
+    # LLM 우선: Google → OpenAI 순
+    if os.getenv("GOOGLE_API_KEY"):
+        llm_res, llm_err = _google_llm(normalized)
         if llm_res and llm_res.message:
             return llm_res
-        # LLM 실패 시 규칙 기반으로라도 답변 제공하고, 카테고리/메시지에 실패 이유를 담아줌
-        for category, keywords in RULES:
-            if _keyword_match(normalized, keywords):
-                return SuggestionResult(
-                    category=f"LLM_ERROR/{category}",
-                    message=TEMPLATES.get(category)
-                    + ("\n(LLM 호출 실패: {msg})".format(msg=llm_err) if llm_err else ""),
-                )
-        return SuggestionResult(
-            category="LLM_ERROR",
-            message=f"LLM 호출 실패: {llm_err or '알 수 없는 오류'}",
-        )
+        if llm_err:
+            print(f"[LLM] google 실패, rules fallback. reason={llm_err}", flush=True)
 
-    # LLM 키가 없을 때만 규칙 기반 사용
+    # 규칙 기반
     for category, keywords in RULES:
         if _keyword_match(normalized, keywords):
             return SuggestionResult(category=category, message=TEMPLATES.get(category))

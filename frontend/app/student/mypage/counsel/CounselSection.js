@@ -11,10 +11,18 @@ import {
   fetchConsultationSuggestion,
   sendConsultationMessage,
 } from '@/lib/consultation';
+import { API_BASE_URL } from '@/lib/api';
 
 const STATUS_LABELS = {
   IN_PROGRESS: '진행 중',
   DONE: '답변 완료',
+};
+
+const apiBaseToWs = (url) => {
+  if (!url) return '';
+  if (url.startsWith('https://')) return url.replace('https://', 'wss://');
+  if (url.startsWith('http://')) return url.replace('http://', 'ws://');
+  return `ws://${url}`;
 };
 
 const formatDateTime = (iso) => {
@@ -112,6 +120,66 @@ export default function CounselSection() {
     };
     loadDetail();
   }, [selected]);
+
+  // 폴링: 새 메시지 반영 (WS 실패 대비)
+  useEffect(() => {
+    if (!selectedId) return;
+    const timer = setInterval(async () => {
+      if (document.visibilityState !== 'visible') return;
+      try {
+        const detail = await fetchConsultationDetail(selectedId);
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === selectedId
+              ? {
+                  ...c,
+                  title: detail.title || c.title,
+                  status: detail.status || c.status,
+                  created_at: detail.created_at || c.created_at,
+                  messages: detail.messages || [],
+                  last_message: detail.messages?.slice(-1)[0]?.text || c.last_message,
+                  last_message_at: detail.messages?.slice(-1)[0]?.created_at || c.last_message_at,
+                }
+              : c
+          )
+        );
+      } catch {
+        // ignore
+      }
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [selectedId]);
+
+  // --- WebSocket 연결 (실시간 수신) ---
+  useEffect(() => {
+    if (!selectedId) return;
+    const wsBase = apiBaseToWs(API_BASE_URL);
+    const socket = new WebSocket(`${wsBase}/ws/consultations/${selectedId}/`);
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setConversations((prev) =>
+          prev.map((c) =>
+            String(c.id) === String(selectedId)
+              ? {
+                  ...c,
+                  messages: c.messages ? [...c.messages, data] : [data],
+                  last_message: data.text,
+                  last_message_at: data.created_at,
+                }
+              : c
+          )
+        );
+      } catch (e) {
+        console.error('ws parse error', e);
+      }
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [selectedId]);
 
   const deriveTitle = (text) => {
     const normalized = text.replace(/\s+/g, ' ').trim();
