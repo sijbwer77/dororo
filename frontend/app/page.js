@@ -9,13 +9,6 @@ import styles from './login.module.css';
 import { login } from '@/lib/users';
 import { ensureCsrfCookie } from '@/lib/api';
 
-async function handleLogin() {
-  await login(id, pw);           // 세션 로그인
-  await ensureCsrfCookie();      // csrftoken 쿠키 받기
-  // -> 마이페이지로 이동
-}
-
-
 export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState('');
@@ -28,12 +21,19 @@ export default function LoginPage() {
     }
 
     try {
+      // 백엔드 로그인 요청
       const data = await login(username, password);
+
+      // CSRF 쿠키 확보 (필요한 경우)
+      await ensureCsrfCookie();
+
+      // 백엔드에서 ok=false로 내려온 경우 방어
       if (!data?.ok) {
-        alert('로그인에 실패했습니다.');
+        alert('아이디 또는 비밀번호가 일치하지 않습니다.');
         return;
       }
 
+      // role에 따라 페이지 분기
       if (data.role === 'SP') {
         router.replace('/student');
       } else if (data.role === 'MG') {
@@ -43,9 +43,36 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error('로그인 실패:', err);
-      const msg =
-        err.errors?.non_field_errors?.[0] ||
-        '아이디 또는 비밀번호가 일치하지 않습니다.';
+
+      // 🔑 로그인 실패 시: { ok: false, errors: {...} } 또는 에러 dict 그대로 올 수 있음
+      const errors = err.errors || err;
+
+      let msg = null;
+
+      // 1) 우리가 백엔드에서 던진 non_field_errors 먼저
+      if (Array.isArray(errors?.non_field_errors)) {
+        msg = errors.non_field_errors[0];
+      } else if (typeof errors?.non_field_errors === 'string') {
+        msg = errors.non_field_errors;
+      }
+
+      // 2) 혹시 username/password 필드 에러가 있을 수도 있으니 보조로
+      if (!msg && errors?.username) {
+        msg = Array.isArray(errors.username)
+          ? errors.username[0]
+          : errors.username;
+      }
+      if (!msg && errors?.password) {
+        msg = Array.isArray(errors.password)
+          ? errors.password[0]
+          : errors.password;
+      }
+
+      // 3) 그래도 없으면 기본 문구
+      if (!msg) {
+        msg = '아이디 또는 비밀번호가 일치하지 않습니다.';
+      }
+
       alert(msg);
     }
   };
