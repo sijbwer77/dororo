@@ -133,6 +133,9 @@ class StudentAssignmentDetailAPIView(APIView):
         submission.save()
         return Response(SubmissionSerializer(submission).data, status=200)
 
+class LessonAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
 
 from .serializers import LearningPageSerializer
 from .models import Course, Lesson
