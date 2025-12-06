@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'apps.challenge',
     
     # 'apps.group', 
-  
     'apps.group.apps.GroupConfig',
 
     #웹소켓
@@ -95,6 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
+ASGI_APPLICATION = 'myproject.asgi.application'
 
 
 # Database
@@ -212,17 +212,12 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # --- External services (LLM 등) ---
-OPENAI_API_KEY = os.getenv("open api")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
 
-# 웹소켓 관련
+# 웹소켓 관련 (개발용 InMemory. 운영 시 Redis 백엔드로 교체)
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
-
-ASGI_APPLICATION = "myproject.asgi.application"

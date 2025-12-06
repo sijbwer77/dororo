@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='lesson',
-            name='content',
-        ),
         migrations.AlterField(
             model_name='submission',
             name='status',
