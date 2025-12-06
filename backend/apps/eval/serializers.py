@@ -77,6 +77,11 @@ class CourseEvaluationCreateSerializer(serializers.Serializer):
         if course is None:
             raise serializers.ValidationError("유효하지 않은 강의입니다.")
 
+        # ✅ 종료된 강의(status='finished')만 만족도 조사 가능
+        #    Course.STATUS_CHOICES 참고: 'finished' 가 "종료" 상태임 
+        if course.status != "finished":
+            raise serializers.ValidationError("종료된 수업만 만족도 조사를 할 수 있습니다.")
+
         # 1) 이미 평가했는지 체크 (있으면 기억만 하고 에러는 안 냄)
         existing = CourseEvaluation.objects.filter(
             student=user,
