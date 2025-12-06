@@ -21,6 +21,18 @@ class GroupMember(models.Model):
     def __str__(self):
         return f"{self.user} in {self.group}"
 
+class GroupFile(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="files")
+    uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True) # models.SET_NULL - 사용자 삭제도어도 파일 날라가지 않음
+    file = models.FileField(upload_to="resources/group")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.group.name}: {self.file.name}"
+
 class GroupMessage(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

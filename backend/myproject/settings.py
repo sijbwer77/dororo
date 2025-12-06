@@ -115,6 +115,7 @@ DATABASES = {
     }
 }
 '''
+
 '''
 #인화 DB
 DATABASES = {
@@ -130,6 +131,7 @@ DATABASES = {
 '''
 
 '''
+
 #준석 DB
 DATABASES = {
     'default': {

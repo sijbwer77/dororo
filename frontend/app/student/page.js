@@ -1,10 +1,11 @@
+// frontend/app/student/page.js
 'use client';
 
 import { useEffect, useState } from "react";
 import styles from "./student.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import SideBarFooter from "@/components/SideBarFooter.js";
 
 const sidebarMenus = [
@@ -21,16 +22,30 @@ const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
 
 export default function StudentDashboard() {
   const pathname = usePathname();
+  const router = useRouter();
   const [courses, setCourses] = useState([]);
+  const [ready, setReady] = useState(false); // 역할 체크 끝났는지
 
-  // 백엔드에서 강의 목록 가져오기
   useEffect(() => {
-    const fetchCourses = async () => {
+    const init = async () => {
       try {
+        // 1) 내 정보 가져와서 role 확인
+        const meRes = await fetch("http://localhost:8000/api/user/me/", {
+          credentials: "include",
+        });
+        if (!meRes.ok) throw new Error("auth failed");
+
+        const me = await meRes.json();
+        if (me.role !== "SP") {
+          alert("학생만 접근할 수 있는 페이지입니다.");
+          router.replace("/");
+          return;
+        }
+
+        // 2) 학생이면 강의 목록 가져오기
         const res = await fetch("http://localhost:8000/api/student/courses/", {
           credentials: "include",   // 로그인 세션 유지
         });
-
         if (!res.ok) throw new Error("Failed to fetch courses");
 
         let data = await res.json();
@@ -43,20 +58,25 @@ export default function StudentDashboard() {
         }));
 
         setCourses(data);
+        setReady(true);
       } catch (err) {
-        console.error("강의 목록 불러오기 실패:", err);
+        console.error("학생 대시보드 로딩 실패:", err);
+        router.replace("/");
       }
     };
 
-    fetchCourses();
-  }, []);
+    init();
+  }, [router]);
+
+  if (!ready) {
+    // 로딩 중에는 화면 비워두거나 스피너 넣어도 됨
+    return null;
+  }
 
   return (
     <div className={styles.pageLayout}>
-      
       {/* 왼쪽 사이드바 */}
       <nav className={styles.sidebar}>
-        
         <div className={styles.sidebarTop}>
           <div className={styles.sidebarLogo}>
             <Image src="/doro-logo.svg" alt="DORO 로고" width={147} height={38} />
@@ -89,13 +109,16 @@ export default function StudentDashboard() {
       {/* 메인 콘텐츠 */}
       <main className={styles.mainContent}>
         <div className={styles.courseGrid}>
-          
           {courses.length === 0 && (
             <p style={{ padding: "20px", fontSize: "18px" }}>수강 중인 강의가 없습니다.</p>
           )}
 
           {courses.map((course) => (
-            <Link href={`/student/course/${course.id}`} key={course.id} className={styles.courseCard}>
+            <Link
+              href={`/student/course/${course.id}`}
+              key={course.id}
+              className={styles.courseCard}
+            >
               <div className={styles.cardHeader} style={{ backgroundColor: course.color }}>
                 <span className={styles.cardCategory}>{course.category}</span>
               </div>
