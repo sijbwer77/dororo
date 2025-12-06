@@ -118,7 +118,7 @@ export default function AdminEvalPage() {
   const handleMoreClick = () => {
       // [추천] "detail"이라는 글자 대신, 현재 보고 있는 강의 번호(currentIndex)를 보냅니다.
       // 예: /admin/eval/0, /admin/eval/1 ...
-      router.push(`/admin/eval/${currentIndex}`); 
+      router.push(`/manage/eval/${currentIndex}`); 
     };
 
   return (

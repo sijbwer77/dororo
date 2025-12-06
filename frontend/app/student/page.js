@@ -1,122 +1,139 @@
 // app/student/page.js
 
-'use client'; // (usePathname 훅을 쓰려면 클라이언트 컴포넌트여야 합니다)
+'use client'; 
 
+import { useState } from "react"; // ✅ State 추가
+import { useRouter } from "next/navigation"; // ✅ Router 추가
 import styles from "./student.module.css";
 import Image from "next/image";
 import Link from "next/link"; 
-import { usePathname } from 'next/navigation'; // 현재 주소 확인용
+import { usePathname } from 'next/navigation'; 
 import { FAKE_COURSES } from "@/data/mock-courses.js"; 
-
-// (✅ 수정!) 이 줄이 빠져서 오류가 났습니다.
 import SideBarFooter from "@/components/SideBarFooter.js"; 
 
-// 'href' (링크 주소)가 추가된 메뉴
 const sidebarMenus = [
-  { 
-    text: "나의 강의실", 
-    iconPath: "/home.svg",
-    href: "/student" // '나의 강의실' 페이지 주소
-  }, 
-  { 
-    text: "마이 페이지", 
-    iconPath: "/man.svg",
-    href: "/student/mypage" // '마이 페이지' 주소
-  },
-  { 
-    text: "DIMC", 
-    iconPath: "/note.svg",
-    href: '/student/dimc' // (임시)
-  },
-  { 
-    text: "CHALLENGE", 
-    iconPath: "/medal-star.svg",
-    href: "#" // (임시)
-  },
-  { 
-    text: "강의 만족도 조사", 
-    iconPath: "/Task.svg",
-    href: "/student/eval" // (임시)
-  },
+  { text: "나의 강의실", iconPath: "/home.svg", href: "/student" }, 
+  { text: "마이 페이지", iconPath: "/man.svg", href: "/student/mypage" },
+  { text: "DIMC", iconPath: "/note.svg", href: '/student/dimc' },
+  { text: "CHALLENGE", iconPath: "/medal-star.svg", href: '/student/challenge' },
+  { text: "강의 만족도 조사", iconPath: "/Task.svg", href: "/student/eval" },
 ];
 
 export default function StudentDashboard() {
-  const pathname = usePathname(); // 현재 페이지의 주소를 가져옵니다.
+  const pathname = usePathname(); 
+  const router = useRouter(); // ✅ 라우터
+
+  // ✅ 로그아웃 모달 상태
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // 로고 클릭 -> 모달 열기
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  // 모달 확인 -> 로그아웃
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+
+  // 모달 취소 -> 닫기
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };
 
   return (
-    <div className={styles.pageLayout}>
-      
-      {/* 1. 왼쪽 사이드바 */}
-      <nav className={styles.sidebar}>
-        
-        <div className={styles.sidebarTop}>
-          <div className={styles.sidebarLogo}>
-            <Image
-              src="/doro-logo.svg" 
-              alt="DORO 로고"
-              width={147} 
-              height={38} 
-            />
+    <>
+      <div className={styles.pageLayout}>
+        {/* 1. 왼쪽 사이드바 */}
+        <nav className={styles.sidebar}>
+          <div className={styles.sidebarTop}>
+            {/* ✅ 로고 영역: 클릭 시 모달 오픈 */}
+            <div 
+              className={styles.sidebarLogo} 
+              onClick={handleLogoClick}
+              style={{ cursor: "pointer" }}
+            >
+              <Image
+                src="/doro-logo.svg" 
+                alt="DORO 로고"
+                width={147} 
+                height={38} 
+              />
+            </div>
+            <div className={styles.profileIcon}>
+              <Image
+                src="/profile-circle.svg" 
+                alt="프로필 아이콘"
+                width={184} 
+                height={184}
+              />
+            </div>
           </div>
-          <div className={styles.profileIcon}>
-            <Image
-              src="/profile-circle.svg" 
-              alt="프로필 아이콘"
-              width={184} 
-              height={184}
-            />
+
+          <ul className={styles.sidebarMenu}>
+            {sidebarMenus.map((menu) => {
+              const isActive = pathname === menu.href;
+
+              return (
+                <li
+                  key={menu.text}
+                  className={`${styles.menuItem} ${isActive ? styles.active : ""}`}
+                >
+                  <Link href={menu.href} className={styles.menuLink}>
+                    <div className={styles.menuIcon}>
+                      <Image
+                        src={menu.iconPath} 
+                        alt={`${menu.text} 아이콘`}
+                        width={30} 
+                        height={30} 
+                      />
+                    </div>
+                    {menu.text}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <SideBarFooter />
+        </nav>
+
+        {/* 2. 오른쪽 메인 콘텐츠 */}
+        <main className={styles.mainContent}>
+          <div className={styles.courseGrid}>
+            {FAKE_COURSES.map((course) => (
+              <Link href={`/student/course/${course.id}`} key={course.id} className={styles.courseCard}>
+                <div 
+                  className={styles.cardHeader} 
+                  style={{ backgroundColor: course.color }} 
+                >
+                  <span className={styles.cardCategory}>{course.category}</span>
+                </div>
+                <div className={styles.cardBody}>
+                  <p className={styles.cardTitle}>{course.title}</p>
+                </div>
+              </Link>
+            ))}
           </div>
-        </div>
+        </main>
+      </div>
 
-        {/* 사이드바 메뉴 */}
-        <ul className={styles.sidebarMenu}>
-          {sidebarMenus.map((menu) => {
-            const isActive = pathname === menu.href;
-
-            return (
-              <li
-                key={menu.text}
-                className={`${styles.menuItem} ${isActive ? styles.active : ""}`}
-              >
-                <Link href={menu.href} className={styles.menuLink}>
-                  <div className={styles.menuIcon}>
-                    <Image
-                      src={menu.iconPath} 
-                      alt={`${menu.text} 아이콘`}
-                      width={30} 
-                      height={30} 
-                    />
-                  </div>
-                  {menu.text}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* 푸터 (그대로) */}
-        <SideBarFooter />
-
-      </nav>
-
-      {/* 2. 오른쪽 메인 콘텐츠 (그대로) */}
-      <main className={styles.mainContent}>
-        <div className={styles.courseGrid}>
-          {FAKE_COURSES.map((course) => (
-            <Link href={`/student/course/${course.id}`} key={course.id} className={styles.courseCard}>
-              <div 
-                className={styles.cardHeader} 
-                style={{ backgroundColor: course.color }} 
-              >
-                <span className={styles.cardCategory}>{course.category}</span>
+      {/* ✅ 로그아웃 모달창 */}
+      {showLogoutModal && (
+        <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+           <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+              <div>
+                <p className={styles.modalTitle}>로그아웃</p>
+                <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
               </div>
-              <div className={styles.cardBody}>
-                <p className={styles.cardTitle}>{course.title}</p>
+              <div className={styles.modalButtons}>
+                <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+                <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
               </div>
-            </Link>
-          ))}
+           </div>
         </div>
-      </main>
-    </div>
+      )}
+    </>
   );
 }

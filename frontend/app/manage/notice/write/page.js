@@ -24,26 +24,12 @@ export default function NoticeWritePage() {
     const updated = [...existing, newNotice];
     localStorage.setItem("notices", JSON.stringify(updated));
 
-    router.push("/admin/notice"); // 필요하면 여기 경로만 나중에 바꾸면 됨
+    router.push("/manage/notice"); // 필요하면 여기 경로만 나중에 바꾸면 됨
   };
 
   return (
     <div className={styles.container}>
-      {/* ========== 상단 헤더 ========== */}
-      <div className={styles.header}>
-        <div className={styles.logo}>
-          <Image src="/doro-logo.svg" width={145} height={70} alt="로고" />
-        </div>
 
-        <div className={styles.profile}>
-          <Image
-            src="/profile-circle2.svg"
-            width={40}
-            height={40}
-            alt="프로필"
-          />
-        </div>
-      </div>
 
       <div className={styles.layout}>
         {/* 🔥 사이드바 제거됨 */}
