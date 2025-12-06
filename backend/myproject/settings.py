@@ -198,7 +198,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # --- External services (LLM 등) ---
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("open api")
 OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
 
 # 웹소켓 관련

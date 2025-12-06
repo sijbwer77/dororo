@@ -24,7 +24,7 @@ export default function NoticeWritePage() {
     const updated = [...existing, newNotice];
     localStorage.setItem("notices", JSON.stringify(updated));
 
-    router.push("/admin/notice"); // 필요하면 여기 경로만 나중에 바꾸면 됨
+    router.push("/manage/notice"); // 필요하면 여기 경로만 나중에 바꾸면 됨
   };
 
   return (
