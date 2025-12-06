@@ -114,6 +114,7 @@ DATABASES = {
     }
 }
 '''
+'''
 #인화 DB
 DATABASES = {
     'default': {
@@ -125,7 +126,7 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
+'''
 
 '''
 #준석 DB
@@ -140,6 +141,19 @@ DATABASES = {
     }
 }
 '''
+
+#영선DB
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dororo',
+        'USER': 'postgres',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
