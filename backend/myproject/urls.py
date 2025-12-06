@@ -18,6 +18,7 @@ urlpatterns = [
     path("api/", include("apps.challenge.urls")),
     path("api/", include("apps.message.urls")),
     path("api/", include("apps.eval.urls")),
+    path("api/", include("apps.schedule.urls")), 
 
     
     path('api/', include(router.urls)),

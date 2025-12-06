@@ -38,3 +38,16 @@ export async function getTeacherEvalSummary() {
 export async function getTeacherEvalCourseDetail(courseId) {
   return apiFetch(`/api/evals/teacher/courses/${courseId}/`);
 }
+
+
+export async function getTeacherTestEvalCourses() {
+  return apiFetch("/api/evals/teacher/test/courses/");
+}
+
+// 🔥 강사용 테스트: 나를 해당 강의의 instructor로 지정
+export async function assignMyselfToEvalCourse(courseId) {
+  return apiFetch("/api/evals/teacher/test/courses/assign/", {
+    method: "POST",
+    body: JSON.stringify({ course_id: courseId }),
+  });
+}

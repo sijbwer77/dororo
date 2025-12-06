@@ -16,8 +16,12 @@ from .serializers import (
     CourseEvaluationSimpleSerializer,
     TeacherSummarySerializer,
     TeacherCourseDetailSerializer,
-)  
+)
 
+
+# ===============================
+# 공용: 학생용 기본 API
+# ===============================
 class EvaluationQuestionListAPIView(generics.ListAPIView):
     """
     GET /api/evals/questions/
@@ -25,7 +29,7 @@ class EvaluationQuestionListAPIView(generics.ListAPIView):
     """
     queryset = EvaluationQuestion.objects.filter(is_active=True).order_by("order", "id")
     serializer_class = EvaluationQuestionSerializer
-    permission_classes = [AllowAny]  # 필요하면 IsAuthenticated로 바꿔도 됨
+    permission_classes = [IsAuthenticated]
 
 
 @api_view(["POST"])
@@ -51,26 +55,23 @@ def submit_evaluation(request):
     out = CourseEvaluationSimpleSerializer(evaluation)
     return Response(out.data, status=status.HTTP_201_CREATED)
 
+
+# ===============================
+# 강사용: 요약 + 상세
+# ===============================
 class TeacherEvalSummaryAPIView(generics.GenericAPIView):
     """
     GET /api/evals/teacher/summary/
     - 현재 로그인한 강사가 맡은 강의들의 평가 요약
-    - 관리자(is_staff=True)는 전체 강의 볼 수 있게 함
     """
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherSummarySerializer
 
     def get(self, request, *args, **kwargs):
         user = request.user
+        courses_qs = Course.objects.filter(instructor=user).order_by("id")
 
-        if user.is_staff:
-            courses_qs = Course.objects.all()
-        else:
-            courses_qs = Course.objects.filter(instructor=user)
-
-        courses_qs = courses_qs.order_by("id")
         total_courses = courses_qs.count()
-
         summary_courses = []
         all_scores_qs = EvaluationAnswer.objects.none()
 
@@ -94,7 +95,7 @@ class TeacherEvalSummaryAPIView(generics.GenericAPIView):
             teacher_name = (
                 (instructor.get_full_name() or instructor.username)
                 if instructor
-                else ""
+                else "-"
             )
 
             summary_courses.append({
@@ -109,19 +110,13 @@ class TeacherEvalSummaryAPIView(generics.GenericAPIView):
                 "count": int(eval_count),
             })
 
-        # 전체 평균
         overall_stats = all_scores_qs.aggregate(avg=Avg("score"))
         average_score = overall_stats["avg"]
 
-        # 평가가 하나라도 있는 강의 비율
         courses_with_responses = sum(1 for c in summary_courses if c["count"] > 0)
         completed_ratio = (
             courses_with_responses / total_courses if total_courses > 0 else None
         )
-
-        # 평균 점수 기준 상위 5개만 정렬해서 보내고 싶으면 여기서 정렬
-        summary_courses.sort(key=lambda c: c["avg"], reverse=True)
-        summary_courses = summary_courses[:5]
 
         payload = {
             "total_courses": total_courses,
@@ -138,34 +133,25 @@ class TeacherEvalCourseDetailAPIView(generics.GenericAPIView):
     """
     GET /api/evals/teacher/courses/<course_id>/
     - 해당 강의에 대한 질문별 평균 점수 + 학생 코멘트
-    - 강사 본인 강의 or 관리자만 접근 가능
     """
     permission_classes = [IsAuthenticated]
     serializer_class = TeacherCourseDetailSerializer
 
     def get(self, request, course_id, *args, **kwargs):
         user = request.user
+        course = get_object_or_404(Course, id=course_id, instructor=user)
 
-        if user.is_staff:
-            course = get_object_or_404(Course, id=course_id)
-        else:
-            course = get_object_or_404(Course, id=course_id, instructor=user)
-
-        # 점수형 문항에 대해 질문별 평균
         questions = EvaluationQuestion.objects.filter(is_active=True).order_by("order", "id")
 
         surveys = []
         for q in questions:
-            # 서술형 문항은 점수 평균이 없으니 여기선 건너뜀
             if q.is_text:
                 continue
-
             q_stats = EvaluationAnswer.objects.filter(
                 evaluation__course=course,
                 question=q,
                 score__isnull=False,
             ).aggregate(avg=Avg("score"))
-
             if q_stats["avg"] is not None:
                 surveys.append({
                     "id": q.id,
@@ -173,13 +159,10 @@ class TeacherEvalCourseDetailAPIView(generics.GenericAPIView):
                     "avg_score": float(q_stats["avg"]),
                 })
 
-        # 학생 코멘트: 서술형 문항의 텍스트 답변
         comments_qs = EvaluationAnswer.objects.filter(
             evaluation__course=course,
             question__is_text=True,
-        ).exclude(
-            Q(text__isnull=True) | Q(text__exact="")
-        )
+        ).exclude(Q(text__isnull=True) | Q(text__exact=""))
 
         comments = list(comments_qs.values_list("text", flat=True))
 
@@ -187,7 +170,7 @@ class TeacherEvalCourseDetailAPIView(generics.GenericAPIView):
         teacher_name = (
             (instructor.get_full_name() or instructor.username)
             if instructor
-            else ""
+            else "-"
         )
         info_str = f"{course.course_type or ''} | 강사명 {teacher_name}"
 
@@ -195,12 +178,68 @@ class TeacherEvalCourseDetailAPIView(generics.GenericAPIView):
             "id": course.id,
             "name": course.title,
             "info": info_str,
-            "surveys": [
-                {"id": s["id"], "text": s["text"], "avg_score": s["avg_score"]}
-                for s in surveys
-            ],
+            "surveys": surveys,
             "comments": comments,
         }
 
         serializer = self.get_serializer(payload)
         return Response(serializer.data)
+
+
+# ===============================
+# 강사용: 테스트용 강의 매달기 기능
+# ===============================
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def teacher_test_course_list(request):
+    """
+    GET /api/evals/teacher/test/courses/
+    - 테스트용: 전체 강의 목록 + 현재 강사 정보 + 내가 맡은 강의 여부
+    """
+    courses = Course.objects.all().order_by("id")
+    data = []
+    for c in courses:
+        instructor = c.instructor
+        data.append({
+            "id": c.id,
+            "title": c.title,
+            "course_type": c.course_type or "",
+            "status": c.status,
+            "instructor": (
+                (instructor.get_full_name() or instructor.username)
+                if instructor
+                else None
+            ),
+            "is_mine": bool(instructor and instructor == request.user),
+        })
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def teacher_test_assign_course(request):
+    """
+    POST /api/evals/teacher/test/courses/assign/
+    { "course_id": 1 }
+    - 테스트용: 해당 강의의 instructor를 현재 로그인한 유저로 설정
+    """
+    course_id = request.data.get("course_id")
+    if not course_id:
+        return Response({"detail": "course_id가 필요합니다."}, status=400)
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        return Response({"detail": "존재하지 않는 강의입니다."}, status=404)
+
+    course.instructor = request.user
+    course.save(update_fields=["instructor"])
+
+    instructor = course.instructor
+    return Response({
+        "id": course.id,
+        "title": course.title,
+        "course_type": course.course_type or "",
+        "status": course.status,
+        "instructor": (instructor.get_full_name() or instructor.username),
+        "is_mine": True,
+    })
