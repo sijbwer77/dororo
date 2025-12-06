@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+# 그룹 메시지 - 수정중
 from .models import GroupMessage
 
 class GroupMessageListView(APIView):
@@ -29,7 +30,7 @@ class GroupMessageListView(APIView):
         ]
         return Response(data)
     
-#Document (notiont 기능)
+# notiont 기능 - 수정중
 from .models import Document, Group
 
 def build_document_tree(document):
