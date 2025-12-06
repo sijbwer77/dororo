@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.message',
     'apps.challenge',
     "apps.eval",
+    "apps.schedule",
     
     # 'apps.group', 
   
