@@ -3,15 +3,35 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation'; // ✅ useRouter 추가
 import styles from './SidebarMypage.module.css';
 import SideBarFooter from '@/components/SideBarFooter';
 
 export default function SidebarMypage() {
   const searchParams = useSearchParams();
+  const router = useRouter(); // ✅ 라우터
   const tabParam = searchParams.get('tab');
-  const fallback = '/profile-circle.svg';
-  const [profileSrc, setProfileSrc] = useState(fallback);
+  
+  const [profileSrc, setProfileSrc] = useState('/profile-circle.svg');
+
+  // ✅ 로그아웃 모달 상태
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // 로고 클릭 -> 모달 열기
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  // 모달 확인 -> 로그아웃
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+
+  // 모달 취소 -> 닫기
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -24,15 +44,7 @@ export default function SidebarMypage() {
     window.addEventListener('mypageProfileImageChange', handler);
     return () => window.removeEventListener('mypageProfileImageChange', handler);
   }, []);
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem('mypageProfileImage');
-    if (stored) {
-      setProfileSrc(stored);
-    } else {
-      setProfileSrc(fallback);
-    }
-  }, []);
+
   const menus = [
     { text: '내 정보', href: '/student/mypage?tab=info', key: 'info' },
     { text: 'My Level', href: '/student/mypage?tab=level', key: 'level' },
@@ -43,44 +55,61 @@ export default function SidebarMypage() {
   const activeTab = menus.some((m) => m.key === tabParam) ? tabParam : 'info';
 
   return (
-    <nav className={styles.sidebar}>
-      <div className={styles.sidebarGroup}>
-        <div className={styles.sidebarTop}>
-          <div className={styles.logo}>
-            <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} priority />
+    <>
+      <nav className={styles.sidebar}>
+        <div className={styles.sidebarGroup}>
+          <div className={styles.sidebarTop}>
+            {/* ✅ 로고 영역: 클릭 시 모달 오픈 */}
+            <div 
+              className={styles.logo} 
+              onClick={handleLogoClick}
+              style={{ cursor: "pointer" }}
+            >
+              <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} priority />
+            </div>
+            <div className={styles.profileWrap}>
+              <Image src={profileSrc} alt="프로필" fill sizes="184px" className={styles.profileImage} />
+            </div>
           </div>
-          <div className={styles.profileWrap}>
-            <Image
-              src={profileSrc || fallback}
-              alt="프로필"
-              width={184}
-              height={184}
-              className={styles.profileImage}
-            />
+
+          <div className={styles.titleRow}>
+            <Image src="/man.svg" alt="마이 페이지" width={25} height={32} />
+            <h2 className={styles.title}>마이 페이지</h2>
           </div>
+
+          <ul className={styles.menuList}>
+            {menus.map((menu) => {
+              const isActive = activeTab === menu.key;
+              return (
+                <li key={menu.key} className={`${styles.menuItem} ${isActive ? styles.active : ''}`}>
+                  <Link href={menu.href} className={styles.menuLink}>
+                    <span className={styles.menuDot} />
+                    {menu.text}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
-        <div className={styles.titleRow}>
-          <Image src="/man.svg" alt="마이 페이지" width={25} height={32} />
-          <h2 className={styles.title}>마이 페이지</h2>
+        <SideBarFooter />
+      </nav>
+
+      {/* ✅ 로그아웃 모달창 */}
+      {showLogoutModal && (
+        <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+           <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+              <div>
+                <p className={styles.modalTitle}>로그아웃</p>
+                <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+              </div>
+              <div className={styles.modalButtons}>
+                <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+                <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+              </div>
+           </div>
         </div>
-
-        <ul className={styles.menuList}>
-          {menus.map((menu) => {
-            const isActive = activeTab === menu.key;
-            return (
-              <li key={menu.key} className={`${styles.menuItem} ${isActive ? styles.active : ''}`}>
-                <Link href={menu.href} className={styles.menuLink}>
-                  <span className={styles.menuDot} />
-                  {menu.text}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
-      <SideBarFooter />
-    </nav>
+      )}
+    </>
   );
 }

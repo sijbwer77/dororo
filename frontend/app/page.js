@@ -1,8 +1,8 @@
-// frontend/app/page.js
-'use client';
+// app/page.js
 
-import { useState } from 'react';
+'use client';
 import { useRouter } from 'next/navigation';
+import styles from './login.module.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './login.module.css';
@@ -18,37 +18,19 @@ async function handleLogin() {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-    if (!username || !password) {
-      alert('아이디와 비밀번호를 모두 입력해주세요.');
-      return;
+  const handleLogin = () => {
+    console.log('로그인을 시도합니다.');
+
+    const tempUserId = document.getElementById('id').value;
+
+    // 아이디가 admin이면 관리자 페이지로,
+    // 그 외에는 전부 학생 페이지로 보냄
+    if (tempUserId === 'admin') {
+      router.replace('/manage');
+    } else {
+      router.replace('/student');
     }
-
-    try {
-      const data = await login(username, password);
-      if (!data?.ok) {
-        alert('로그인에 실패했습니다.');
-        return;
-      }
-
-      if (data.role === 'SP') {
-        router.replace('/student');
-      } else if (data.role === 'MG') {
-        router.replace('/manage');
-      } else {
-        router.replace('/');
-      }
-    } catch (err) {
-      console.error('로그인 실패:', err);
-      const msg =
-        err.errors?.non_field_errors?.[0] ||
-        '아이디 또는 비밀번호가 일치하지 않습니다.';
-      alert(msg);
-    }
-  };
 
   return (
     <div className={styles.pageLayout}>
@@ -81,7 +63,7 @@ export default function LoginPage() {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-
+          
           <div className={styles.inputGroup}>
             <label htmlFor="pw" className={styles.label}>
               PW
@@ -101,7 +83,7 @@ export default function LoginPage() {
           </button>
 
           <div className={styles.bottomLine}></div>
-
+          
           <Link href="/signup" className={styles.signupLink}>
             회원가입
           </Link>
@@ -113,6 +95,7 @@ export default function LoginPage() {
             <span className={styles.plusIcon}>+</span>
           </div>
           <div className={styles.infoLine}></div>
+
           <div className={styles.infoBox}>
             <h3 className={styles.infoTitle}>CAMP</h3>
             <span className={styles.plusIcon}>+</span>
