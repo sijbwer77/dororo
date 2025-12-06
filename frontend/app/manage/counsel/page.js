@@ -51,6 +51,29 @@ export default function CounselPage() {
     load();
   }, []);
 
+  // 폴링: 목록 갱신 (새 메시지/상태 반영)
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const data = await fetchConsultations();
+        const normalized = (data || []).map((c) => ({
+          id: c.id,
+          title: c.title || "무제",
+          status: c.status,
+          last_message: c.last_message,
+          last_message_at: c.last_message_at || c.created_at,
+          last_message_sender_type: c.last_message_sender_type,
+          created_at: c.created_at,
+        }));
+        setCounselList(normalized);
+      } catch {
+        // ignore
+      }
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   const visibleCounsel = counselList
     .filter((c) => c.status !== "DONE") // 학생이 상담 종료하면 목록에서 제외
     .sort((a, b) => {

@@ -8,7 +8,7 @@ import { useParams } from 'next/navigation';
 import Sidebar from "@/components/Sidebar";
 import ReplyModal from "@/components/ReplyModal";
 
-// ✅ 새로 만든 API 래퍼 사용
+// ✅ API 래퍼
 import {
   getCourseMessages,
   getMessageThread,
@@ -16,7 +16,10 @@ import {
   replyMessage,
 } from "@/lib/message";
 
-// 날짜 포맷 유틸 (예전 new Date().toLocaleDateString('ko-KR', ...) 과 동일)
+const BACKEND_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
+// 날짜 포맷
 function formatKoreanDate(value) {
   if (!value) return '';
   const d = new Date(value);
@@ -28,49 +31,70 @@ function formatKoreanDate(value) {
   });
 }
 
-// 목록용: 백엔드 스레드 → 기존 UI에서 쓰는 message 아이템 형태로 매핑
+// 🔗 첨부파일 URL 빌더
+function buildAttachmentInfo(raw) {
+  if (!raw) return null;
+
+  if (typeof raw === "string" && raw.startsWith("http")) {
+    return {
+      name: raw.split("/").pop(),
+      url: raw,
+    };
+  }
+
+  let path = String(raw);
+
+  if (!path.startsWith("/")) {
+    path = `/${path}`;
+  }
+  if (!path.startsWith("/media/")) {
+    path = `/media${path}`;
+  }
+
+  const url = `${BACKEND_BASE_URL}${path}`;
+  return {
+    name: path.split("/").pop(),
+    url,
+  };
+}
+
+// 목록용 매핑
 function mapThreadListItemToUI(thread) {
   return {
     id: thread.id,
-    // UI에서는 sender 라벨에 제목을 넣어서 보여주자
     sender: thread.title,
     date: thread.last_message_at ? formatKoreanDate(thread.last_message_at) : '',
     content: thread.last_message_preview || '',
     fullContent: thread.last_message_preview || '',
-    // 상세 클릭하면 conversations를 채움
     conversations: [],
   };
 }
 
-// 상세용: 스레드 + messages → 기존 UI의 selectedMessage 구조로 매핑
+// 상세용 매핑
 function mapThreadDetailToUI(thread) {
   const messages = thread.messages || [];
 
-  // 백엔드에서는 오래된 순으로 올 가능성이 있어서, 화면에서는 최신이 위로 오도록 reverse
-  const conversations = [...messages].reverse().map((msg) => ({
-    id: msg.id,
-    role: msg.is_mine ? "나" : msg.sender_nickname,
-    date: formatKoreanDate(msg.created_at),
-    text: msg.content,
-    profileImage: "/profile-circle.svg",
-    // 첨부파일이 있으면 링크로 보여주기 (지금은 서버에 파일 업로드 로직은 아직 안 붙였다고 가정)
-    attachment: msg.attachment
-      ? {
-          name: msg.attachment.split("/").pop(),
-          // msg.attachment 가 절대경로면 그대로, 상대경로면 백엔드 주소 붙여야 함
-          url: msg.attachment,
-        }
-      : null,
-  }));
+  const conversations = [...messages].reverse().map((msg) => {
+    const attachment = buildAttachmentInfo(msg.attachment);
+
+    return {
+      id: msg.id,
+      role: msg.is_mine ? "나" : msg.sender_nickname,
+      date: formatKoreanDate(msg.created_at),
+      text: msg.content,
+      profileImage: "/profile-circle.svg",
+      attachment,
+    };
+  });
 
   const last = messages[messages.length - 1];
 
   return {
     id: thread.id,
     sender: thread.title,
-    date: last ? formatKoreanDate(last.created_at) : '',
-    content: last ? last.content : '',
-    fullContent: last ? last.content : '',
+    date: last ? formatKoreanDate(last.created_at) : "",
+    content: last ? last.content : "",
+    fullContent: last ? last.content : "",
     conversations,
   };
 }
@@ -79,25 +103,23 @@ export default function MessagePage() {
   const params = useParams();
   const courseId = params.id;
 
-  // 👉 여기서부터는 "messages = 스레드 목록" 이라고 생각하면 됨
-  const [messages, setMessages] = useState([]);  // 예전 FAKE_MESSAGES 대신 API 데이터
+  const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({ mode: 'create', title: '' });
   const [isLoadingList, setIsLoadingList] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-  // 코스별 메시지 목록 불러오기
+  // 목록 불러오기
   useEffect(() => {
     if (!courseId) return;
 
     async function fetchList() {
       try {
         setIsLoadingList(true);
-        const list = await getCourseMessages(courseId); // GET /api/courses/{id}/messages/
+        const list = await getCourseMessages(courseId);
         const uiList = list.map(mapThreadListItemToUI);
         setMessages(uiList);
-        // 자동 선택하고 싶으면 여기서 setSelectedMessage(...) 해도 됨
       } catch (error) {
         console.error("메시지 목록 로딩 실패:", error);
         alert("메시지 목록을 불러오는 중 오류가 발생했습니다.");
@@ -109,11 +131,11 @@ export default function MessagePage() {
     fetchList();
   }, [courseId]);
 
-  // 목록에서 항목 클릭 → 상세 API 호출
+  // 상세 불러오기
   const handleMessageClick = async (msg) => {
     try {
       setIsLoadingDetail(true);
-      const thread = await getMessageThread(msg.id); // GET /api/messages/{id}/
+      const thread = await getMessageThread(msg.id);
       const uiDetail = mapThreadDetailToUI(thread);
       setSelectedMessage(uiDetail);
     } catch (error) {
@@ -129,68 +151,44 @@ export default function MessagePage() {
     setShowModal(true);
   };
 
-  // ✅ ReplyModal onSend 에서 (title, content, file) 을 넘겨준다는 전제 유지
-  //    - 지금은 파일 업로드는 서버에 안 보내고, 예전처럼 프론트에서만 임시 URL로 보여줌
+  // ReplyModal onSend: (title, content, file)
   const handleSendMessage = async (title, content, file) => {
-    // 프론트에서 보여줄 첨부파일 정보
-    let attachmentData = null;
-    if (file) {
-      attachmentData = {
-        name: file.name,
-        url: URL.createObjectURL(file),
-      };
-    }
-
     try {
       if (modalConfig.mode === 'create') {
-        // 🔹 새 스레드 생성: POST /api/messages/
+        // 🔹 새 스레드 생성
         const thread = await createMessageThread({
           courseId,
           title,
           content,
+          attachment: file || null,
         });
 
-        // 상세/목록 UI 형태로 변환
         const uiDetail = mapThreadDetailToUI(thread);
         const uiListItem = mapThreadListItemToUI(thread);
 
-        // 목록 맨 앞에 새 스레드 추가
         setMessages((prev) => [uiListItem, ...prev]);
-        // 방금 만든 스레드를 상세로 선택
         setSelectedMessage(uiDetail);
       } else if (modalConfig.mode === 'reply' && selectedMessage) {
-        // 🔹 답장: POST /api/messages/{id}/reply/
-        const msg = await replyMessage({
+        // 🔹 답장을 보낸 다음, 스레드 전체를 다시 조회해서 갱신
+        await replyMessage({
           threadId: selectedMessage.id,
           content,
+          attachment: file || null,
         });
 
-        // UI용 새 대화 버블
-        const newReply = {
-          id: msg.id,
-          role: "나",
-          date: formatKoreanDate(msg.created_at),
-          text: msg.content,
-          profileImage: "/profile-circle.svg",
-          attachment: attachmentData, // 파일은 일단 프론트에서만 보여줌
-        };
-
-        const updatedDetail = {
-          ...selectedMessage,
-          conversations: [newReply, ...(selectedMessage.conversations || [])],
-        };
-
-        setSelectedMessage(updatedDetail);
+        const thread = await getMessageThread(selectedMessage.id);
+        const uiDetail = mapThreadDetailToUI(thread);
+        setSelectedMessage(uiDetail);
 
         // 목록의 마지막 메시지 내용도 최신으로 갱신
         setMessages((prev) =>
           prev.map((item) =>
-            item.id === updatedDetail.id
+            item.id === uiDetail.id
               ? {
                   ...item,
-                  content: msg.content,
-                  fullContent: msg.content,
-                  date: formatKoreanDate(msg.created_at),
+                  content: uiDetail.content,
+                  fullContent: uiDetail.fullContent,
+                  date: uiDetail.date,
                 }
               : item
           )
