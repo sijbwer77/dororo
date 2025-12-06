@@ -10,9 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='submission',
-            name='status',
-            field=models.CharField(choices=[('submitted', '제출됨'), ('graded', '평가됨')], default='submitted', max_length=20),
-        ),
+
     ]
