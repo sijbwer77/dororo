@@ -23,7 +23,10 @@ export default function TeamPage() {
   useEffect(() => {
     async function fetchGroup() {
       try {
-        const res = await fetch(`http://localhost:8000/api/group/courses/${courseId}/my-group/`, {credentials: "include"});
+        const res = await fetch(
+          `http://localhost:8000/api/group/courses/${courseId}/my-group/`,
+          { credentials: "include" }
+        );
         const data = await res.json();
         setMyGroup(data.group);
       } finally {
@@ -38,36 +41,63 @@ export default function TeamPage() {
       <Sidebar courseId={courseId} />
 
       <main className={styles.mainContent}>
-
-        {/* 1) 로딩 상태 */}
+        {/* --- 1) 로딩 상태 --- */}
         {loadingGroup && (
-          <GroupEmptyNotice message="팀 정보를 불러오는 중입니다..." showHelp={false}/>
+          <GroupEmptyNotice message="팀 정보를 불러오는 중입니다..." showHelp={false} />
         )}
 
-        {/* 2) 그룹 없음 */}
+        {/* --- 2) 그룹 없음 --- */}
         {!loadingGroup && !myGroup && (
-          <GroupEmptyNotice message="아직 팀에 배정되지 않았습니다." showHelp={true}/>
+          <GroupEmptyNotice message="아직 팀에 배정되지 않았습니다." showHelp={true} />
         )}
 
-        {/* 3) 그룹 있음 → 정상 렌더링 */}
+        {/* --- 3) 그룹 있음 --- */}
         {!loadingGroup && myGroup && (
           <>
+            {/* 좌측: notion */}
             <section className={styles.teamListSection}>
               <FolderTree courseId={courseId} />
             </section>
 
+            {/* 우측: 작업 패널 */}
             <section className={styles.teamWorkSection}>
-              {activeTab === "chat" && (
-                <ChatPanel chatMessages={chatMessages} addChatMessage={addChatMessage} />
-              )}
+              
+              {/* Chat / Upload 전환 버튼 UI */}
+              <div className={styles.tabButtons}>
+                <button
+                  className={`${styles.tabButton} ${activeTab === "chat" ? styles.activeTab : ""}`}
+                  onClick={() => setActiveTab("chat")}
+                >
+                  <img src="/chat.svg" alt="chat" width={24} height={24} />
+                </button>
 
-              {activeTab === "upload" && (
-                <UploadPanel files={files} addFile={addFile} />
-              )}
+                <button
+                  className={`${styles.tabButton} ${activeTab === "upload" ? styles.activeTab : ""}`}
+                  onClick={() => setActiveTab("upload")}
+                >
+                  <img src="/upload-icon.svg" alt="upload" width={24} height={24} />
+                </button>
+              </div>
+
+              {/* 패널 렌더링 */}
+              <div className={styles.workContent}>
+                {activeTab === "chat" && (
+                  <ChatPanel
+                    chatMessages={chatMessages}
+                    addChatMessage={addChatMessage}
+                  />
+                )}
+
+                {activeTab === "upload" && (
+                  <UploadPanel
+                    files={files}
+                    addFile={addFile}
+                  />
+                )}
+              </div>
             </section>
           </>
         )}
-
       </main>
     </div>
   );
