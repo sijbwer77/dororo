@@ -9,13 +9,6 @@ import styles from './login.module.css';
 import { login } from '@/lib/users';
 import { ensureCsrfCookie } from '@/lib/api';
 
-async function handleLogin() {
-  await login(id, pw);           // 세션 로그인
-  await ensureCsrfCookie();      // csrftoken 쿠키 받기
-  // -> 마이페이지로 이동
-}
-
-
 export default function LoginPage() {
   const router = useRouter();
 

@@ -19,10 +19,13 @@ export default function ScheduleSection() {
   const [course, setCourse] = useState('');
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [selectedCourseName, setSelectedCourseName] = useState('');
   const [editingEventId, setEditingEventId] = useState(null);
   const [userEvents, setUserEvents] = useState([]);
   const [detailEvent, setDetailEvent] = useState(null);
   const [courseOptions, setCourseOptions] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
   const formattedDate = date ? date.split('-').join('. ') : '연도. 월. 일';
 
   const STATUS_CLASSNAME = {
@@ -52,6 +55,19 @@ export default function ScheduleSection() {
     if (first === 'M') return 'warning';
     if (first === 'C') return 'purple';
     return 'info';
+  };
+
+  // 백엔드 status + courseName 기준으로 색상 매핑
+  const mapBackendStatus = (status, courseName) => {
+    const s = (status || '').toLowerCase();
+    if (courseName) {
+      if (s === 'cancelled') return 'danger';
+      if (s === 'done') return 'neutral';
+      // planned/기타는 코스명 첫 글자 규칙 적용
+      return mapStatusFromCourse(courseName);
+    }
+    // 코스명 없으면 색상 없이
+    return 'none';
   };
 
   const today = new Date();
@@ -88,45 +104,49 @@ export default function ScheduleSection() {
     loadCourses();
   }, []);
 
+  const loadSchedules = async () => {
+    try {
+      setErrorMsg('');
+      const y = year;
+      const m = month + 1;
+      const data = await fetchMySchedules(y, m);
+      const list = Array.isArray(data) ? data : data.results ?? [];
+
+      const mapped = list.map((item) => {
+        const courseObj = item.course || null;
+        const courseName =
+          (courseObj && (courseObj.name || courseObj.title)) ||
+          item.course_title ||
+          item.course_name ||
+          '';
+
+        const status = mapBackendStatus(item.status, courseName);
+
+        return {
+          id: item.id,
+          date: item.date, // "YYYY-MM-DD"
+          title: item.title || courseName || '',
+          description: item.description || '',
+          course: courseName,
+          courseId:
+            (courseObj && (courseObj.id || courseObj.course_id)) ||
+            item.course_id ||
+            null,
+          type: item.type || 'personal',
+          status,
+        };
+      });
+
+      setUserEvents(mapped);
+    } catch (e) {
+      console.error('스케줄 불러오기 실패', e);
+      setUserEvents([]);
+      setErrorMsg('일정을 불러오지 못했습니다.');
+    }
+  };
+
   // 2) 내 스케줄(개인 + 강의일정) 가져오기
   useEffect(() => {
-    async function loadSchedules() {
-      try {
-        const y = year;
-        const m = month + 1;
-        const data = await fetchMySchedules(y, m);
-        const list = Array.isArray(data) ? data : data.results ?? [];
-
-        const mapped = list.map((item) => {
-          const courseObj = item.course || null;
-          const courseName =
-            (courseObj && (courseObj.name || courseObj.title)) ||
-            item.course_title ||
-            item.course_name ||
-            '';
-
-          const status =
-            item.status ||
-            (item.type === 'course' ? mapStatusFromCourse(courseName) : 'none');
-
-          return {
-            id: item.id,
-            date: item.date, // "YYYY-MM-DD"
-            title: item.title || courseName || '',
-            description: item.description || '',
-            course: courseName,
-            type: item.type || 'personal',
-            status,
-          };
-        });
-
-        setUserEvents(mapped);
-      } catch (e) {
-        console.error('스케줄 불러오기 실패', e);
-        setUserEvents([]);
-      }
-    }
-
     loadSchedules();
   }, [year, month]);
 
@@ -139,54 +159,28 @@ export default function ScheduleSection() {
       date,
       title: title.trim(),
       description: description.trim(),
+      course_id: selectedCourseId || null,
+      course_name: selectedCourseName || course || '',
     };
 
     try {
       if (editingEventId) {
-        const updated = await updateMySchedule(editingEventId, payload);
-        setUserEvents((prev) =>
-          prev.map((e) =>
-            e.id === editingEventId
-              ? {
-                  ...e,
-                  date: updated.date ?? date,
-                  title: updated.title ?? title,
-                  description: updated.description ?? description,
-                  status: updated.status || baseStatus,
-                }
-              : e,
-          ),
-        );
+        await updateMySchedule(editingEventId, payload);
       } else {
-        const created = await createMySchedule(payload);
-        setUserEvents((prev) => [
-          ...prev,
-          {
-            id: created.id,
-            date: created.date ?? date,
-            title: created.title ?? title,
-            description: created.description ?? description,
-            course,
-            type: created.type || 'personal',
-            status: created.status || baseStatus,
-          },
-        ]);
+        await createMySchedule(payload);
       }
+      await loadSchedules();
     } catch (e) {
       console.error('일정 저장 실패', e);
-      // 서버 실패해도 최소 로컬에는 반영
-      if (!editingEventId) {
-        setUserEvents((prev) => [
-          ...prev,
-          { id: Date.now(), date, title, course, description, status: baseStatus },
-        ]);
-      }
+      setErrorMsg('일정 저장에 실패했습니다.');
     }
 
     setShowPanel(false);
     setEditingEventId(null);
     setTitle('');
     setCourse('');
+    setSelectedCourseId(null);
+    setSelectedCourseName('');
     setDate('');
     setDescription('');
   };
@@ -212,6 +206,8 @@ export default function ScheduleSection() {
               setEditingEventId(null);
               setTitle('');
               setCourse('');
+              setSelectedCourseId(null);
+              setSelectedCourseName('');
               setDate('');
               setDescription('');
               setShowPanel(true);
@@ -264,23 +260,26 @@ export default function ScheduleSection() {
                 const cellIndex = startWeekday + dayNum - 1;
                 const col = (cellIndex % 7) + 1;
                 const row = Math.floor(cellIndex / 7) + 1;
-                const statusClass = STATUS_CLASSNAME[ev.status] || '';
-                const dotClass = DOT_CLASSNAME[ev.status] || '';
-                const stackIndex = eventStackCounter[dayNum] || 0;
-                eventStackCounter[dayNum] = stackIndex + 1;
-                const topOffset = 32 + stackIndex * 32;
-                const shortTitle =
-                  ev.title && ev.title.length > 7 ? `${ev.title.slice(0, 7)}...` : ev.title;
+              const statusClass = STATUS_CLASSNAME[ev.status] || '';
+              const dotClass = DOT_CLASSNAME[ev.status] || '';
+              const stackIndex = eventStackCounter[dayNum] || 0;
+              eventStackCounter[dayNum] = stackIndex + 1;
+              const topOffset = 32 + stackIndex * 32;
+              const shortTitle =
+                ev.title && ev.title.length > 7 ? `${ev.title.slice(0, 7)}...` : ev.title;
+              const isTodayEvent = ev.date === todayKey;
 
-                return (
-                  <div
-                    key={`ev-${idx}-${ev.date}-${ev.title}`}
-                    className={`${styles.scheduleCard} ${statusClass} ${styles.userEventCard}`}
-                    style={{ gridColumn: col, gridRow: row, marginTop: topOffset, zIndex: 4 }}
-                    role="gridcell"
-                    aria-label={`${ev.date} ${ev.title}`}
-                    onClick={() => setDetailEvent(ev)}
-                  >
+              return (
+                <div
+                  key={`ev-${idx}-${ev.date}-${ev.title}`}
+                  className={`${styles.scheduleCard} ${statusClass} ${styles.userEventCard} ${
+                    isTodayEvent ? styles.userEventToday : ''
+                  }`}
+                  style={{ gridColumn: col, gridRow: row, marginTop: topOffset, zIndex: 4 }}
+                  role="gridcell"
+                  aria-label={`${ev.date} ${ev.title}`}
+                  onClick={() => setDetailEvent(ev)}
+                >
                     <span className={`${styles.statusDot} ${dotClass}`} aria-hidden />
                     <span className={styles.cardLabel}>{shortTitle}</span>
                   </div>
@@ -306,6 +305,7 @@ export default function ScheduleSection() {
             )}
           </aside>
         </div>
+        {errorMsg && <div className={styles.errorBox}>{errorMsg}</div>}
 
         {showPanel && (
           <div className={styles.addPanel} role="dialog" aria-modal="true">
@@ -337,12 +337,19 @@ export default function ScheduleSection() {
                 <span className={styles.panelRowLabel}>강의(선택)</span>
                 <select
                   className={styles.panelSelect}
-                  value={course}
-                  onChange={(e) => setCourse(e.target.value)}
+                  value={selectedCourseId || ''}
+                  onChange={(e) => {
+                    const id = e.target.value || null;
+                    setSelectedCourseId(id);
+                    const found = courseOptions.find((c) => String(c.id) === String(id));
+                    const name = found ? found.title : '';
+                    setSelectedCourseName(name);
+                    setCourse(name);
+                  }}
                 >
                   <option value="">없음</option>
                   {courseOptions.map((c) => (
-                    <option key={c.id} value={c.title}>
+                    <option key={c.id} value={c.id}>
                       {c.title}
                     </option>
                   ))}
@@ -417,6 +424,8 @@ export default function ScheduleSection() {
                       setEditingEventId(detailEvent.id);
                       setTitle(detailEvent.title || '');
                       setCourse(detailEvent.course || '');
+                      setSelectedCourseId(detailEvent.courseId || null);
+                      setSelectedCourseName(detailEvent.course || '');
                       setDate(detailEvent.date || '');
                       setDescription(detailEvent.description || '');
                       setDetailEvent(null);

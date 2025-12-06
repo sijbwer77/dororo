@@ -1,6 +1,8 @@
+// frontend/app/admin/page.js
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./admin.module.css";
 import AdminStatCard from "./components/AdminStatCard";
@@ -15,7 +17,7 @@ const inquiryData = [
   { label: "기타", count: 1 },
 ];
 
-const popularCourses = [ 
+const popularCourses = [
   { rank: 1, title: "마인크래프트, 어디까지 해봤니?", teacher: "강개발", students: 50 },
   { rank: 2, title: "내 손으로 만드는 무한의 계단", teacher: "김개발", students: 45 },
   { rank: 3, title: "Vrew로 손쉽게 만드는 유튜브 쇼츠", teacher: "이개발", students: 38 },
@@ -24,16 +26,44 @@ const popularCourses = [
 ];
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [todayDate, setTodayDate] = useState("");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    
-    setTodayDate(`${year}.${month}.${day}`);
-  }, []);
+    const init = async () => {
+      try {
+        // 1) 내 정보 조회해서 role 확인
+        const meRes = await fetch("http://localhost:8000/api/user/me/", {
+          credentials: "include",
+        });
+        if (!meRes.ok) throw new Error("auth failed");
+
+        const me = await meRes.json();
+        if (me.role !== "MG") {
+          alert("매니저만 접근할 수 있는 페이지입니다.");
+          router.replace("/");
+          return;
+        }
+
+        // 2) 날짜 세팅
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        setTodayDate(`${year}.${month}.${day}`);
+
+        setReady(true);
+      } catch (e) {
+        console.error("관리자 대시보드 로딩 실패:", e);
+        router.replace("/");
+      }
+    };
+
+    init();
+  }, [router]);
+
+  if (!ready) return null;
 
   return (
     <div className={styles.adminPage}>

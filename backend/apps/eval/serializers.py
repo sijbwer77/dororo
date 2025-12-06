@@ -19,7 +19,7 @@ class EvaluationAnswerInputSerializer(serializers.Serializer):
     {
       "question": 1,
       "score": 5,
-      "text": "..."
+      "text": "."
     }
     """
     question = serializers.IntegerField()
@@ -30,6 +30,7 @@ class EvaluationAnswerInputSerializer(serializers.Serializer):
         score = attrs.get("score")
         text = attrs.get("text")
 
+        # score, text 둘 다 비어 있으면 에러
         if score is None and (text is None or text == ""):
             raise serializers.ValidationError(
                 "score 또는 text 중 하나는 반드시 있어야 합니다."
@@ -52,13 +53,18 @@ class CourseEvaluationCreateSerializer(serializers.Serializer):
     course_id = serializers.IntegerField()
     answers = EvaluationAnswerInputSerializer(many=True)
 
+    # ----------- 개별 필드 검증 -----------
+
     def validate_course_id(self, value):
+        # 유효한 강의인지 체크 + self.course 저장
         try:
             course = Course.objects.get(id=value)
         except Course.DoesNotExist:
             raise serializers.ValidationError("존재하지 않는 강의입니다.")
         self.course = course
         return value
+
+    # ----------- 전체 검증 -----------
 
     def validate(self, attrs):
         request = self.context.get("request")
@@ -68,9 +74,16 @@ class CourseEvaluationCreateSerializer(serializers.Serializer):
         if not user or not user.is_authenticated:
             raise serializers.ValidationError("로그인이 필요합니다.")
 
-        # 1) 이미 평가했는지 체크 (1강의 1평가)
-        if CourseEvaluation.objects.filter(student=user, course=course).exists():
-            raise serializers.ValidationError("이미 이 강의에 대한 평가를 제출했습니다.")
+        if course is None:
+            raise serializers.ValidationError("유효하지 않은 강의입니다.")
+
+        # 1) 이미 평가했는지 체크 (있으면 기억만 하고 에러는 안 냄)
+        existing = CourseEvaluation.objects.filter(
+            student=user,
+            course=course,
+        ).first()
+        # create()에서 쓰려고 저장
+        self.existing_evaluation = existing
 
         # 2) 수강 중인지 체크
         if not StudentEnrollment.objects.filter(student=user, course=course).exists():
@@ -90,17 +103,31 @@ class CourseEvaluationCreateSerializer(serializers.Serializer):
 
         return attrs
 
+    # ----------- 생성/수정 로직 -----------
+
     @transaction.atomic
     def create(self, validated_data):
+        """
+        - 처음 제출: 새 CourseEvaluation + Answer 생성
+        - 같은 학생/같은 강의 두 번째 이후 제출:
+          기존 CourseEvaluation 재사용하고, Answer 싹 지우고 새로 채움(수정처럼 동작)
+        """
         request = self.context["request"]
         user = request.user
         course = self.course
 
-        evaluation = CourseEvaluation.objects.create(
-            student=user,
-            course=course,
-        )
+        # 1) 기존 평가가 있으면 재사용, 없으면 새로 생성
+        evaluation = getattr(self, "existing_evaluation", None)
+        if evaluation is None:
+            evaluation = CourseEvaluation.objects.create(
+                student=user,
+                course=course,
+            )
+        else:
+            # 기존 답변 전부 삭제 (질문 수/내용 바뀌어도 안전하게 갈아끼우기)
+            evaluation.answers.all().delete()
 
+        # 2) 새 답변들 생성
         answers_data = validated_data["answers"]
         question_map = {
             q.id: q
@@ -140,6 +167,7 @@ class CourseEvaluationSimpleSerializer(serializers.ModelSerializer):
         model = CourseEvaluation
         fields = ["id", "course", "submitted_at"]
         read_only_fields = fields
+
 
 class TeacherCourseSummarySerializer(serializers.Serializer):
     """강사 대시보드 요약용: 강의 하나의 통계"""
