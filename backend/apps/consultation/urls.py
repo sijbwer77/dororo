@@ -5,6 +5,7 @@ from .views import (
     ConsultationDetailAPIView,
     ConsultationListCreateAPIView,
     ConsultationMessageCreateAPIView,
+    ConsultationSuggestionAPIView,
 )
 
 urlpatterns = [
@@ -24,5 +25,11 @@ urlpatterns = [
     path(
         "consultations/<int:consultation_id>/close/",
         ConsultationCloseAPIView.as_view(),
+    ),
+
+    # 추천 답변 (텍스트 기반)
+    path(
+        "consultations/<int:consultation_id>/suggestion/",
+        ConsultationSuggestionAPIView.as_view(),
     ),
 ]

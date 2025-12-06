@@ -36,3 +36,12 @@ export function closeConsultation(id) {
 export function deleteConsultation(id) {
   return apiFetch(`/api/consultations/${id}/`, { method: 'DELETE' });
 }
+
+// 추천 답변 요청 (text 생략 시 마지막 메시지 기준)
+export function fetchConsultationSuggestion(id, text) {
+  const body = text ? JSON.stringify({ text }) : JSON.stringify({});
+  return apiFetch(`/api/consultations/${id}/suggestion/`, {
+    method: 'POST',
+    body,
+  });
+}

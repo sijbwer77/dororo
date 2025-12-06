@@ -11,6 +11,7 @@ from .serializers import (
     ConsultationListSerializer,
     ConsultationMessageSerializer,
 )
+from .services import build_suggestion
 
 
 def _is_admin(user):
@@ -66,6 +67,7 @@ class ConsultationListCreateAPIView(APIView):
         )
 
         # 첫 메시지 생성 시 최근 메시지 시각 업데이트
+        suggestion = None
         if first_message:
             message = ConsultationMessage.objects.create(
                 consultation=consultation,
@@ -74,9 +76,17 @@ class ConsultationListCreateAPIView(APIView):
             )
             consultation.last_message_at = message.created_at
             consultation.save(update_fields=["last_message_at"])
+            suggestion_res = build_suggestion(first_message)
+            suggestion = {
+                "category": suggestion_res.category,
+                "message": suggestion_res.message,
+            }
 
         serializer = ConsultationDetailSerializer(consultation)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        data = serializer.data
+        if suggestion:
+            data["suggestion"] = suggestion
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 class ConsultationDetailAPIView(APIView):
@@ -143,7 +153,40 @@ class ConsultationMessageCreateAPIView(APIView):
         consultation.last_message_at = message.created_at
         consultation.save(update_fields=["last_message_at"])
 
+        suggestion_res = build_suggestion(text)
+        res_data = ConsultationMessageSerializer(message).data
+        res_data["suggestion"] = {
+            "category": suggestion_res.category,
+            "message": suggestion_res.message,
+        }
+
+        return Response(res_data, status=status.HTTP_201_CREATED)
+
+
+class ConsultationSuggestionAPIView(APIView):
+    """
+    임의 텍스트 또는 최신 메시지를 기반으로 추천 답변을 내려주는 엔드포인트.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, consultation_id):
+        consultation = get_object_or_404(
+            Consultation,
+            pk=consultation_id,
+            **({} if _is_admin(request.user) else {"user": request.user}),
+        )
+
+        text = (request.data.get("text") or "").strip()
+        if not text:
+            latest = consultation.messages.order_by("-created_at").first()
+            text = latest.text if latest else ""
+
+        suggestion_res = build_suggestion(text)
         return Response(
-            ConsultationMessageSerializer(message).data,
-            status=status.HTTP_201_CREATED,
+            {
+                "category": suggestion_res.category,
+                "message": suggestion_res.message,
+            },
+            status=status.HTTP_200_OK,
         )
