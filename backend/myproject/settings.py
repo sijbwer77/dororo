@@ -111,7 +111,6 @@ DATABASES = {
         'PORT': '61954',
     }
 }
-'''
 #인화 DB
 DATABASES = {
     'default': {
@@ -137,7 +136,8 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-'''
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
