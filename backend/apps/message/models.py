@@ -49,7 +49,7 @@ class CourseMessage(models.Model):
 
     # 나중에 파일 첨부 붙이고 싶으면 사용
     attachment = models.FileField(
-        upload_to="course_messages/",
+        upload_to="resources/course_messages/",
         null=True,
         blank=True,
     )

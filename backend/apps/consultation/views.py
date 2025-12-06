@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 from .models import Consultation, ConsultationMessage
 from .serializers import (
@@ -152,6 +154,21 @@ class ConsultationMessageCreateAPIView(APIView):
 
         consultation.last_message_at = message.created_at
         consultation.save(update_fields=["last_message_at"])
+
+        # 실시간 푸시
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"consultation_{consultation.id}",
+            {
+                "type": "consultation_message",
+                "payload": {
+                    "id": message.id,
+                    "sender_type": sender_type,
+                    "text": message.text,
+                    "created_at": message.created_at.isoformat(),
+                },
+            },
+        )
 
         suggestion_res = build_suggestion(text)
         res_data = ConsultationMessageSerializer(message).data

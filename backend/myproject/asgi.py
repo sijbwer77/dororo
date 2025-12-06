@@ -10,12 +10,14 @@ django_asgi_app = get_asgi_application()
 
 # 🔹 settings 로드된 다음에 import 해야 함
 import apps.group.routing
+from apps.consultation import routing as consultation_routing
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     "websocket": AuthMiddlewareStack(
         URLRouter(
             apps.group.routing.websocket_urlpatterns
+            + consultation_routing.websocket_urlpatterns
         )
     ),
 })

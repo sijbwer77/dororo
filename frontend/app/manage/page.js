@@ -1,6 +1,7 @@
 // app/admin/page.js
 "use client";
 
+import { useState, useEffect } from "react"; // ✅ useState, useEffect 추가
 import Image from "next/image";
 import styles from "./admin.module.css";
 import AdminStatCard from "./components/AdminStatCard";
@@ -34,12 +35,26 @@ const popularCourses = [
 ];
 
 export default function AdminDashboardPage() {
+  // 날짜 상태 관리
+  const [todayDate, setTodayDate] = useState("");
+
+  // 컴포넌트 마운트 시 오늘 날짜 계산 (YYYY.MM.DD 형식)
+  useEffect(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+    const day = String(now.getDate()).padStart(2, '0');
+    
+    setTodayDate(`${year}.${month}.${day}`);
+  }, []);
+
   return (
     <>
       {/* 날짜 */}
       <section className={styles.dateSection}>
         <span className={styles.todayBadge}>Today</span>
-        <span className={styles.todayDate}>2025.12.24</span>
+        {/* 계산된 날짜 표시 (로딩 중엔 비워두거나 스켈레톤 처리가능) */}
+        <span className={styles.todayDate}>{todayDate}</span>
       </section>
 
       {/* 통계 카드 */}
@@ -76,7 +91,7 @@ export default function AdminDashboardPage() {
           <div className={styles.evalDonutRow}>
             <div className={styles.evalDonutWrapper}>
               <Image
-                src="/dounat.svg"
+                src="/donut.svg"
                 alt="강의 만족도 도넛"
                 width={258}
                 height={252}

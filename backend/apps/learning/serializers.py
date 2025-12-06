@@ -39,9 +39,18 @@ class LearningPageSerializer(serializers.Serializer):
 
 
 class StudentCourseListSerializer(serializers.ModelSerializer):
+    instructor_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
-        fields = ['id', 'title','course_type', 'status']
+        fields = ['id', 'title', 'course_type', 'status', 'instructor_name']
+
+    def get_instructor_name(self, obj):
+        instructor = obj.instructor  # Course 모델의 FK :contentReference[oaicite:1]{index=1}
+        if not instructor:
+            return "-"
+        full_name = instructor.get_full_name()
+        return full_name or instructor.username
 
 class StudentNoticeSerializer(serializers.ModelSerializer):
     class Meta:
