@@ -212,4 +212,3 @@ CHANNEL_LAYERS = {
 }
 
 ASGI_APPLICATION = "myproject.asgi.application"
-
