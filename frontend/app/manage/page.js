@@ -98,11 +98,17 @@ export default function AdminDashboardPage() {
 
       {/* 중간 그래프 2개 */}
       <section className={styles.graphRow}>
-        <div className={styles.graphBox}>
-          <h3 className={styles.graphTitle}>사용자 현황</h3>
-          <AdminUserChart data={userStats} />
+        <div className={styles.chartImageOnly}>
+          <Image 
+            src="/user_chart.svg" 
+            alt="사용자 현황" 
+            width={580} 
+            height={280} 
+            style={{ width: '100%', height: 'auto' }} 
+          />
         </div>
 
+        {/* [오른쪽] 문의 유형 (기존 흰색 박스 틀 유지) */}
         <div className={styles.graphBox}>
           <h3 className={styles.graphTitle}>1:1 상담 문의 유형별 건수</h3>
           <AdminInquiryChart data={inquiryData} />
