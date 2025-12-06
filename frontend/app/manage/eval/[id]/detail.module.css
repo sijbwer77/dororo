@@ -1,0 +1,159 @@
+/* 전체 페이지 컨테이너 */
+.container {
+  width: 100%;
+  height: 100vh; /* 화면 전체 높이 사용 */
+  background: #FFFFFF;
+  font-family: 'KoPubWorldDotum', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= 헤더 ================= */
+.pageHeader {
+  height: 71px;
+  background: rgba(219, 232, 244, 0.8);
+  border-bottom: 1px solid #0A5FAE;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  flex-shrink: 0;
+}
+
+.backButton {
+  font-size: 24px;
+  font-weight: bold;
+  background: none;
+  border: 2px solid #000;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  cursor: pointer;
+  padding-bottom: 4px; 
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+}
+
+.courseTitle {
+  font-size: 25px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.courseInfo {
+  font-size: 16px;
+  font-weight: 500;
+  color: #8F9091;
+}
+
+/* ================= 본문 (좌우 배치 핵심!) ================= */
+.contentBody {
+  flex: 1; 
+  display: flex; /* [중요] 이게 있어야 좌우로 배치됩니다! */
+  padding: 40px 60px;
+  box-sizing: border-box;
+  overflow-y: auto; /* 내용 넘치면 스크롤 */
+  gap: 60px; /* 좌우 섹션 사이 간격 */
+}
+
+/* [왼쪽] 만족도 조사 */
+.leftSection {
+  flex: 1; /* 공간 1:1 분할 */
+  display: flex;
+  flex-direction: column;
+  
+  /* 오른쪽 구분선 */
+  border-right: 1px solid #AEAEAE; 
+  padding-right: 60px;
+}
+
+.surveyRow {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  border-bottom: 1px solid #AEAEAE;
+  position: relative;
+}
+.surveyRow:last-child { border-bottom: none; }
+
+.surveyLabel {
+  width: 220px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.barContainer {
+  flex: 1;
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+.barBackground {
+  width: 100%;
+  height: 13px;
+  background: rgba(174, 174, 174, 0.4);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: #0A5FAE;
+  border-radius: 15px;
+}
+
+.scoreValue {
+  width: 50px;
+  min-width: 50px;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0A5FAE;
+  flex-shrink: 0;
+}
+
+/* [오른쪽] 학생 코멘트 */
+.rightSection {
+  flex: 1; /* 공간 1:1 분할 */
+  display: flex;
+  flex-direction: column;
+  
+  /* 영역 확인용 (잘 나오면 나중에 지우세요) */
+  /* background-color: rgba(255, 255, 0, 0.1); */
+}
+
+.commentHeader {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #000000;
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentItem {
+  padding: 20px 0;
+  border-bottom: 1px solid #AEAEAE;
+  
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.commentItem:last-child { border-bottom: none; }
+.commentItem p { margin: 0; }

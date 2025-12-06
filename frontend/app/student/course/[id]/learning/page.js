@@ -1,17 +1,52 @@
-'use client'; // (1. 'use client' 확인)
+'use client';
 
+import { useEffect, useState } from "react";
 import styles from "./learning.module.css"; 
 import Image from "next/image";
-import Link from "next/link"; 
-import { useRouter, useParams } from 'next/navigation'; 
+import { useParams /*, useRouter*/ } from 'next/navigation'; 
 import Sidebar from "@/components/Sidebar.js";
-import { FAKE_LEARNING_PROGRESS, FAKE_WEEKS_DATA } from "@/data/mock-learning.js"; // (절대 경로)
 
 export default function LearningPage() {
-  const router = useRouter(); // (참고) SideBarFooter가 사용
-  const params = useParams(); 
-  
+  // const router = useRouter(); // (참고) SideBarFooter가 사용 → 이 컴포넌트에선 안 쓰면 지워도 됨
+  const params = useParams();
   const courseId = params.id;
+
+  const [weeks, setWeeks] = useState([]);
+  const [progress, setProgress] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!courseId) return;
+
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/student/courses/${courseId}/lessons/`,
+          {
+            credentials: "include", // 로그인 세션 쿠키 쓰는 경우
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch learning data");
+        }
+
+        const data = await res.json();
+        setWeeks(data.weeks || []);
+        setProgress(data.progress || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [courseId]);
+
+  if (loading) {
+    return <div>로딩중...</div>;
+  }
 
   return (
     <div className={styles.pageLayout}>
@@ -20,18 +55,20 @@ export default function LearningPage() {
 
       <main className={styles.mainContent}>
         <div className={styles.progressContainer}>
-          {FAKE_LEARNING_PROGRESS.map((progress) => (
+          {progress.map((progressItem) => (
             <div 
-              key={progress.week}
-              className={`${styles.progressCircle} ${styles[progress.status]}`}
+              key={progressItem.week}
+              className={`${styles.progressCircle} ${styles[progressItem.status]}`}
             >
-              {progress.week}
+              {progressItem.week}
             </div>
           ))}
         </div>
+
         <div className={styles.progressLine}></div>
+
         <div className={styles.weekList}>
-          {FAKE_WEEKS_DATA.map((week) => (
+          {weeks.map((week) => (
             <div key={week.id} className={styles.weekBlock}>
               <div className={styles.weekHeader}>
                 {week.title}
@@ -43,24 +80,27 @@ export default function LearningPage() {
                     <div key={material.id} className={styles.materialItem}>
                       <div className={styles.pdfIcon}>
                         <Image
-                          src="/file-icon.svg" // (필수!) 1단계에서 저장한 파일명
+                          src="/file-icon.svg"
                           alt="PDF 아이콘"
-                          width={22} // (필수!) 피그마 CSS 너비
-                          height={22} // (필수!) 피그마 CSS 높이
+                          width={22}
+                          height={22}
                         />
                       </div>
                       <a 
-                        href={material.url} // ⬅️ (1) data/mock-learning.js의 URL
-                        target="_blank"      // ⬅️ (2) 새 탭에서 열기
-                        rel="noopener noreferrer" // ⬅️ (3) 보안 설정
+                        href={material.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className={styles.materialTitle}
                       >
-                        {material.title} {/* ⬅️ (4) "자료 1 (샘플 PDF)" */}
+                        {material.title}
                       </a>
                       
-                      {/* 다운로드 아이콘에도 링크 적용 */}
-                      <a href={material.url} download className={styles.downloadIcon}>
-                        
+                      <a
+                        href={material.url}
+                        download
+                        className={styles.downloadIcon}
+                      >
+                        {/* 다운로드 아이콘 SVG 있으면 여기 */}
                       </a>
                     </div>
                   ))
