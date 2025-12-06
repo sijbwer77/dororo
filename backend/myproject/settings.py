@@ -116,6 +116,7 @@ DATABASES = {
 }
 '''
 
+'''
 #인화 DB
 DATABASES = {
     'default': {
@@ -128,8 +129,8 @@ DATABASES = {
     }
 }
 
-
 '''
+
 #준석 DB
 DATABASES = {
     'default': {
@@ -141,7 +142,7 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-'''
+
 '''
 #영선DB
 DATABASES = {
@@ -155,6 +156,7 @@ DATABASES = {
     }
 }
 '''
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
