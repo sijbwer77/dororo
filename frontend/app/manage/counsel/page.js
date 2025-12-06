@@ -1,79 +1,89 @@
 "use client";
 
+"use client";
+
 import Link from "next/link";
 import styles from "./counsel.module.css";
 import { useEffect, useState } from "react";
+import { fetchConsultations } from "@/lib/consultation";
+
+const formatDateTime = (iso) => {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString("ko-KR", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+};
 
 export default function CounselPage() {
   const [counselList, setCounselList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // -----------------------------------------
-  // ① 데이터 로드: localStorage → 없으면 더미 생성
-  // -----------------------------------------
   useEffect(() => {
-    async function loadData() {
-
-      // 실제 API와 연결 시 이거 사용하면 됨
-      // const res = await fetch("/api/counsel", { cache: "no-store" });
-      // const data = await res.json();
-      // setCounselList(data);
-      const raw = localStorage.getItem("counselData");
-
-      if (raw) {
-        // 🔥 저장된 상담 데이터 사용
-        setCounselList(JSON.parse(raw));
-      } else {
-        // 🔥 처음 로딩 시 더미 데이터 생성 (isAnswered=false로 변경됨)
-        const dummyData = [
-          { id: 5, title: "문의1", content: "결제 오류 발생", createdAt: 110, isAnswered: false, isEnded: false },
-          { id: 4, title: "문의2", content: "로그인 오류", createdAt: 108, isAnswered: false, isEnded: false },
-          { id: 3, title: "문의3", content: "업로드 불가", createdAt: 105, isAnswered: false, isEnded: false },
-          { id: 2, title: "문의4", content: "기타 문의", createdAt: 109, isAnswered: false, isEnded: false }
-        ];
-
-        localStorage.setItem("counselData", JSON.stringify(dummyData));
-        setCounselList(dummyData);
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchConsultations();
+        const normalized = (data || []).map((c) => ({
+          id: c.id,
+          title: c.title || "무제",
+          status: c.status,
+          last_message: c.last_message,
+          last_message_at: c.last_message_at || c.created_at,
+          last_message_sender_type: c.last_message_sender_type,
+          created_at: c.created_at,
+        }));
+        setCounselList(normalized);
+      } catch (err) {
+        setError(err?.detail || "상담 목록을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
       }
-    }
-
-    loadData();
+    };
+    load();
   }, []);
 
-
-  // ----------------------------------------------------
-  // ② 화면에 보여줄 데이터 구성: 종료된 상담 삭제 + 정렬
-  // ----------------------------------------------------
   const visibleCounsel = counselList
-    .filter(item => !item.isEnded)                  // 종료된 상담 제외
+    .filter((c) => c.status !== "DONE") // 학생이 상담 종료하면 목록에서 제외
     .sort((a, b) => {
-      if (a.isAnswered !== b.isAnswered) {
-        return a.isAnswered ? 1 : -1;               // 미답변 위로
-      }
-      return b.createdAt - a.createdAt;             // 최신순
+      const aTime = a.last_message_at || a.created_at;
+      const bTime = b.last_message_at || b.created_at;
+      return new Date(bTime) - new Date(aTime);
     });
 
-  // ----------------------------------------------------
-  // ③ 렌더링
-  // ----------------------------------------------------
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.pageTitle}>상담 문의</h2>
+      {error && <div className={styles.errorBox}>{error}</div>}
+      {loading && <div className={styles.loadingBox}>불러오는 중...</div>}
 
       <div className={styles.listBox}>
-        {visibleCounsel.map(item => (
+        {visibleCounsel.map((item) => (
           <div key={item.id} className={styles.counselItem}>
-            
             <div className={styles.left}>
               <div className={styles.title}>{item.title}</div>
-              <div className={styles.content}>{item.content}</div>
+              <div className={styles.content}>
+                {item.last_message || "최근 메시지가 없습니다."}
+              </div>
+              <div className={styles.dateText}>
+                {formatDateTime(item.last_message_at || item.created_at)}
+              </div>
             </div>
 
-            {!item.isAnswered ? (
-              <Link href={`/manage/counsel/${item.id}`}>
-                <button className={styles.replyBtn}>답변하기</button>
-              </Link>
-            ) : (
+            {item.last_message_sender_type === "admin" ? (
               <span className={styles.doneText}>답변완료</span>
+            ) : (
+              <Link href={`/manage/counsel/${item.id}`}>
+                <button className={styles.replyBtn}>대화 보기</button>
+              </Link>
             )}
           </div>
         ))}

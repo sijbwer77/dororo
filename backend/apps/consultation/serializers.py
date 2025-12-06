@@ -12,6 +12,7 @@ class ConsultationMessageSerializer(serializers.ModelSerializer):
 class ConsultationListSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     last_message_at = serializers.SerializerMethodField()
+    last_message_sender_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Consultation
@@ -21,6 +22,7 @@ class ConsultationListSerializer(serializers.ModelSerializer):
             "status",
             "last_message",
             "last_message_at",
+            "last_message_sender_type",
             "created_at",
         ]
 
@@ -37,6 +39,13 @@ class ConsultationListSerializer(serializers.ModelSerializer):
             return message.created_at
         latest = obj.messages.order_by("-created_at").first()
         return latest.created_at if latest else None
+
+    def get_last_message_sender_type(self, obj):
+        message = getattr(obj, "_latest_message", None)
+        if message:
+            return message.sender_type
+        latest = obj.messages.order_by("-created_at").first()
+        return latest.sender_type if latest else None
 
 
 class ConsultationDetailSerializer(serializers.ModelSerializer):
