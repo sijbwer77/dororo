@@ -250,10 +250,7 @@ export default function LectureEvalPage() {
       setSubmitting(true);
       setError(null);
 
-      await submitEvaluation({
-        course_id: openedCourse.id,
-        answers: answersPayload,
-      });
+      await submitEvaluation(openedCourse.id, answersPayload);
 
       setMessage("평가가 정상적으로 제출되었습니다.");
 
