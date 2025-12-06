@@ -1,0 +1,492 @@
+/* app/admin/admin.module.css */
+
+/* ===================== */
+/* 전체 레이아웃          */
+/* ===================== */
+
+.adminPage {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: 'KoPubWorldDotum', sans-serif;
+  display: flex;
+  flex-direction: column; /* 위: 헤더, 아래: 내용 */
+}
+
+/* ===================== */
+/* 우측 컨텐츠 영역      */
+
+/* 날짜 영역 */
+.dateSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.todayBadge {
+  background: #0a5fae;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.todayDate {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ===================== */
+/* 상단 카드 4개         */
+/* ===================== */
+
+.statContainer {
+  display: grid;
+  grid-template-columns: 254px 254px 254px 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.statCard {
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid #dbe8f4;
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.statIconBox {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.statTextBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statTitle {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+/* 월간 수강료 카드가 조금 넓을 수 있도록 */
+.statCardLarge {
+  grid-column: span 1;
+}
+
+/* ===================== */
+/* 그래프 섹션           */
+/* ===================== */
+
+.graphRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.graphBox {
+  background: #ffffff;
+  border: 1px solid #dbe8f4;
+  border-radius: 10px;
+  padding: 18px 22px;
+  box-sizing: border-box;
+}
+
+.graphTitle {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+/* 사용자 현황 그래프(간단 막대 + 선) */
+.userChart {
+  position: relative;
+  height: 220px;
+  border-top: 1px solid #d9d9d9;
+  border-bottom: 1px solid #d9d9d9;
+  margin-top: 10px;
+  padding: 10px 10px 20px 40px;
+  box-sizing: border-box;
+}
+
+.userChartGrid {
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  right: 10px;
+  bottom: 30px;
+}
+
+.userChartGridLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid #d9d9d9;
+}
+
+.userChartYAxisLabel {
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+  color: #8f9091;
+}
+
+.userChartXAxis {
+  position: absolute;
+  left: 40px;
+  right: 10px;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #8f9091;
+}
+
+/* 바 차트 */
+.userChartBars {
+  position: absolute;
+  left: 40px;
+  right: 10px;
+  top: 20px;
+  bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.userChartBarGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+}
+
+.userChartBarNew {
+  width: 12px;
+  background: #0074e1;
+}
+
+.userChartBarWithdraw {
+  width: 12px;
+  background: #dd0101;
+  margin-top: 2px;
+}
+
+/* 누적(라인) */
+.userChartLinePoint {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ccf88;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* 범례 */
+.userChartLegend {
+  margin-top: 6px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  font-size: 11px;
+}
+
+.userChartLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendDotNew {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0074e1;
+}
+
+.legendDotWithdraw {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dd0101;
+}
+
+.legendDotTotal {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ccf88;
+}
+
+/* 문의 유형 그래프(가로 막대) */
+
+.inquiryChart {
+  margin-top: 10px;
+  padding: 4px 0 4px 0;
+}
+
+.inquiryRow {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  gap: 10px;
+}
+
+.inquiryLabel {
+  flex: 0 0 180px;
+  font-size: 14px;
+}
+
+.inquiryBarWrapper {
+  flex: 1;
+  background: #f3f5f8;
+  height: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.inquiryBar {
+  height: 100%;
+  background: #0074e1;
+}
+
+.inquiryCount {
+  flex: 0 0 40px;
+  text-align: right;
+  font-size: 14px;
+}
+
+/* ===================== */
+/* 강의평가 요약 섹션    */
+/* (지금은 컴포넌트 삭제했지만 CSS는 남겨둠) */
+/* ===================== */
+
+.evalSection {
+  margin-top: 20px;
+}
+
+.evalBox {
+  background: #ffffff;
+  border: 1px solid #dbe8f4;
+  border-radius: 10px;
+  padding: 18px 22px;
+  box-sizing: border-box;
+}
+
+.evalTitle {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.evalLegend {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.evalLegendColor {
+  width: 26px;
+  height: 10px;
+}
+
+.evalListHeader,
+.evalRow {
+  display: grid;
+  grid-template-columns: 60px 1.8fr 1fr 60px;
+  align-items: center;
+  column-gap: 12px;
+}
+
+.evalListHeader {
+  margin-top: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e4e8;
+  font-size: 13px;
+  color: #555;
+}
+
+.evalHeaderCell {
+  text-align: center;
+}
+
+.evalHeaderCell:nth-child(2) {
+  text-align: left;
+}
+
+.evalHeaderCell:nth-child(3) {
+  text-align: center;
+}
+
+.evalHeaderCell:nth-child(4) {
+  text-align: right;
+}
+
+.evalRow {
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.evalRank {
+  text-align: center;
+}
+
+.evalCourseTitle {
+  text-align: left;
+}
+
+.evalTeacher {
+  text-align: center;
+}
+
+.evalScore {
+  text-align: right;
+}
+
+/* ===================== */
+/* 반응형 (간단하게만)   */
+/* ===================== */
+
+@media (max-width: 1200px) {
+  .statContainer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .graphRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===================== */
+/* 하단 도넛 + 테이블     */
+/* ===================== */
+
+.bottomRow {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr; /* 왼쪽 도넛, 오른쪽 표 */
+  gap: 20px;
+  margin-top: 24px;
+  margin-bottom: 40px; /* 스크롤 여유 */
+}
+
+/* 도넛 + 범례 정렬 */
+.evalDonutRow {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 12px;
+}
+
+/* 도넛 SVG 들어갈 박스 */
+.evalDonutWrapper {
+  width: 258px;
+  height: 252px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 오른쪽 텍스트 범례 컬럼 */
+.evalLegendColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+/* 각 범례 줄 */
+.evalLegendRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 범례 색상 박스 기본 */
+.evalLegendColor {
+  width: 26px;
+  height: 10px;
+  border-radius: 4px;
+}
+
+/* 색상 값은 네 Figma대로 */
+.evalLegendColorBlue {
+  background: #8DCDFF;
+}
+.evalLegendColorPink {
+  background: #FF71A5;
+}
+.evalLegendColorPurple {
+  background: #BC69FF;
+}
+.evalLegendColorYellow {
+  background: #FECD66;
+}
+
+/* 인기 강의 Best 5 테이블 */
+.bestTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+/* 헤더 행 배경 */
+.bestTable thead tr {
+  background: rgba(217, 217, 217, 0.6);
+}
+
+/* 셀 공통 스타일 */
+.bestTable th,
+.bestTable td {
+  border: 1px solid #AEAEAE;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+/* 컬럼별 정렬 & 폭 */
+.bestColRank {
+  width: 60px;
+}
+.bestColTitle {
+  width: auto;
+}
+.bestColTeacher {
+  width: 120px;
+}
+.bestColStudents {
+  width: 90px;
+}
+
+/* 강의명은 왼쪽 정렬 */
+.bestTitleCell {
+  text-align: left;
+}
+
+/* 순위 숫자도 가운데 정렬 유지 */
+.bestRankCell {
+  text-align: center;
+}
+

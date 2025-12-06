@@ -14,8 +14,10 @@ urlpatterns = [
     path("api/group/",include("apps.group.urls")),
     path('api/learning/',include('apps.learning.urls')),
     path("api/", include("apps.gamification.urls")),
+    path("api/", include("apps.consultation.urls")),
     path("api/", include("apps.challenge.urls")),
     path("api/", include("apps.message.urls")),
+    path("api/", include("apps.eval.urls")),
 
     
     path('api/', include(router.urls)),

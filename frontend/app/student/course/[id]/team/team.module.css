@@ -252,17 +252,176 @@
 
 /* app/student/course/[id]/team/team.module.css 하단 */
 
-/* 클릭 가능한 회의록 링크 스타일 */
-.subInfoRowLink {
-  padding-left: 40px;
-  font-size: 20px;
-  color: #555;
-  text-decoration: none; /* 밑줄 제거 */
-  display: block;        /* 영역 전체 클릭 가능 */
+/* ... 기존 레이아웃 코드 (pageLayout 등) 유지 ... */
+
+.teamListSection {
+  width: 714px; 
+  height: 780px;
+  background: #FFFFFF;
+  border: 1px solid #BFDBFE;
+  border-radius: 25px;
+  padding: 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainTitle {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 50px;
+  margin: 0 0 30px 0;
+}
+
+.notionTreeBox {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* --- 폴더 Row --- */
+.infoRow {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 20px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+/* 호버 시 회색 배경 (Notion 느낌) */
+.infoRow:hover {
+  background-color: #F0F0F0;
+}
+
+.arrowIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.folderIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.folderGroup {
+  margin-bottom: 5px;
+  cursor: grab; /* 마우스를 올리면 손바닥 모양 */
+}
+
+/* 드래그 중일 때 텍스트 선택 방지 */
+.folderGroup:active {
+  cursor: grabbing; /* 잡았을 때 움켜쥐는 모양 */
+}
+
+.rowText {
+  flex: 1; /* 남은 공간 차지 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- 페이지 추가 버튼 (+) : 평소엔 숨김 --- */
+.hoverAddButton {
+  opacity: 0; 
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #949BA4;
+  cursor: pointer;
+  padding: 0 10px;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+/* Row에 마우스 올렸을 때만 보임 */
+.infoRow:hover .hoverAddButton {
+  opacity: 1;
+}
+.hoverAddButton:hover {
+  color: #0A5FAE;
+}
+
+/* --- 하위 페이지 Row --- */
+.subListContainer {
+  display: flex;
+  flex-direction: column;
+  padding-left: 44px; /* 들여쓰기 (화살표+폴더아이콘 너비 고려) */
+}
+
+.subInfoRowLink {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 18px; /* 폴더보다 조금 작게 */
+  color: #555;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .subInfoRowLink:hover {
-  color: #0A5FAE;        /* 마우스 올리면 파란색 */
-  font-weight: 500;
+  background-color: #F7F7F7;
+  color: #000;
+}
+
+/* --- 인라인 입력창 (공통) --- */
+.inlineInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: inherit; /* 부모 폰트 사이즈 상속 */
+  font-family: inherit;
+  outline: none;
+  border-bottom: 1px solid #ddd; /* 입력 중임을 알리는 밑줄 */
+  padding: 2px 0;
+}
+
+/* --- 최하단 폴더 추가 버튼 --- */
+.rootAddArea {
+  margin-top: 15px;
+  padding-top: 10px;
+}
+
+.rootAddButton {
+  background: transparent;
+  border: none;
+  font-family: 'KoPubWorldDotum';
+  font-size: 18px;
+  color: #949BA4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rootAddButton:hover {
+  color: #0A5FAE;
+}
+
+/* ... 기존 CSS 아래에 추가 ... */
+
+/* 드래그 대상에 마우스가 올라갔을 때 하이라이트 */
+.dragOverItem {
+  background-color: #F0F7FE !important; /* 연한 파란 배경 */
+  border-radius: 6px;
+  outline: 1px solid #0A5FAE; /* 파란색 테두리 */
+}
+
+/* 폴더 Row 패딩 미세 조정 (테두리 안 짤리게) */
+.infoRow {
+  border: 1px solid transparent; /* 평소엔 투명 테두리 */
+}
+
+.subInfoRowLink {
+  border: 1px solid transparent; /* 평소엔 투명 테두리 */
 }

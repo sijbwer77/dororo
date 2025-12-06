@@ -2,13 +2,10 @@
 
 import styles from "./write.module.css";
 import Image from "next/image";
-import Sidebar from "@/components/Sidebar";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-
 export default function NoticeWritePage() {
-
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -27,7 +24,7 @@ export default function NoticeWritePage() {
     const updated = [...existing, newNotice];
     localStorage.setItem("notices", JSON.stringify(updated));
 
-    router.push("/manage/notice");
+    router.push("/manage/notice"); // 필요하면 여기 경로만 나중에 바꾸면 됨
   };
 
   return (
@@ -39,13 +36,17 @@ export default function NoticeWritePage() {
         </div>
 
         <div className={styles.profile}>
-          <Image src="/profile-circle2.svg" width={40} height={40} alt="프로필" />
+          <Image
+            src="/profile-circle2.svg"
+            width={40}
+            height={40}
+            alt="프로필"
+          />
         </div>
       </div>
 
       <div className={styles.layout}>
-
-        <Sidebar active="notice" />
+        {/* 🔥 사이드바 제거됨 */}
 
         {/* ========== 메인 영역 ========== */}
         <main className={styles.main}>
@@ -57,28 +58,33 @@ export default function NoticeWritePage() {
             {/* 제목 입력 */}
             <div className={styles.row}>
               <div className={styles.label}>제목</div>
-              <input 
-                type="text" 
-                className={styles.input} 
-                placeholder="제목을 입력하세요" 
+              <input
+                type="text"
+                className={styles.input}
+                placeholder="제목을 입력하세요"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                />
+              />
             </div>
 
             {/* 파일 첨부 */}
             <div className={styles.row}>
               <div className={styles.label}>파일첨부</div>
               <label className={styles.fileUpload}>
-                <Image src="/cloud-upload-outlined.svg" width={20} height={20} alt="업로드" />
+                <Image
+                  src="/cloud-upload-outlined.svg"
+                  width={20}
+                  height={20}
+                  alt="업로드"
+                />
                 파일을 업로드하세요
                 <input type="file" />
               </label>
             </div>
 
             {/* 내용 */}
-            <textarea 
-              className={styles.textarea} 
+            <textarea
+              className={styles.textarea}
               placeholder="내용을 입력하세요"
               value={content}
               onChange={(e) => setContent(e.target.value)}

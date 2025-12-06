@@ -1,0 +1,56 @@
+from rest_framework import serializers
+
+from .models import Consultation, ConsultationMessage
+
+
+class ConsultationMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConsultationMessage
+        fields = ["id", "sender_type", "text", "created_at"]
+
+
+class ConsultationListSerializer(serializers.ModelSerializer):
+    last_message = serializers.SerializerMethodField()
+    last_message_at = serializers.SerializerMethodField()
+    last_message_sender_type = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Consultation
+        fields = [
+            "id",
+            "title",
+            "status",
+            "last_message",
+            "last_message_at",
+            "last_message_sender_type",
+            "created_at",
+        ]
+
+    def get_last_message(self, obj):
+        message = getattr(obj, "_latest_message", None)
+        if message:
+            return message.text
+        latest = obj.messages.order_by("-created_at").first()
+        return latest.text if latest else None
+
+    def get_last_message_at(self, obj):
+        message = getattr(obj, "_latest_message", None)
+        if message:
+            return message.created_at
+        latest = obj.messages.order_by("-created_at").first()
+        return latest.created_at if latest else None
+
+    def get_last_message_sender_type(self, obj):
+        message = getattr(obj, "_latest_message", None)
+        if message:
+            return message.sender_type
+        latest = obj.messages.order_by("-created_at").first()
+        return latest.sender_type if latest else None
+
+
+class ConsultationDetailSerializer(serializers.ModelSerializer):
+    messages = ConsultationMessageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Consultation
+        fields = ["id", "title", "status", "created_at", "messages"]

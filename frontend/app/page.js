@@ -37,7 +37,7 @@ export default function LoginPage() {
       if (data.role === 'SP') {
         router.replace('/student');
       } else if (data.role === 'MG') {
-        router.replace('/admin');
+        router.replace('/manage');
       } else {
         router.replace('/');
       }

@@ -1,285 +1,187 @@
-/* 전체 레이아웃 */
-.container {
-  width: 1536px;
-  min-height: 845px;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-}
+/* app/admin/notice/notice.manage.module.css */
 
-/* 로고 */
-.logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-
-/* 상단 헤더 */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 82px;
-  background: #FFFFFF;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  border-bottom: 1px solid #0A5FAE;
-  z-index: 1000;
-}
-
-.profile {
-  position: relative; /* absolute 제거 */
-  width: 40px;
-  height: 40px;
-  display: flex;
-  border-radius: 50%;
-  align-items: center;
-  overflow: hidden;
-  justify-content: center;
-}
-
-
-
-/* 사이드바 + 메인 */
-.layout {
-  display: flex;
-  width: 100%;
-  height: calc(100vh - 82px);
-  margin-top: 82px;
-  overflow: hidden;
-}
-
-.container, .layout, .main {
-  overflow-x: hidden;
-}
-
-/* 메인 영역 */
-/* --- 메인 영역 --- */
-.main {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  margin: 0;
-}
-
+/* ===== 상단 옵션/버튼 줄 ===== */
 
 .noticeWrapper {
-  width: 1222px;
-  max-width: 1222px;
+  margin-top: 10px;
+  margin-bottom: 16px;
 }
 
-/* 상단: 전체 선택 + 버튼 */
 .topRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-left: 0;
-  background: white;
-  padding: 10px 20px;
-  padding-left: 150px;
+  justify-content: space-between;
 }
 
+/* 좌측: 전체 선택 체크박스 */
+.selectAllBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "KoPubWorldDotum";
+  font-size: 14px;
+  color: #333333;
+}
+
+.selectAllBox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+/* 우측: 작성 / 삭제 버튼 */
 .topRowButtons {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
 }
 
-
-/* 구분선 */
-.divider {
-  width: 100%;
-  height: 1px;
-  background: #D0D7E3;
-  margin: 0;
-  margin-left: 120px;
-}
-
-.selectAllBox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: "KoPubWorldDotum";
-  font-size: 20px;
-}
-
-.checkbox {
-  width: 20px;
-  height: 20px;
-}
-
-/* 공지 작성 버튼 */
-.writeBtn {
-  width: 160px;        /* 버튼 전체 크기 줄임 */
-  height: 40px;
-  padding: 0 14px;
-
-  border: 1px solid #0A5FAE;
-  border-radius: 20px;
-  background: #FFFFFF;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;          /* 글자-아이콘 간격 */
-
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  font-family: "KoPubWorldDotum";
-  font-size: 18px;   /* 글자 크기 ↓ */
-  font-weight: 500;
-  color: #0A5FAE;
-}
-
-.writeBtn:hover {
-  background: #E6F1FB;
-}
-
-.writeBtn:active {
-  background: #0A5FAE;
-  transform: scale(0.97);
-}
-
+.writeBtn,
 .deleteBtn {
-  width: 160px;
-  height: 40px;
-  padding: 0 14px;
-
-  border: 1px solid #0A5FAE;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
   border-radius: 20px;
-  background: #FFFFFF;
+  border: 1px solid #0a5fae;
+  font-family: "KoPubWorldDotum";
+  font-size: 14px;
+  cursor: pointer;
+  background: #ffffff;
+}
 
+.writeBtn span,
+.deleteBtn span {
+  line-height: 1;
+}
+
+/* 작성 버튼: 파란 테두리 */
+.writeBtn {
+  color: #0a5fae;
+}
+
+/* 삭제 버튼: 빨간 테두리 느낌 */
+.deleteBtn {
+  border-color: #dd0101;
+  color: #dd0101;
+}
+
+/* 상단 구분선 */
+.divider {
+  margin-top: 12px;
+  border-top: 2px solid #0a5fae;
+}
+
+/* ===== 공지 리스트 전체 영역 ===== */
+
+.noticeListArea {
+  margin-top: 12px;
+}
+
+/* 공지 없음 메시지 */
+.emptyNotice {
+  width: 100%;
+  height: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-
-  cursor: pointer;
-  transition: all 0.2s ease;
-
   font-family: "KoPubWorldDotum";
   font-size: 18px;
-  font-weight: 500;
-  color: #0A5FAE;
+  color: #999999;
 }
 
-.deleteBtn:hover {
-  background: #E6F1FB;
-  border-color: #0C6FD0;
-  color: #0C6FD0;
-}
+/* ===== 개별 공지 카드 ===== */
 
-.deleteBtn:active {
-  background: #0A5FAE;
-  transform: scale(0.97);
-}
 .cardCenterBox {
-  width: 100%;
   display: flex;
   justify-content: center;
-  margin: 0;
 }
 
-/* 각 공지 카드 */
+/* 카드 전체 박스 */
 .noticeCard {
   width: 100%;
   max-width: 1000px;
-  margin: 20px auto;  /* 좌우 자동 → 가운데 정렬 */
-  background: white;
-  border: 1px solid #0A5FAE;
+  margin: 16px auto;
+  background: #ffffff;
+  border: 1px solid #0a5fae;
   border-radius: 15px;
-  padding: 20px 20px 20px 50px;
-  padding-left: 50px;
+  padding: 18px 20px 18px 50px;
+  box-sizing: border-box;
   position: relative;
-  transition: all 0.2s ease;
-}
+  cursor: pointer;
 
-.noticeCard.expanded {
-  background: #f8fbff;          /* 은은한 하늘색 배경 */
-  border-color: #0A5FAE;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-}
-
-
-/* 카드 내 체크박스 */
-.cardCheck {
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  top: 20px;
-  left: 20px;
-}
-
-/* 카드 내용 전체 묶음 */
-.cardContent {
-  margin-left: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
   gap: 12px;
+}
+
+/* 펼쳐졌을 때 여유 공간 조금 추가 */
+.expanded {
+  padding-bottom: 24px;
+}
+
+/* 카드 왼쪽 체크박스 */
+.cardCheck {
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* 카드 내용 영역 */
+.cardContent {
+  width: 100%;
 }
 
 /* 제목 */
 .cardContent h2 {
+  margin: 0 0 6px 0;
   font-family: "KoPubWorldDotum";
-  font-size: 26px;
+  font-size: 18px;
   font-weight: 700;
-  margin-left: 45px;
+  color: #000000;
 }
 
 /* 작성일 */
 .date {
+  margin: 0 0 8px 0;
+  font-family: "KoPubWorldDotum";
+  font-size: 13px;
+  color: #777777;
+}
+
+/* 미리보기 텍스트 (1~2줄) */
+.desc {
+  margin: 0;
   font-family: "KoPubWorldDotum";
   font-size: 14px;
-  color: #8F9091;
-  margin-left: 45px;
-}
-
-/* 본문 */
-.desc {
-  font-family: "KoPubWorldDotum";
-  font-size: 17px;
-  margin-left: 45px;
-  white-space: nowrap;
+  color: #333333;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
+/* 펼쳐졌을 때 전체 내용 */
 .descFull {
-  white-space: pre-line;
-  margin-left: 45px;
-  line-height: 1.55;
-  padding: 10px 0 5px 0;
-}
-
-.descFull p {
-  margin-bottom: 8px;
-}
-
-.descFull ul {
-  margin-left: 20px;
-  padding-left: 10px;
-}
-
-.descFull li {
-  margin-bottom: 6px;
+  margin-top: 6px;
+  font-family: "KoPubWorldDotum";
+  font-size: 14px;
+  color: #333333;
   line-height: 1.5;
 }
 
-.emptyNotice {
-  width: 100%;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999999;
-  font-family: "KoPubWorldDotum";
-  font-size: 24px;
+.descFull p {
+  margin: 0 0 4px 0;
 }
 
+/* ===== 반응형 (대충이라도) ===== */
+
+@media (max-width: 1200px) {
+  .noticeCard {
+    max-width: 100%;
+    margin: 12px 0;
+  }
+}

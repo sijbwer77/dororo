@@ -1,0 +1,174 @@
+/* app/admin/eval/eval.module.css */
+
+.evalPage {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px 32px 40px 32px;
+  font-family: 'KoPubWorldDotum', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  gap: 24px;
+}
+
+/* ================= 왼쪽 기둥 (통계 -> 차트 -> 표) ================= */
+.mainColumn {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* 1. 통계 카드 3개 영역 */
+.statRow {
+  display: flex;
+  gap: 24px;
+}
+.statCard {
+  flex: 1;
+  height: 151px;
+  background: rgba(191, 219, 254, 0.5);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.statLabel { font-size: 16px; font-weight: 500; color: #0a5fae; margin-bottom: 6px; }
+.statValue { font-size: 40px; font-weight: 700; color: #000000; }
+
+/* 2. 차트 영역 (단독 카드) - 수정됨 */
+.chartSection {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 15px;
+  border: 1px solid #aeaeae;
+  padding: 24px 20px;
+  box-sizing: border-box;
+  
+  /* 여기를 수정했습니다! */
+  /* 오른쪽 사이드바 하단에 맞추기 위해 위쪽 여백을 크게 줍니다. */
+  margin-top: 3px; 
+}
+
+.chartTitle { margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #000000; }
+.chartArea { display: flex; width: 100%; }
+.yAxis {
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 4px 0; height: 200px; margin-right: 12px;
+}
+.yAxisRow { display: flex; align-items: center; }
+.yAxisLabel { width: 24px; text-align: center; font-size: 16px; font-weight: 500; }
+.yAxisLine { flex: 1; height: 0; border-top: 1px solid rgba(174, 174, 174, 0.5); margin-left: 4px; }
+.barArea { flex: 1; display: flex; justify-content: space-around; align-items: flex-end; padding: 0 10px; }
+.barItem { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.barWrapper { width: 40px; height: 196px; display: flex; align-items: flex-end; justify-content: center; }
+.bar { width: 100%; background: #0a5fae; border-radius: 4px 4px 0 0; }
+.barLabel {
+  margin-top: 12px; font-size: 13px; font-weight: 500; text-align: center;
+  color: #333; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* 3. 표 영역 (단독 카드) */
+.tableSection {
+  width: 100%;
+  position: relative;
+  background: #ffffff;
+  border-radius: 15px;
+  border: 1px solid #aeaeae;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.tableDecorationTop {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 46px; background: #deecfe; z-index: 0;
+}
+.evalTable {
+  position: relative; z-index: 1; width: 100%;
+  border-collapse: collapse; font-size: 15px; text-align: center; margin: 0;
+}
+.evalTable thead th { padding: 12px 0; font-weight: 600; color: #333; border-bottom: 1px solid #aeaeae; }
+.evalTable tbody td { padding: 12px 0; border-bottom: 1px solid #aeaeae; color: #333; }
+.evalTable tbody tr:last-child td { border-bottom: none; }
+
+
+/* ================= 오른쪽 기둥 (사이드바) ================= */
+.sideColumn {
+  width: 368px;
+  flex-shrink: 0;
+}
+.detailCard {
+  position: relative; border-radius: 15px; border: 1px solid #aeaeae;
+  padding: 24px 22px 26px 22px; box-sizing: border-box; background: #ffffff;
+}
+.detailHeaderBg {
+  position: absolute; left: 0; right: 0; top: 0px; height: 170px;
+  background: #deecfe; border-radius: 15px; z-index: 0;
+}
+.detailTitle, .detailSub, .detailMetaRow, .detailNav, .metricList, .commentBlock { position: relative; z-index: 1; }
+.detailTitle { margin: 4px 0 4px 0; font-size: 25px; font-weight: 700; color: #000000; }
+.detailSub { font-size: 16px; font-weight: 500; color: #8f9091; margin-bottom: 8px; }
+.detailMetaRow { display: flex; gap: 8px; font-size: 16px; margin-bottom: 4px; }
+.detailMetaLabel { color: #8f9091; font-weight: 500; }
+.detailMetaValue { color: #000000; font-weight: 500; }
+.detailNav { position: absolute; right: 26px; top: 110px; font-size: 13px; font-weight: 700; color: #8f9091; }
+.metricList { margin-top: 60px; }
+.metricRow { display: flex; align-items: center; margin-bottom: 12px; font-size: 16px; }
+.metricLabel { flex: 0 0 130px; color: #000000; }
+.metricBarBg {
+  position: relative; width: 128px; height: 13px; border-radius: 15px;
+  background: rgba(174, 174, 174, 0.4); margin-right: 8px;
+}
+.metricBarFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 15px; background: #0a5fae; }
+.metricValue { width: 32px; text-align: center; font-size: 16px; font-weight: 500; color: #0a5fae; }
+.commentBlock { margin-top: 30px; font-size: 16px; }
+.commentTitle { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+.commentBlock p { margin: 4px 0; }
+.moreButton { margin-top: 8px; padding: 0; border: none; background: none; color: #0a5fae; font-size: 13px; font-weight: 500; cursor: pointer; }
+
+/* ... 기존 detailNav 스타일 수정 ... */
+
+/* < / > 전체 영역 */
+.detailNav {
+  position: absolute;
+  right: 26px;
+  top: 110px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8f9091;
+  display: flex;
+  align-items: center;
+  gap: 4px; /* 버튼 사이 간격 */
+  user-select: none; /* 드래그 방지 */
+}
+
+/* 실제 버튼 스타일 (<, >) */
+.navButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px; /* 화살표 크기 키움 */
+  font-weight: 700;
+  color: #8f9091;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.navButton:hover {
+  color: #0a5fae; /* 마우스 올리면 파란색 */
+}
+
+.navDivider {
+  font-size: 13px;
+  color: #aeaeae;
+}
+
+/* ... 나머지 CSS는 기존 유지 ... */
+
+/* 반응형 */
+@media (max-width: 1200px) {
+  .evalPage { flex-direction: column; }
+  .sideColumn { width: 100%; }
+  /* 화면이 좁아지면 굳이 큰 여백을 유지할 필요가 없으므로 제거합니다. */
+  .chartSection { margin-top: 0; }
+}
