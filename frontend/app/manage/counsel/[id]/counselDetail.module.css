@@ -1,0 +1,157 @@
+.detailWrapper {
+  position: relative;
+  width: calc(100% - 116px);
+  height: 100vh;
+  margin-left: 116px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+
+  /* 메시지 가운데로 몰리는 문제 방지 */
+  align-items: stretch !important;
+}
+
+/* 🔹 상단 고정 (layout header 아래부터 시작) */
+.topBar {
+  position: fixed;
+  top: 82px; /* layout header 높이 */
+  left: 116px;
+  right: 0;
+  height: 70px;
+
+  background: white;
+  border-bottom: 1px solid #ddd;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backBtn {
+  position: absolute;
+  left: 20px;
+  background: none;
+  border: none;
+}
+
+.backIcon {
+  width: 28px;
+  height: 28px;
+}
+
+/* 🔹 메시지 스크롤 영역 */
+.chatArea {
+  position: fixed;
+  top: calc(82px + 70px); /* header + topBar */
+  bottom: 90px; /* inputBar */
+  left: 116px;
+  right: 0;
+
+  overflow-y: auto;
+  padding: 20px 40px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* 메시지 왼쪽 정렬 */
+}
+
+/* 유저 메시지 → 왼쪽 */
+.bubbleUser {
+  background: #f3f3f3;
+  padding: 14px 18px;
+  border-radius: 12px;
+  max-width: 60%;
+  margin-bottom: 20px;
+  align-self: flex-start; /* 강제 왼쪽 */
+}
+
+/* 관리자 메시지 → 오른쪽 */
+.bubbleAdmin {
+  background: #eaf3ff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  max-width: 60%;
+  margin-bottom: 20px;
+  align-self: flex-end; /* 강제 오른쪽 */
+}
+
+/* 🔹 하단 입력창 고정 */
+.inputBar {
+  position: fixed;
+  bottom: 0;
+  left: 116px;
+  right: 0;
+
+  height: 90px;
+  padding: 12px 40px 20px;
+
+  background: white;
+  border-top: 1px solid #ddd;
+  z-index: 9999;
+
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+
+  height: auto;
+}
+
+.inputBox {
+  flex: 1;
+  min-height: 50px;
+  max-height: 130px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #ccc;
+  resize: none;
+  overflow-y: auto;
+
+  align-self: flex-end;
+}
+
+.sendBtn {
+  width: 52px;
+  height: 52px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.sendIcon {
+  width: 30px;
+  height: 30px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.bubbleUser {
+  background: #f3f3f3;
+  padding: 14px 18px;
+  border-radius: 12px;
+  max-width: 60%;
+  margin-bottom: 20px;
+  align-self: flex-start;
+
+  white-space: pre-wrap;   /* 엔터 유지 + 자동 줄바꿈 */
+  word-break: break-word;  /* 너무 길면 강제 줄바꿈 */
+}
+
+.bubbleAdmin {
+  background: #eaf3ff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  max-width: 60%;
+  margin-bottom: 20px;
+  align-self: flex-end;
+
+  white-space: pre-wrap;   /* 엔터 유지 + 자동 줄바꿈 */
+  word-break: break-word;  /* 너무 길면 강제 줄바꿈 */
+}

@@ -11,7 +11,7 @@ const sidebarMenus = [
   { text: "나의 강의실", iconPath: "/home.svg", href: "/student" },
   { text: "마이 페이지", iconPath: "/man.svg", href: "/student/mypage" },
   { text: "DIMC", iconPath: "/note.svg", href: "/student/dimc" },
-  { text: "CHALLENGE", iconPath: "/medal-star.svg", href: "#" },
+  { text: "CHALLENGE", iconPath: "/medal-star.svg", href: "/student/challenge" },
   { text: "강의 만족도 조사", iconPath: "/Task.svg", href: "/student/eval" },
 ];
 
