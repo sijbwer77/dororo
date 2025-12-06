@@ -1,64 +1,157 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./counselDetail.module.css";
+import {
+  fetchConsultationDetail,
+  sendConsultationMessage,
+} from "@/lib/consultation";
+import { API_BASE_URL } from "@/lib/api";
+
+const formatDateTime = (iso) => {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString("ko-KR", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+};
+
+const apiBaseToWs = (url) => {
+  if (!url) return "";
+  if (url.startsWith("https://")) return url.replace("https://", "wss://");
+  if (url.startsWith("http://")) return url.replace("http://", "ws://");
+  return `ws://${url}`;
+};
 
 export default function CounselDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const textareaRef = useRef(null);
 
-  const list = JSON.parse(localStorage.getItem("counselData") || "[]");
-  const current = list.find(item => item.id === Number(id));
-
-  const [messages, setMessages] = useState([
-    { from: "user", text: "결제 오류가 자꾸 발생합니다. 확인 부탁드립니다." }
-  ]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [detail, setDetail] = useState(null);
   const [reply, setReply] = useState("");
+  const [sending, setSending] = useState(false);
 
-  const sendReply = () => {
+  useEffect(() => {
+    if (!id) return;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchConsultationDetail(id);
+        setDetail(data);
+      } catch (err) {
+        setError(err?.detail || "상담을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [id]);
+
+  // WebSocket 실시간 수신
+  useEffect(() => {
+    if (!id) return;
+    const wsBase = apiBaseToWs(API_BASE_URL);
+    const socket = new WebSocket(`${wsBase}/ws/consultations/${id}/`);
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setDetail((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            messages: [...(prev.messages || []), data],
+          };
+        });
+      } catch (e) {
+        console.error("ws parse error", e);
+      }
+    };
+
+    return () => socket.close();
+  }, [id]);
+
+  // 폴링: WS 실패 대비
+  useEffect(() => {
+    if (!id) return;
+    const timer = setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const data = await fetchConsultationDetail(id);
+        setDetail(data);
+      } catch {
+        // ignore
+      }
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [id]);
+
+
+  const sendReply = async () => {
     if (!reply.trim()) return;
-
-    const newMsg = { from: "admin", text: reply };
-    setMessages([...messages, newMsg]);
-
-    const list = JSON.parse(localStorage.getItem("counselData") || "[]");
-    const updatedList = list.map(item =>
-      item.id === Number(id) ? { ...item, isAnswered: true } : item
-    );
-    localStorage.setItem("counselData", JSON.stringify(updatedList));
-
-    setReply("");
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "55px";
+    setSending(true);
+    setError(null);
+    try {
+      const res = await sendConsultationMessage(id, reply);
+      setDetail((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          messages: [...(prev.messages || []), res],
+        };
+      });
+      setReply("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "55px";
+      }
+    } catch (err) {
+      setError(err?.detail || "메시지를 전송하지 못했습니다.");
+    } finally {
+      setSending(false);
     }
   };
 
   return (
     <div className={styles.detailWrapper}>
-
-      {/* 🔹 상단 (뒤로가기 + 제목) */}
       <div className={styles.topBar}>
         <button className={styles.backBtn} onClick={() => router.push("/manage/counsel")}>
           <img src="/back.svg" alt="back" className={styles.backIcon} />
         </button>
-        <h2 className={styles.pageTitle}>{current?.title || "문의 제목"}</h2>
+        <h2 className={styles.pageTitle}>{detail?.title || "문의 제목"}</h2>
       </div>
 
-      {/* 🔹 메시지 영역 */}
-      <div className={styles.chatArea}>
-        <p className={styles.meta}>학생 / ID {id}</p>
+      {error && <div className={styles.errorBox}>{error}</div>}
+      {loading && <div className={styles.loadingBox}>불러오는 중...</div>}
 
-        {messages.map((m, i) => (
-          <div key={i} className={m.from === "user" ? styles.bubbleUser : styles.bubbleAdmin}>
-            {m.text}
+      <div className={styles.chatArea}>
+        <p className={styles.meta}>
+          {detail?.student
+            ? `${detail.student.full_name || detail.student.username} / ID ${detail.student.username}`
+            : `학생 / ID ${id}`}
+        </p>
+
+        {(detail?.messages || []).map((m) => (
+          <div
+            key={m.id}
+            className={m.sender_type === "student" ? styles.bubbleUser : styles.bubbleAdmin}
+          >
+            <div className={styles.msgText}>{m.text}</div>
+            <div className={styles.msgMeta}>{formatDateTime(m.created_at)}</div>
           </div>
         ))}
       </div>
 
-      {/* 🔹 입력 영역 */}
       <div className={styles.inputBar}>
         <textarea
           ref={textareaRef}
@@ -71,13 +164,18 @@ export default function CounselDetailPage() {
             el.style.height = "auto";
             el.style.height = el.scrollHeight + "px";
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              sendReply();
+            }
+          }}
         />
 
-        <button className={styles.sendBtn} onClick={sendReply}>
+        <button className={styles.sendBtn} onClick={sendReply} disabled={sending}>
           <img src="/send-2.svg" alt="send" className={styles.sendIcon} />
         </button>
       </div>
-
     </div>
   );
 }
