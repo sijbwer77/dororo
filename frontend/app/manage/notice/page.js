@@ -6,17 +6,30 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import styles from "./notice.manage.module.css";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import { fetchNotices, bulkDeleteNotices } from "@/lib/notice";
 
 export default function NoticeManagePage() {
   const router = useRouter();
 
   // 공지 목록 상태
   const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // 처음 로딩 시 공지 목록 가져오기
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("notices") || "[]");
-    // 최근 작성한 공지가 위로 오도록 뒤집기
-    setNotices(saved.reverse());
+    const load = async () => {
+      try {
+        const data = await fetchNotices();
+        setNotices(data);       // 백엔드에서 date / preview 다 내려줌
+      } catch (err) {
+        console.error(err);
+        alert("공지 목록을 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
   }, []);
 
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -30,7 +43,7 @@ export default function NoticeManagePage() {
   const [checkAll, setCheckAll] = useState(false);
 
   const handleCheckAll = () => {
-    setCheckedItems((prev) => {
+    setCheckedItems(() => {
       const newState = {};
       notices.forEach((_, idx) => {
         newState[idx] = !checkAll;
@@ -68,17 +81,32 @@ export default function NoticeManagePage() {
     setShowDeleteModal(true);
   };
 
-  const handleDelete = () => {
-    const newList = notices.filter((_, idx) => !targetIndexes.includes(idx));
+  // 실제 삭제 (백엔드 + 프론트 상태 동기화)
+  const handleDelete = async () => {
+    try {
+      // 선택된 index → 실제 공지 ID 배열로 변환
+      const idsToDelete = targetIndexes
+        .map((idx) => notices[idx]?.id)
+        .filter((v) => v != null);
 
-    // 로컬스토리지에는 원래 저장 순서(작성 오래된 순)로 다시 저장
-    const originalOrder = [...newList].reverse();
-    localStorage.setItem("notices", JSON.stringify(originalOrder));
+      if (idsToDelete.length === 0) {
+        alert("삭제할 공지가 없습니다.");
+        return;
+      }
 
-    setNotices(newList);
-    setCheckedItems({});
-    setCheckAll(false);
-    setShowDeleteModal(false);
+      // 백엔드에 삭제 요청
+      await bulkDeleteNotices(idsToDelete);
+
+      // 프론트 상태에서도 제거
+      const newList = notices.filter((_, idx) => !targetIndexes.includes(idx));
+      setNotices(newList);
+      setCheckedItems({});
+      setCheckAll(false);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("공지 삭제 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -100,7 +128,7 @@ export default function NoticeManagePage() {
           <div className={styles.topRowButtons}>
             <button
               className={styles.writeBtn}
-              onClick={() => router.push("/manage/notice/write")} 
+              onClick={() => router.push("/manage/notice/write")}
               // TODO: 실제 경로에 맞게 수정 (예: "/admin/notice/write")
             >
               <span>공지 작성하기</span>
@@ -119,7 +147,9 @@ export default function NoticeManagePage() {
 
       {/* ===== 공지 리스트 영역 ===== */}
       <section className={styles.noticeListArea}>
-        {notices.length === 0 ? (
+        {loading ? (
+          <div className={styles.emptyNotice}>공지 목록을 불러오는 중입니다...</div>
+        ) : notices.length === 0 ? (
           <div className={styles.emptyNotice}>등록된 공지가 없습니다.</div>
         ) : (
           notices.map((notice, idx) => (
