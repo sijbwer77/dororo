@@ -22,7 +22,6 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'rest_framework',  # Django로 API 만드는 프레임워크
-    # 'rest_framework_simplejwt',  # [삭제] 세션 방식에서는 불필요
     'corsheaders',               # [추가] 프론트엔드 연결용
 
     'django.contrib.admin',
@@ -38,10 +37,17 @@ INSTALLED_APPS = [
     'apps.consultation',
     'apps.gamification',
     'apps.message',
-    'apps.group', 
     'apps.challenge',
+    
+    # 'apps.group', 
+  
+    'apps.group.apps.GroupConfig',
+
+    #웹소켓
+    "channels",
 
 ]
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -175,17 +181,36 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- CORS / CSRF 설정 (개발용) ---
-CORS_ALLOW_ALL_ORIGINS = True          # 일단 전부 허용
-CORS_ALLOW_CREDENTIALS = True          # 세션 쿠키 같이 주고받기
+CORS_ALLOW_ALL_ORIGINS = False
 
-# 프론트에서 오는 요청을 CSRF 신뢰 대상으로 추가
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://192.168.56.1:3000",
-    "http://0.0.0.0:8000"
+    "http://0.0.0.0:8000",
 ]
 
 # --- External services (LLM 등) ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
+
+# 웹소켓 관련
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+ASGI_APPLICATION = "myproject.asgi.application"
+
+main

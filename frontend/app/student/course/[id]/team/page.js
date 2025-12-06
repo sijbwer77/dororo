@@ -1,6 +1,6 @@
 'use client'; 
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styles from "./team.module.css"; 
 import Image from "next/image";
 import Link from "next/link";
@@ -12,12 +12,13 @@ import Sidebar from "@/components/Sidebar";
 export default function TeamPage() {
   const params = useParams(); 
   const courseId = params.id;
-  const currentTeam = FAKE_TEAMS[0]; 
+  const currentTeam = null; //FAKE_TEAMS[0] ?? null;
 
   const { files, chatMessages, addFile, addChatMessage } = useTeamData();
 
   const [activeTab, setActiveTab] = useState('chat');
   const [chatInput, setChatInput] = useState(""); 
+  const ws = useRef(null); //WebSocket 객체 보관
 
   const [expandedSections, setExpandedSections] = useState({
     meeting: false, 
@@ -77,8 +78,12 @@ export default function TeamPage() {
     <div className={styles.pageLayout}>
       
       <Sidebar courseId={courseId} />
+      
 
-      <main className={styles.mainContent}>
+      {!currentTeam ? (
+        <div style={{ padding: "50px" }}>팀이 없습니다.</div>
+      ) : (
+        <main className={styles.mainContent}>
         <section className={styles.teamListSection}>
           <div className={styles.teamListHeader}>
             <h1 className={styles.mainTitle}>팀1</h1>
@@ -196,6 +201,8 @@ export default function TeamPage() {
         </section>
 
       </main>
+      )}
+      
     </div>
   );
 }

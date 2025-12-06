@@ -11,6 +11,33 @@ from .models import (
     TeacherAssignmentRequest,
 )
 
+class LessonMaterialSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Lesson
+        fields = ("id", "title", "material_type", "url")
+
+    def get_url(self, obj):
+        request = self.context.get("request")
+        if obj.material_type == "pdf" and obj.file:
+            return request.build_absolute_uri(obj.file.url)
+        if obj.material_type == "video" and obj.video_url:
+            return obj.video_url
+        return None
+
+class WeekSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    materials = LessonMaterialSerializer(many=True)
+
+class LearningPageSerializer(serializers.Serializer):
+    course_id = serializers.IntegerField()
+    course_title = serializers.CharField()
+    weeks = WeekSerializer(many=True)
+    progress = serializers.ListField()
+
+
 class StudentCourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
