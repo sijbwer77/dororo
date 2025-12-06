@@ -25,6 +25,17 @@ export default function StudentDashboard() {
   const router = useRouter();
   const [courses, setCourses] = useState([]);
   const [ready, setReady] = useState(false); // 역할 체크 끝났는지
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };  
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -74,11 +85,16 @@ export default function StudentDashboard() {
   }
 
   return (
+   <>
     <div className={styles.pageLayout}>
       {/* 왼쪽 사이드바 */}
       <nav className={styles.sidebar}>
         <div className={styles.sidebarTop}>
-          <div className={styles.sidebarLogo}>
+          <div
+            className={styles.sidebarLogo}
+            onClick={handleLogoClick}
+            styles={{cirsor: "pointer"}} 
+          >            
             <Image src="/doro-logo.svg" alt="DORO 로고" width={147} height={38} />
           </div>
           <div className={styles.profileIcon}>
@@ -130,5 +146,21 @@ export default function StudentDashboard() {
         </div>
       </main>
     </div>
+    
+    {showLogoutModal && (
+      <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+         <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+             <div>
+               <p className={styles.modalTitle}>로그아웃</p>
+               <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+             </div>
+             <div className={styles.modalButtons}>
+               <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+               <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+             </div>
+          </div>
+       </div>
+     )}
+   </>    
   );
 }

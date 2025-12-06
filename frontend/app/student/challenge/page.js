@@ -2,15 +2,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./challenge.module.css";
 import SideBarFooter from "@/components/SideBarFooter";
 import { apiFetch } from "@/lib/api";
 
 export default function ChallengePage() {
+  const router = useRouter();  
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-
+  const [showLogoutModal, setShowLogoutModal] = useState(false);  
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/"); // 로그인 화면으로 이동
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };    
   useEffect(() => {
     apiFetch("/api/student/challenge/")
       .then((res) => setData(res))
@@ -29,11 +41,16 @@ export default function ChallengePage() {
   }
 
   return (
+    <>
     <div className={styles.pageLayout}>
       {/* 1. 왼쪽 사이드바 */}
       <nav className={styles.sidebar}>
         <div className={styles.sidebarTop}>
-          <div className={styles.sidebarLogo}>
+          <div
+            className={styles.sidebarLogo}
+            onClick={handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image
               src="/doro-logo.svg"
               alt="DORO 로고"
@@ -223,5 +240,21 @@ export default function ChallengePage() {
         </section>
       </main>
     </div>
+
+    {showLogoutModal && (
+      <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+          <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div>
+              <p className={styles.modalTitle}>로그아웃</p>
+              <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+            </div>
+            <div className={styles.modalButtons}>
+               <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+               <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+            </div>
+          </div>
+      </div>
+    )}
+   </>    
   );
 }

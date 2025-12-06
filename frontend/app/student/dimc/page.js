@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SideBarFooter from "@/components/SideBarFooter.js";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // 마이페이지처럼 메뉴 배열로 관리
 const dimcSidebarMenus = [
@@ -15,14 +17,31 @@ const dimcSidebarMenus = [
 
 export default function DIMCPage() {
   const pathname = usePathname();
-
+  const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };
+          
   return (
+    <>
     <div className={styles.pageLayout}>
       {/* 1. 왼쪽 사이드바 */}
       <nav className={styles.sidebar}>
         {/* 로고 + 프로필 */}
         <div className={styles.sidebarTop}>
-          <div className={styles.sidebarLogo}>
+          <div 
+            className={styles.sidebarLogo}
+            onClick={handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image
               src="/doro-logo.svg"
               alt="DORO 로고"
@@ -118,5 +137,20 @@ export default function DIMCPage() {
         </div>
       </main>
     </div>
+    {showLogoutModal && (
+      <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+          <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div>
+                <p className={styles.modalTitle}>로그아웃</p>
+                <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+            </div>
+            <div className={styles.modalButtons}>
+                <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+                <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+            </div>
+          </div>
+      </div>
+    )}
+   </>    
   );
 }
