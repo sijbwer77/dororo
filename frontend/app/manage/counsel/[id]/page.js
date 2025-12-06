@@ -7,6 +7,7 @@ import {
   fetchConsultationDetail,
   sendConsultationMessage,
 } from "@/lib/consultation";
+import { API_BASE_URL } from "@/lib/api";
 
 const formatDateTime = (iso) => {
   if (!iso) return "";
@@ -22,6 +23,13 @@ const formatDateTime = (iso) => {
   }
 };
 
+const apiBaseToWs = (url) => {
+  if (!url) return "";
+  if (url.startsWith("https://")) return url.replace("https://", "wss://");
+  if (url.startsWith("http://")) return url.replace("http://", "ws://");
+  return `ws://${url}`;
+};
+
 export default function CounselDetailPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -34,6 +42,7 @@ export default function CounselDetailPage() {
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
+    if (!id) return;
     const load = async () => {
       setLoading(true);
       setError(null);
@@ -48,6 +57,46 @@ export default function CounselDetailPage() {
     };
     load();
   }, [id]);
+
+  // WebSocket 실시간 수신
+  useEffect(() => {
+    if (!id) return;
+    const wsBase = apiBaseToWs(API_BASE_URL);
+    const socket = new WebSocket(`${wsBase}/ws/consultations/${id}/`);
+
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setDetail((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            messages: [...(prev.messages || []), data],
+          };
+        });
+      } catch (e) {
+        console.error("ws parse error", e);
+      }
+    };
+
+    return () => socket.close();
+  }, [id]);
+
+  // 폴링: WS 실패 대비
+  useEffect(() => {
+    if (!id) return;
+    const timer = setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const data = await fetchConsultationDetail(id);
+        setDetail(data);
+      } catch {
+        // ignore
+      }
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [id]);
+
 
   const sendReply = async () => {
     if (!reply.trim()) return;
@@ -86,7 +135,11 @@ export default function CounselDetailPage() {
       {loading && <div className={styles.loadingBox}>불러오는 중...</div>}
 
       <div className={styles.chatArea}>
-        <p className={styles.meta}>학생 / ID {id}</p>
+        <p className={styles.meta}>
+          {detail?.student
+            ? `${detail.student.full_name || detail.student.username} / ID ${detail.student.username}`
+            : `학생 / ID ${id}`}
+        </p>
 
         {(detail?.messages || []).map((m) => (
           <div

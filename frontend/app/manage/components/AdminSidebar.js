@@ -10,7 +10,6 @@ const MENUS = [
   { key: "dashboard", label: "대시보드", icon: "/admin_home.svg", path: "/manage" },
   { key: "notice",    label: "공지",     icon: "/admin_notification.svg", path: "/manage/notice" },
   { key: "message",   label: "메시지",   icon: "/admin_message.svg", path: "/manage/message" },
-  { key: "course",    label: "강의 확인", icon: "/admin_course.svg", path: "/manage/course" },
   { key: "eval",      label: "강의평가", icon: "/chart-pie.svg", path: "/manage/eval" },
   { key: "counsel",   label: "상담",     icon: "/admin_talk.svg", path: "/manage/counsel" },
 ];
