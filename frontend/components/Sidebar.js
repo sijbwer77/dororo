@@ -12,7 +12,7 @@ export default function Sidebar({ courseId }) {
   const pathname = usePathname();
 
   const course = FAKE_COURSES.find((c) => c.id === Number(courseId));
-  const courseName = course ? course.title : "과목 상세";
+  const courseName = course ? course.title : "제목을 불러오지 못했습니다.";
 
   const menus = [
     { text: "공지", href: `/student/course/${courseId}` },
