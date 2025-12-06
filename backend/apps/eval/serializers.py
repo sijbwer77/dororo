@@ -140,3 +140,38 @@ class CourseEvaluationSimpleSerializer(serializers.ModelSerializer):
         model = CourseEvaluation
         fields = ["id", "course", "submitted_at"]
         read_only_fields = fields
+
+class TeacherCourseSummarySerializer(serializers.Serializer):
+    """강사 대시보드 요약용: 강의 하나의 통계"""
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    short_name = serializers.CharField()
+    code = serializers.CharField(allow_blank=True)
+    teacher = serializers.CharField()
+    avg = serializers.FloatField()
+    max = serializers.FloatField()
+    min = serializers.FloatField()
+    count = serializers.IntegerField()
+
+
+class TeacherSummarySerializer(serializers.Serializer):
+    """강사 전체 요약 + 강의 리스트"""
+    total_courses = serializers.IntegerField()
+    completed_ratio = serializers.FloatField(allow_null=True)
+    average_score = serializers.FloatField(allow_null=True)
+    courses = TeacherCourseSummarySerializer(many=True)
+
+
+class QuestionStatSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    text = serializers.CharField()
+    avg_score = serializers.FloatField()
+
+
+class TeacherCourseDetailSerializer(serializers.Serializer):
+    """강의별 상세: 질문별 평균 + 코멘트"""
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    info = serializers.CharField()
+    surveys = QuestionStatSerializer(many=True)
+    comments = serializers.ListField(child=serializers.CharField())

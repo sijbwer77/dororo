@@ -29,3 +29,12 @@ export async function submitEvaluation(courseId, answers) {
     }),
   });
 }
+
+export async function getTeacherEvalSummary() {
+  return apiFetch("/api/evals/teacher/summary/");
+}
+
+// ✅ 강사용: 강의별 상세
+export async function getTeacherEvalCourseDetail(courseId) {
+  return apiFetch(`/api/evals/teacher/courses/${courseId}/`);
+}
