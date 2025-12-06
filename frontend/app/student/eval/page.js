@@ -8,8 +8,13 @@ import styles from "./eval.module.css";
 import Image from "next/image";
 import SideBarFooter from "@/components/SideBarFooter";
 import { usePathname } from "next/navigation";
-import { FAKE_COURSES } from "@/data/mock-courses";
 import ScoreCircles from "@/components/ScoreCircles";
+
+import {
+  getMyEvalCourses,
+  getEvalQuestions,
+  submitEvaluation,
+} from "@/lib/eval";
 
 // 사이드바 메뉴
 const SidebarMenus = [
@@ -89,13 +94,20 @@ function EvalModal({ visible, course, onClose }) {
         <div className={styles.modalHeader} onMouseDown={handleMouseDown}>
           <div className={styles.modalHeaderLeft}>
             <div className={styles.modalCourseTitle}>{course.title}</div>
-            <div className={styles.modalTeacher}>강사: {course.teacher}</div>
+            <div className={styles.modalTeacher}>
+              강사:{" "}
+              {course.instructor_name ||
+                course.teacher_name ||
+                course.teacher ||
+                "-"}
+            </div>
           </div>
           <div className={styles.modalHeaderRight}>
             <button
               type="button"
               className={styles.modalCloseButton}
               onClick={onClose}
+              disabled={submitting}
             >
               ✕
             </button>
@@ -119,8 +131,9 @@ function EvalModal({ visible, course, onClose }) {
             type="button"
             className={styles.submitButton}
             onClick={handleSubmit}
+            disabled={submitting}
           >
-            완료
+            {submitting ? "제출 중..." : "완료"}
           </button>
         </div>
       </div>
@@ -128,6 +141,7 @@ function EvalModal({ visible, course, onClose }) {
   );
 }
 
+// ────────────────────── 메인 페이지 ──────────────────────
 export default function LectureEvalPage() {
   const pathname = usePathname();
   const router = useRouter(); // ✅ 라우터

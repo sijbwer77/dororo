@@ -1,0 +1,127 @@
+
+
+import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='Course',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('course_type', models.CharField(blank=True, default='', max_length=50, null=True)),
+                ('title', models.CharField(max_length=200)),
+                ('description', models.TextField(blank=True)),
+                ('capacity', models.PositiveIntegerField(default=0)),
+                ('status', models.CharField(choices=[('new', '생성됨'), ('pending_teacher', '강사 모집'), ('teacher_assigned', '강사 배정완료'), ('enrolling', '학생 모집'), ('in_progress', '강의 진행중'), ('finished', '종료')], default='new', max_length=20)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('modified_at', models.DateTimeField(auto_now=True, null=True)),
+                ('instructor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='courses', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Assignment',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title', models.CharField(max_length=200)),
+                ('file', models.FileField(blank=True, null=True, upload_to='resources/assignments')),
+                ('description', models.TextField()),
+                ('due_date', models.DateTimeField()),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assignments', to='learning.course')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Lesson',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('week', models.PositiveIntegerField()),
+                ('title', models.CharField(max_length=200)),
+                ('material_type', models.CharField(choices=[('pdf', 'PDF'), ('video', 'Video'), ('etc', 'Etc')], default='pdf', max_length=20)),
+                ('file', models.FileField(blank=True, null=True, upload_to='resources/lesson')),
+                ('video_url', models.URLField(blank=True, null=True)),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='weeks', to='learning.course')),
+            ],
+            options={
+                'ordering': ['week', 'id'],
+            },
+        ),
+        migrations.CreateModel(
+            name='Notice',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('title', models.CharField(max_length=200)),
+                ('content', models.TextField()),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notices', to='learning.course')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Schedule',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateField()),
+                ('start_time', models.TimeField()),
+                ('end_time', models.TimeField()),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='schedules', to='learning.course')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Submission',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('file', models.FileField(blank=True, upload_to='resources/submissions')),
+                ('status', models.CharField(choices=[('submitted', '제출됨'), ('graded', '평가됨')], default='submitted', max_length=20)),
+                ('grade', models.PositiveSmallIntegerField(blank=True, null=True)),
+                ('submitted_at', models.DateTimeField(auto_now_add=True)),
+                ('assignment', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='submissions', to='learning.assignment')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Attendance',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('status', models.CharField(choices=[('present', 'Present'), ('late', 'Late'), ('absent', 'Absent')], max_length=20)),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendances', to='learning.course')),
+                ('schedule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendances', to='learning.schedule')),
+            ],
+            options={
+                'unique_together': {('course', 'student', 'schedule')},
+            },
+        ),
+        migrations.CreateModel(
+            name='StudentEnrollment',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='enrollments', to='learning.course')),
+                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='enrollments', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'unique_together': {('student', 'course')},
+            },
+        ),
+        migrations.CreateModel(
+            name='TeacherAssignmentRequest',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('status', models.CharField(choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending', max_length=20)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='teacher_requests', to='learning.course')),
+                ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='teacher_requests', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'unique_together': {('teacher', 'course')},
+            },
+        ),
+    ]

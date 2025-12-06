@@ -38,10 +38,13 @@
   border-radius: 50%;
   margin-top: 9px;
   overflow: hidden;
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .profileImage {
+  border-radius: 50%;
   object-fit: cover;
 }
 

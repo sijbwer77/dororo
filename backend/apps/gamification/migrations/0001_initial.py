@@ -1,0 +1,65 @@
+
+
+import django.db.models.deletion
+from django.conf import settings
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='GamificationProfile',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('total_score', models.PositiveIntegerField(default=0)),
+                ('stage', models.PositiveSmallIntegerField(default=1)),
+                ('step', models.PositiveSmallIntegerField(default=1)),
+                ('progress', models.FloatField(default=0.0)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='gamification_profile', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'db_table': 'gamification_profile',
+            },
+        ),
+        migrations.CreateModel(
+            name='SolvedAcProgress',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('baseline_solved_count', models.PositiveIntegerField(default=0)),
+                ('last_solved_count', models.PositiveIntegerField(default=0)),
+                ('credited_solved_count', models.PositiveIntegerField(default=0)),
+                ('last_handle', models.CharField(blank=True, max_length=50)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='solvedac_progress', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'db_table': 'solvedac_progress',
+            },
+        ),
+        migrations.CreateModel(
+            name='DailyLmsAccess',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateField()),
+                ('has_accessed', models.BooleanField(default=False)),
+                ('is_checked', models.BooleanField(default=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='daily_lms_accesses', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'db_table': 'daily_lms_access',
+                'unique_together': {('user', 'date')},
+            },
+        ),
+    ]

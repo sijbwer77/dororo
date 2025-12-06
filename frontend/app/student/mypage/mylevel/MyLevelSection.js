@@ -2,13 +2,54 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import styles from './mylevel.module.css';
 import { getStageInfo } from '../stageConfig';
+import { getMyLevel } from '@/lib/gamification';
 
 export default function MyLevelSection() {
-  const CURRENT_EXP = 50;
-  const CURRENT_TRAIT = 'D';
-  const stage = getStageInfo(CURRENT_EXP, CURRENT_TRAIT);
+  const [expData, setExpData] = useState(null);
+  const [trait, setTrait] = useState('D');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await getMyLevel();
+
+        // 백엔드 구조: { exp: {...}, trait: null, badges: [], ... }
+        const exp = data.exp ?? {};
+
+        setExpData({
+          current: exp.stepExpCurrent ?? 0,
+          target: exp.stepExpMax ?? 1,
+          stage: exp.stage ?? 1,
+          step: exp.step ?? 1,
+          total: exp.total ?? 0,
+          max: exp.max ?? 4200,
+        });
+
+        setTrait(data.trait ?? 'D');
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
+  if (isLoading || !expData) {
+    return (
+      <section className={styles.myLevelLayout}>
+        <div className={styles.loadingText}>레벨 정보를 불러오는 중...</div>
+      </section>
+    );
+  }
+
+  // 기존 stageConfig 로직을 그대로 사용
+  const stage = getStageInfo(expData.total, trait);
   const showSubmarine = Boolean(stage.submarine?.src);
   const submarineClass =
     stage.submarine?.variant === 'red'

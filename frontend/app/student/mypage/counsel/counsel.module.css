@@ -60,6 +60,24 @@
   padding-right: 4px;
 }
 
+.errorBox {
+  border: 1px solid #d9534f;
+  background: #fdecea;
+  color: #b52b27;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.loadingBox {
+  border: 1px dashed #7faee6;
+  background: #f8fbff;
+  color: #0a5fae;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
 .counselItem {
   border: 1px solid #BFDBFE;
   border-radius: 10px;

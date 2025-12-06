@@ -4,7 +4,17 @@
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
 import Image from 'next/image';
-import Link from 'next/link'; 
+import Link from 'next/link';
+import styles from './login.module.css';
+import { login } from '@/lib/users';
+import { ensureCsrfCookie } from '@/lib/api';
+
+async function handleLogin() {
+  await login(id, pw);           // 세션 로그인
+  await ensureCsrfCookie();      // csrftoken 쿠키 받기
+  // -> 마이페이지로 이동
+}
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,17 +31,16 @@ export default function LoginPage() {
     } else {
       router.replace('/student');
     }
-  };
 
   return (
     <div className={styles.pageLayout}>
       <header className={styles.header}>
         <Image
-          src="/doro-logo.svg" 
+          src="/doro-logo.svg"
           alt="DORO 로고"
-          width={509} 
-          height={131} 
-          priority={true}
+          width={509}
+          height={131}
+          priority
         />
       </header>
 
@@ -43,13 +52,30 @@ export default function LoginPage() {
           <div className={styles.sectionLine}></div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="id" className={styles.label}>ID</label>
-            <input type="text" id="id" className={styles.inputField} />
+            <label htmlFor="id" className={styles.label}>
+              ID
+            </label>
+            <input
+              type="text"
+              id="id"
+              className={styles.inputField}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
           
           <div className={styles.inputGroup}>
-            <label htmlFor="pw" className={styles.label}>PW</label>
-            <input type="password" id="pw" className={styles.inputField} />
+            <label htmlFor="pw" className={styles.label}>
+              PW
+            </label>
+            <input
+              type="password"
+              id="pw"
+              className={styles.inputField}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+            />
           </div>
 
           <button onClick={handleLogin} className={styles.loginButton}>

@@ -19,6 +19,10 @@ const sidebarMenus = [
   { text: "강의 만족도 조사", iconPath: "/Task.svg", href: "/student/eval" },
 ];
 
+// 임시 색상
+const COLORS = ["#FFB6C1", "#FFD700", "#87CEFA", "#98FB98", "#FFA07A"];
+const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
+
 export default function StudentDashboard() {
   const pathname = usePathname(); 
   const router = useRouter(); // ✅ 라우터

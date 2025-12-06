@@ -1,7 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './schedule.module.css';
+import { apiFetch } from '@/lib/api';
+import {
+  fetchMySchedules,
+  createMySchedule,
+  updateMySchedule,
+  deleteMySchedule,
+} from '@/lib/schedule';
 
 const WEEK_DAYS = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
 const SCHEDULE_ITEMS = [];
@@ -15,14 +22,8 @@ export default function ScheduleSection() {
   const [editingEventId, setEditingEventId] = useState(null);
   const [userEvents, setUserEvents] = useState([]);
   const [detailEvent, setDetailEvent] = useState(null);
+  const [courseOptions, setCourseOptions] = useState([]);
   const formattedDate = date ? date.split('-').join('. ') : '연도. 월. 일';
-  const COURSE_OPTIONS = [
-    'D1/기초/1 내 손으로 만드는 무한의 계단',
-    'I4/중급/2 Vrew로 손쉽게 만드는 유튜브 쇼츠',
-    'M5/기초/1 여기도, 저기도 블루투스?',
-    'C6/중급/2 마인크래프트, 어디까지 해봤니?',
-    'DORO 해커톤',
-  ];
 
   const STATUS_CLASSNAME = {
     danger: styles.cardDanger,
@@ -57,7 +58,9 @@ export default function ScheduleSection() {
   const year = today.getFullYear();
   const month = today.getMonth();
   const todayDate = today.getDate();
-  const todayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(todayDate).padStart(2, '0')}`;
+  const todayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(
+    todayDate,
+  ).padStart(2, '0')}`;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
   const totalCells = startWeekday + daysInMonth;
@@ -70,6 +73,123 @@ export default function ScheduleSection() {
   const eventsThisMonth = userEvents.filter((e) => e.date.startsWith(currentMonthKey));
   const todayEvents = userEvents.filter((e) => e.date === todayKey);
   const eventStackCounter = {};
+
+  // 1) 수강 중인 강의 목록 가져오기 -> 셀렉트 박스
+  useEffect(() => {
+    async function loadCourses() {
+      try {
+        const data = await apiFetch('/api/student/courses/');
+        setCourseOptions(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error('강의 목록 불러오기 실패', e);
+        setCourseOptions([]);
+      }
+    }
+    loadCourses();
+  }, []);
+
+  // 2) 내 스케줄(개인 + 강의일정) 가져오기
+  useEffect(() => {
+    async function loadSchedules() {
+      try {
+        const y = year;
+        const m = month + 1;
+        const data = await fetchMySchedules(y, m);
+        const list = Array.isArray(data) ? data : data.results ?? [];
+
+        const mapped = list.map((item) => {
+          const courseObj = item.course || null;
+          const courseName =
+            (courseObj && (courseObj.name || courseObj.title)) ||
+            item.course_title ||
+            item.course_name ||
+            '';
+
+          const status =
+            item.status ||
+            (item.type === 'course' ? mapStatusFromCourse(courseName) : 'none');
+
+          return {
+            id: item.id,
+            date: item.date, // "YYYY-MM-DD"
+            title: item.title || courseName || '',
+            description: item.description || '',
+            course: courseName,
+            type: item.type || 'personal',
+            status,
+          };
+        });
+
+        setUserEvents(mapped);
+      } catch (e) {
+        console.error('스케줄 불러오기 실패', e);
+        setUserEvents([]);
+      }
+    }
+
+    loadSchedules();
+  }, [year, month]);
+
+  // 3) 일정 추가/수정
+  const handlePanelSubmit = async () => {
+    if (!date || !title.trim()) return;
+
+    const baseStatus = mapStatusFromCourse(course);
+    const payload = {
+      date,
+      title: title.trim(),
+      description: description.trim(),
+    };
+
+    try {
+      if (editingEventId) {
+        const updated = await updateMySchedule(editingEventId, payload);
+        setUserEvents((prev) =>
+          prev.map((e) =>
+            e.id === editingEventId
+              ? {
+                  ...e,
+                  date: updated.date ?? date,
+                  title: updated.title ?? title,
+                  description: updated.description ?? description,
+                  status: updated.status || baseStatus,
+                }
+              : e,
+          ),
+        );
+      } else {
+        const created = await createMySchedule(payload);
+        setUserEvents((prev) => [
+          ...prev,
+          {
+            id: created.id,
+            date: created.date ?? date,
+            title: created.title ?? title,
+            description: created.description ?? description,
+            course,
+            type: created.type || 'personal',
+            status: created.status || baseStatus,
+          },
+        ]);
+      }
+    } catch (e) {
+      console.error('일정 저장 실패', e);
+      // 서버 실패해도 최소 로컬에는 반영
+      if (!editingEventId) {
+        setUserEvents((prev) => [
+          ...prev,
+          { id: Date.now(), date, title, course, description, status: baseStatus },
+        ]);
+      }
+    }
+
+    setShowPanel(false);
+    setEditingEventId(null);
+    setTitle('');
+    setCourse('');
+    setDate('');
+    setDescription('');
+  };
 
   return (
     <section className={styles.schedulePageWrap}>
@@ -139,7 +259,7 @@ export default function ScheduleSection() {
               ))}
 
               {eventsThisMonth.map((ev, idx) => {
-                const [y, m, d] = ev.date.split('-').map((v) => Number(v));
+                const [, , d] = ev.date.split('-').map((v) => Number(v));
                 const dayNum = d;
                 const cellIndex = startWeekday + dayNum - 1;
                 const col = (cellIndex % 7) + 1;
@@ -149,7 +269,9 @@ export default function ScheduleSection() {
                 const stackIndex = eventStackCounter[dayNum] || 0;
                 eventStackCounter[dayNum] = stackIndex + 1;
                 const topOffset = 32 + stackIndex * 32;
-                const shortTitle = ev.title && ev.title.length > 7 ? `${ev.title.slice(0, 7)}...` : ev.title;
+                const shortTitle =
+                  ev.title && ev.title.length > 7 ? `${ev.title.slice(0, 7)}...` : ev.title;
+
                 return (
                   <div
                     key={`ev-${idx}-${ev.date}-${ev.title}`}
@@ -176,7 +298,9 @@ export default function ScheduleSection() {
               todayEvents.map((ev) => (
                 <div key={`${ev.date}-${ev.title}`} className={styles.todayItem}>
                   <div className={styles.todayTitle}>{ev.title}</div>
-                  {ev.course && ev.course !== '없음' && <div className={styles.todayMeta}>{ev.course}</div>}
+                  {ev.course && ev.course !== '없음' && (
+                    <div className={styles.todayMeta}>{ev.course}</div>
+                  )}
                 </div>
               ))
             )}
@@ -217,9 +341,9 @@ export default function ScheduleSection() {
                   onChange={(e) => setCourse(e.target.value)}
                 >
                   <option value="">없음</option>
-                  {COURSE_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
+                  {courseOptions.map((c) => (
+                    <option key={c.id} value={c.title}>
+                      {c.title}
                     </option>
                   ))}
                 </select>
@@ -231,7 +355,6 @@ export default function ScheduleSection() {
                   type="date"
                   className={styles.panelDateInput}
                   value={date}
-                  placeholder="연도. 월. 일"
                   onChange={(e) => setDate(e.target.value)}
                   aria-label="날짜 선택"
                 />
@@ -252,28 +375,7 @@ export default function ScheduleSection() {
               <button
                 type="button"
                 className={styles.panelSubmit}
-                onClick={() => {
-                  if (!date || !title.trim()) return;
-                  const status = mapStatusFromCourse(course);
-                  if (editingEventId) {
-                    setUserEvents((prev) =>
-                      prev.map((e) =>
-                        e.id === editingEventId ? { ...e, date, title, course, description, status } : e
-                      )
-                    );
-                  } else {
-                    setUserEvents((prev) => [
-                      ...prev,
-                      { id: Date.now(), date, title, status, course, description },
-                    ]);
-                  }
-                  setShowPanel(false);
-                  setEditingEventId(null);
-                  setTitle('');
-                  setCourse('');
-                  setDate('');
-                  setDescription('');
-                }}
+                onClick={handlePanelSubmit}
               >
                 완료
               </button>
@@ -290,7 +392,17 @@ export default function ScheduleSection() {
                   <button
                     type="button"
                     className={styles.detailDelete}
-                    onClick={() => {
+                    onClick={async () => {
+                      // 강의 일정(type=course)은 삭제 안 함
+                      if (detailEvent.type === 'course') {
+                        setDetailEvent(null);
+                        return;
+                      }
+                      try {
+                        await deleteMySchedule(detailEvent.id);
+                      } catch (e) {
+                        console.error('일정 삭제 실패', e);
+                      }
                       setUserEvents((prev) => prev.filter((e) => e.id !== detailEvent.id));
                       setDetailEvent(null);
                     }}
@@ -301,6 +413,7 @@ export default function ScheduleSection() {
                     type="button"
                     className={styles.detailEdit}
                     onClick={() => {
+                      if (detailEvent.type === 'course') return;
                       setEditingEventId(detailEvent.id);
                       setTitle(detailEvent.title || '');
                       setCourse(detailEvent.course || '');
