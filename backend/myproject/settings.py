@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'apps.gamification',
     'apps.message',
     'apps.challenge',
+    "apps.eval",
+    "apps.schedule",
     
     # 'apps.group', 
     'apps.group.apps.GroupConfig',
@@ -118,7 +120,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'lms',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',

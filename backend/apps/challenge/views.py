@@ -13,28 +13,28 @@ from .services import (
 
 
 class ChallengeView(APIView):
-    """
-    GET /api/student/challenge/
-    - 로그인 유저의 LocalAccount.solvedac_handel 사용해서 solved.ac 호출
-    """
-
     permission_classes = [IsAuthenticated]
 
     def get_solvedac_handle(self, user) -> str:
         """
-        LocalAccount.solvedac_handel → solved.ac 아이디.
-        없으면 user.username 사용.
+        매 요청마다 DB에서 LocalAccount를 직접 읽어서
+        solvedac_handel 을 가져온다.
+        - 전역 변수, 캐시 일절 사용 X
+        - 레코드 없거나 값이 비어 있으면 username 사용
         """
         try:
-            local = user.local_account  # related_name='local_account'
+            local = LocalAccount.objects.get(user_id=user.id)
         except LocalAccount.DoesNotExist:
-            return user.username
+            handle = user.username
+        else:
+            handle = local.solvedac_handel or user.username
 
-        # 필드 이름: solvedac_handel (오타 그대로)
-        if local.solvedac_handel:
-            return local.solvedac_handel
-
-        return user.username
+        # 무슨 값이 실제로 쓰였는지 서버 콘솔에서 보라고 디버그 로그 찍기
+        print(
+            f"DEBUG >> challenge handle: user_id={user.id}, "
+            f"username={user.username}, handle={handle!r}"
+        )
+        return handle
 
     def get(self, request):
         handle = self.get_solvedac_handle(request.user)

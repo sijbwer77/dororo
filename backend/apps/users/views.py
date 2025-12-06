@@ -90,3 +90,38 @@ class CheckUsernameAPIView(APIView):
         
         exists = User.objects.filter(username=username).exists()
         return Response({"ok": True, "exists": exists})
+
+# 마이페이지
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .serializers import MyPageSerializer
+from .models import LocalAccount
+
+@api_view(["GET", "PATCH"])
+@permission_classes([IsAuthenticated])
+def mypage_view(request):
+    account = LocalAccount.objects.get(user=request.user)
+
+    # GET — 마이페이지 조회
+    if request.method == "GET":
+        serializer = MyPageSerializer(account)
+        return Response(serializer.data)
+
+    # PATCH — 마이페이지 수정
+    if request.method == "PATCH":
+        data = request.data.copy()
+
+        # 프론트에서 solvedAc 로 보내는 경우 → solvedac_handel 로 매핑
+        if "solvedAc" in data:
+            data["solvedac_handel"] = data["solvedAc"]
+
+        serializer = MyPageSerializer(
+            account,
+            data=data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
