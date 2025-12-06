@@ -1,5 +1,3 @@
-/* app/components/Sidebar.module.css */
-
 .sidebar {
   width: 298px;
   height: 889px;
@@ -68,12 +66,12 @@
 .sidebarMenu {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 40px 0 0 0;
   display: flex;
   flex-direction: column;
   align-items: center; 
   gap: 40px; 
-  margin-top: 56px; 
+  padding-left: 0; 
 }
 
 .menuItem {
@@ -84,6 +82,7 @@
   color: #0A5FAE;
   display: flex;
   align-items: center;
+  gap: 15px;
   border-radius: 8px;
   width: 268px; 
   height: 43px; 
@@ -128,4 +127,85 @@
 /* ✅ 5. 활성화된 메뉴의 점 색상 (흰색으로 변경) */
 .menuItem.active .menuIconDot {
   background-color: #FFFFFF; 
+}
+
+/* ... 기존 코드 아래에 추가 ... */
+
+/* --- 로그아웃 모달 (팝업) 스타일 --- */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4); /* 뒤 배경 어둡게 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* 제일 위에 뜨게 */
+}
+
+.modalBox {
+  background: #FFFFFF;
+  width: 320px;
+  padding: 30px 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: popUp 0.2s ease-out;
+}
+
+@keyframes popUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modalTitle {
+  font-family: 'KoPubWorldDotum';
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.modalDesc {
+  font-family: 'KoPubWorldDotum';
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.cancelBtn, .confirmBtn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.cancelBtn {
+  background: #F1F3F5;
+  color: #495057;
+}
+
+.confirmBtn {
+  background: #FF6B6B; /* 로그아웃은 빨간색 계열로 강조 */
+  color: white;
+}
+
+.cancelBtn:hover, .confirmBtn:hover {
+  opacity: 0.8;
 }

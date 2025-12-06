@@ -1,7 +1,7 @@
 // app/admin/eval/page.js
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./eval.module.css";
 import { useRouter } from "next/navigation";
 import {
@@ -12,6 +12,7 @@ import {
 const MAX_SCORE = 5;
 
 export default function AdminEvalPage() {
+  // [기능] 라우터 초기화
   const router = useRouter();
 
   // ---- 요약 데이터 (상단 카드 + 그래프 + 표) ----
@@ -21,6 +22,7 @@ export default function AdminEvalPage() {
 
   // ---- 선택된 강의 인덱스 ----
   const [currentIndex, setCurrentIndex] = useState(0);
+  const currentData = TOP_COURSES[currentIndex];
 
   // ---- 선택된 강의 상세 (질문별 평균 + 코멘트) ----
   const [detail, setDetail] = useState(null);
@@ -87,6 +89,7 @@ export default function AdminEvalPage() {
     setCurrentIndex((prev) => (prev === 0 ? courses.length - 1 : prev - 1));
   };
 
+  // [기능] 다음 강의로 이동
   const handleNext = () => {
     if (!hasCourses) return;
     setCurrentIndex((prev) =>
@@ -359,6 +362,7 @@ export default function AdminEvalPage() {
           </div>
         </div>
       </aside>
+
     </div>
   );
 }

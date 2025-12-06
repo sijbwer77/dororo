@@ -106,13 +106,20 @@
   background: #deecfe; border-radius: 15px; z-index: 0;
 }
 .detailTitle, .detailSub, .detailMetaRow, .detailNav, .metricList, .commentBlock { position: relative; z-index: 1; }
-.detailTitle { margin: 4px 0 4px 0; font-size: 25px; font-weight: 700; color: #000000; }
+
+.detailTitle { 
+  margin: 4px 0 4px 0; 
+  font-size: 25px; 
+  font-weight: 700; 
+  color: #000000; 
+}
+
 .detailSub { font-size: 16px; font-weight: 500; color: #8f9091; margin-bottom: 8px; }
 .detailMetaRow { display: flex; gap: 8px; font-size: 16px; margin-bottom: 4px; }
 .detailMetaLabel { color: #8f9091; font-weight: 500; }
 .detailMetaValue { color: #000000; font-weight: 500; }
 .detailNav { position: absolute; right: 26px; top: 110px; font-size: 13px; font-weight: 700; color: #8f9091; }
-.metricList { margin-top: 60px; }
+.metricList { margin-top: 65px; }
 .metricRow { display: flex; align-items: center; margin-bottom: 12px; font-size: 16px; }
 .metricLabel { flex: 0 0 130px; color: #000000; }
 .metricBarBg {
