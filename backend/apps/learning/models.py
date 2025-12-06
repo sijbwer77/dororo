@@ -15,6 +15,7 @@ class Course(models.Model):
         ('in_progress', '강의 진행중'),
         ('finished', '종료'),
     ]
+    dimc_type = models.CharField(max_length=1,choices=[('D','D'),('I','I'),('M','M'),('C','C')] ,null=True, blank=True)
     course_type = models.CharField(max_length=50, default="",null=True, blank=True)
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)

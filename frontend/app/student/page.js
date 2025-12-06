@@ -19,6 +19,14 @@ const sidebarMenus = [
 const COLORS = ["#FFB6C1", "#FFD700", "#87CEFA", "#98FB98", "#FFA07A"];
 const getRandomColor = () => COLORS[Math.floor(Math.random() * COLORS.length)];
 
+const DIMC_COLORS = {
+  D: "#006fd5",
+  I: "#BA1717",
+  M: "#F3DE71",
+  C: "#9C13B7",
+};
+const getColorByDIMC = (dimc) => DIMC_COLORS[dimc] || "#AAAAAA";
+
 export default function StudentDashboard() {
   const pathname = usePathname();
   const [courses, setCourses] = useState([]);
@@ -28,18 +36,17 @@ export default function StudentDashboard() {
     const fetchCourses = async () => {
       try {
         const res = await fetch("http://localhost:8000/api/student/courses/", {
-          credentials: "include",   // 로그인 세션 유지
+          credentials: "include",
         });
 
         if (!res.ok) throw new Error("Failed to fetch courses");
 
         let data = await res.json();
 
-        // 프론트용 color, category 임시 추가
         data = data.map((c) => ({
           ...c,
-          color: getRandomColor(),
-          category: c.course_type || "_", // D1 · 기초 · 1 이런 거 보여주는 코드
+          color: getColorByDIMC(c.dimc_type),
+          category: c.course_type || "_",
         }));
 
         setCourses(data);

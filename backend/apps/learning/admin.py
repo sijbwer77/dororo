@@ -5,9 +5,9 @@ from .models import Course
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     # 나타낼 정보 선택
-    list_display = ("title","course_type", "instructor", "capacity", "status", "created_at")
+    list_display = ("title",'dimc_type',"course_type", "instructor", "capacity", "status", "created_at",)
     search_fields = ("title", "description") # 단독 값은 여기로
-    list_filter = ("status",) #범주형 값은 여기로
+    list_filter = ("status",'dimc_type') #범주형 값은 여기로
     readonly_fields = ("created_at", "modified_at")
 
 from .models import StudentEnrollment
