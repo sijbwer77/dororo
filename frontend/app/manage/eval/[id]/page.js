@@ -1,345 +1,175 @@
-// app/student/eval/page.js
+// app/admin/eval/[id]/page.js
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import styles from "./detail.module.css";
 
-import layoutStyles from "./dimc/dimc.module.css";
-import styles from "./eval.module.css";
-import SideBarFooter from "@/components/SideBarFooter";
-import ScoreCircles from "@/components/ScoreCircles";
+// [데이터] 메인 페이지와 동일한 데이터 리스트 (실제로는 DB에서 가져와야 함)
+const TOP_COURSES = [
+  {
+    name: "내 손으로 만드는 무한의 계단",
+    info: "D1/기초/1 | 강사명 김철수",
+    surveys: [
+      { label: "강의 내용이 체계적이었나요?", score: 4.2 },
+      { label: "강사가 내용을 잘 전달했나요?", score: 4.5 },
+      { label: "수업 자료가 도움이 되었나요?", score: 4.2 },
+      { label: "실습 시간이 충분했나요?", score: 4.0 },
+      { label: "강의 속도는 적절했나요?", score: 4.2 },
+      { label: "질문에 대한 답변이 좋았나요?", score: 4.8 },
+      { label: "강의실 환경은 쾌적했나요?", score: 4.2 },
+      { label: "다음 단계 강의를 듣고 싶나요?", score: 4.5 },
+      { label: "주변에 추천하고 싶나요?", score: 4.2 },
+    ],
+    comments: [
+      "강의가 매우 이해하기 쉬웠어요.",
+      "자료가 보기 편했지만 속도가 조금 빨라서 따라가기 힘들었어요.",
+      "바로바로 피드백을 주셔서 좋았어요.",
+      "재밌어요"
+    ]
+  },
+  {
+    name: "Vrew로 손쉽게 만드는 유튜브 쇼츠",
+    info: "D2/활용/3 | 강사명 이영희",
+    surveys: [
+      { label: "강의 내용이 체계적이었나요?", score: 4.0 },
+      { label: "강사가 내용을 잘 전달했나요?", score: 4.2 },
+      { label: "수업 자료가 도움이 되었나요?", score: 4.5 },
+      { label: "실습 시간이 충분했나요?", score: 3.8 },
+      { label: "강의 속도는 적절했나요?", score: 4.0 },
+      { label: "질문에 대한 답변이 좋았나요?", score: 4.5 },
+      { label: "강의실 환경은 쾌적했나요?", score: 4.2 },
+      { label: "다음 단계 강의를 듣고 싶나요?", score: 4.2 },
+      { label: "주변에 추천하고 싶나요?", score: 4.0 },
+    ],
+    comments: [
+      "영상 편집이 이렇게 쉬운줄 몰랐어요!",
+      "실습 시간이 조금 더 길었으면 좋겠어요.",
+      "유익한 시간이었습니다."
+    ]
+  },
+  {
+    name: "여기도, 저기도 블루투스?",
+    info: "H1/하드웨어/2 | 강사명 박민수",
+    surveys: [
+      { label: "강의 내용이 체계적이었나요?", score: 4.8 },
+      { label: "강사가 내용을 잘 전달했나요?", score: 4.7 },
+      { label: "수업 자료가 도움이 되었나요?", score: 4.2 },
+      { label: "실습 시간이 충분했나요?", score: 4.5 },
+      { label: "강의 속도는 적절했나요?", score: 4.6 },
+      { label: "질문에 대한 답변이 좋았나요?", score: 4.9 },
+      { label: "강의실 환경은 쾌적했나요?", score: 4.5 },
+      { label: "다음 단계 강의를 듣고 싶나요?", score: 4.8 },
+      { label: "주변에 추천하고 싶나요?", score: 4.7 },
+    ],
+    comments: [
+      "아두이노 연결이 신기해요.",
+      "조금 어려웠지만 보람찼습니다.",
+      "원리가 이해가 잘 돼요."
+    ]
+  },
+  {
+    name: "마인크래프트, 어디까지 해봤니?",
+    info: "G1/게임/1 | 강사명 최지훈",
+    surveys: [
+      { label: "강의 내용이 체계적이었나요?", score: 5.0 },
+      { label: "강사가 내용을 잘 전달했나요?", score: 5.0 },
+      { label: "수업 자료가 도움이 되었나요?", score: 5.0 },
+      { label: "실습 시간이 충분했나요?", score: 5.0 },
+      { label: "강의 속도는 적절했나요?", score: 5.0 },
+      { label: "질문에 대한 답변이 좋았나요?", score: 5.0 },
+      { label: "강의실 환경은 쾌적했나요?", score: 4.8 },
+      { label: "다음 단계 강의를 듣고 싶나요?", score: 5.0 },
+      { label: "주변에 추천하고 싶나요?", score: 5.0 },
+    ],
+    comments: [
+      "최고의 강의!",
+      "또 듣고 싶어요.",
+      "코딩이 게임처럼 느껴져요."
+    ]
+  },
+  {
+    name: "DORO 해커톤",
+    info: "S1/심화/5 | 강사명 정수진",
+    surveys: [
+      { label: "강의 내용이 체계적이었나요?", score: 4.3 },
+      { label: "강사가 내용을 잘 전달했나요?", score: 4.5 },
+      { label: "수업 자료가 도움이 되었나요?", score: 4.0 },
+      { label: "실습 시간이 충분했나요?", score: 4.8 },
+      { label: "강의 속도는 적절했나요?", score: 4.2 },
+      { label: "질문에 대한 답변이 좋았나요?", score: 4.5 },
+      { label: "강의실 환경은 쾌적했나요?", score: 4.0 },
+      { label: "다음 단계 강의를 듣고 싶나요?", score: 4.5 },
+      { label: "주변에 추천하고 싶나요?", score: 4.3 },
+    ],
+    comments: [
+      "밤새면서 코딩하는게 힘들었지만 뿌듯해요.",
+      "팀원들과 협업하는 법을 배웠어요."
+    ]
+  },
+];
 
-import {
-  getMyEvalCourses,
-  getEvalQuestions,
-  submitEvaluation,
-} from "@/lib/eval";
-
-// 사이드바 메뉴
-const SidebarMenus = [{ text: "강의 평가", href: "/student/eval" }];
-
-// ──────────────────────────────
-// 평가 모달 컴포넌트
-// ──────────────────────────────
-function EvalModal({ visible, course, questions, onClose, onSubmit, submitting }) {
-  const [position, setPosition] = useState({ x: 520, y: 80 });
-  const [dragging, setDragging] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-
-  // 질문별 답변 (점수 또는 텍스트)
-  const [answers, setAnswers] = useState([]);
-
-  // 모달 열릴 때 질문 개수에 맞춰 초기화
-  useEffect(() => {
-    if (visible && questions && questions.length > 0) {
-      // 점수형은 0, 서술형은 "" 로 시작
-      setAnswers(questions.map((q) => (q.is_text ? "" : 0)));
-    } else {
-      setAnswers([]);
-    }
-  }, [visible, questions]);
-
-  if (!visible || !course) return null;
-
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    setDragging(true);
-    setOffset({ x: e.clientX - position.x, y: e.clientY - position.y });
-  };
-
-  const handleMouseMove = (e) => {
-    if (!dragging) return;
-    e.preventDefault();
-    setPosition({ x: e.clientX - offset.x, y: e.clientY - offset.y });
-  };
-
-  const handleMouseUp = () => setDragging(false);
-
-  // 점수형 문항 변경
-  const handleScoreChange = (idx, newValue) => {
-    setAnswers((prev) => {
-      const copy = [...prev];
-      copy[idx] = newValue;
-      return copy;
-    });
-  };
-
-  // 서술형 문항 변경
-  const handleTextChange = (idx, value) => {
-    setAnswers((prev) => {
-      const copy = [...prev];
-      copy[idx] = value;
-      return copy;
-    });
-  };
-
-  const handleSubmit = async () => {
-    // 백엔드로 보낼 answers 형태로 가공
-    const payloadAnswers = questions.map((q, idx) => {
-      const value = answers[idx];
-
-      if (q.is_text) {
-        return { question: q.id, text: value || "" };
-      }
-      return { question: q.id, score: value || 0 };
-    });
-
-    // 점수 0 & 빈 문자열만 있는 항목은 버리기
-    const filtered = payloadAnswers.filter(
-      (item) =>
-        (typeof item.score === "number" && item.score > 0) ||
-        (typeof item.text === "string" && item.text.trim() !== "")
-    );
-
-    if (filtered.length === 0) {
-      alert("하나 이상 응답을 선택하거나 입력해주세요.");
-      return;
-    }
-
-    await onSubmit(filtered);
-  };
+export default function AdminEvalDetailPage() {
+  const router = useRouter();
+  const params = useParams();
+  
+  const id = params.id;
+  const courseIndex = Number(id) || 0;
+  const COURSE_DETAIL = TOP_COURSES[courseIndex] || TOP_COURSES[0];
 
   return (
-    <div
-      className={styles.modalOverlay}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      <div
-        className={styles.modal}
-        style={{ left: position.x, top: position.y }}
-      >
-        {/* 헤더 */}
-        <div className={styles.modalHeader} onMouseDown={handleMouseDown}>
-          <h2 className={styles.modalTitle}>{course.title}</h2>
-          <button
-            type="button"
-            className={styles.modalCloseButton}
-            onClick={onClose}
-            disabled={submitting}
-          >
-            ✕
-          </button>
+    <div className={styles.container}>
+      
+      {/* 헤더 */}
+      <header className={styles.pageHeader}>
+        <button onClick={() => router.back()} className={styles.backButton}>&lt;</button>
+        <div className={styles.headerTitleGroup}>
+          <h1 className={styles.courseTitle}>{COURSE_DETAIL.name}</h1>
+          <span className={styles.courseInfo}>{COURSE_DETAIL.info}</span>
         </div>
+      </header>
 
-        {/* 문항 목록 */}
-        <div className={styles.modalBody}>
-          {questions.map((q, idx) => (
-            <div key={q.id} className={styles.questionRow}>
-              <div className={styles.questionText}>{q.text}</div>
-              {q.is_text ? (
-                <textarea
-                  className={styles.commentInput}
-                  value={answers[idx] || ""}
-                  onChange={(e) => handleTextChange(idx, e.target.value)}
-                  placeholder="자유롭게 의견을 작성해주세요."
-                />
-              ) : (
-                <ScoreCircles
-                  value={answers[idx] || 0}
-                  onChange={(newValue) => handleScoreChange(idx, newValue)}
-                />
-              )}
+      {/* 본문 */}
+      <div className={styles.contentBody}>
+        
+        {/* [왼쪽] 만족도 조사 */}
+        <section className={styles.leftSection}>
+          {COURSE_DETAIL.surveys.map((item, index) => (
+            <div key={index} className={styles.surveyRow}>
+              <div className={styles.surveyLabel}>{item.label}</div>
+              <div className={styles.barContainer}>
+                <div className={styles.barBackground}>
+                  <div 
+                    className={styles.barFill} 
+                    style={{ width: `${(item.score / 5) * 100}%` }} 
+                  />
+                </div>
+              </div>
+              <div className={styles.scoreValue}>
+                {item.score.toFixed(1)}
+              </div>
             </div>
           ))}
-        </div>
+        </section>
 
-        {/* 제출 버튼 */}
-        <div className={styles.modalFooter}>
-          <button
-            type="button"
-            className={styles.submitButton}
-            onClick={handleSubmit}
-            disabled={submitting}
-          >
-            {submitting ? "제출 중..." : "완료"}
-          </button>
-        </div>
+        {/* [오른쪽] 학생 코멘트 (여기가 안 나오면 CSS 문제입니다!) */}
+        <section className={styles.rightSection}>
+          <h2 className={styles.commentHeader}>학생 코멘트</h2>
+          
+          <div className={styles.commentList}>
+            {/* 코멘트가 있으면 출력, 없으면 안내 문구 */}
+            {COURSE_DETAIL.comments && COURSE_DETAIL.comments.length > 0 ? (
+              COURSE_DETAIL.comments.map((comment, index) => (
+                <div key={index} className={styles.commentItem}>
+                  <p>“{comment}”</p>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: '#999', marginTop: '20px' }}>등록된 코멘트가 없습니다.</p>
+            )}
+          </div>
+        </section>
+
       </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────
-// 메인 페이지
-// ──────────────────────────────
-export default function LectureEvalPage() {
-  const pathname = usePathname();
-
-  const [openedCourse, setOpenedCourse] = useState(null);
-  const [courses, setCourses] = useState([]);
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
-
-  // 데이터 불러오기
-  useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
-        const [courseData, questionData] = await Promise.all([
-          getMyEvalCourses(),
-          getEvalQuestions(),
-        ]);
-        setCourses(courseData || []);
-        setQuestions(questionData || []);
-      } catch (err) {
-        console.error(err);
-        setError(
-          err.detail || "강의 평가 정보를 불러오는 중 오류가 발생했습니다."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
-
-  const openModal = (course) => {
-    setMessage(null);
-    setError(null);
-    setOpenedCourse(course);
-  };
-
-  const closeModal = () => setOpenedCourse(null);
-
-  const handleSubmitEvaluation = async (answersPayload) => {
-    if (!openedCourse) return;
-    try {
-      setSubmitting(true);
-      setError(null);
-      await submitEvaluation(openedCourse.id, answersPayload);
-      setMessage("평가가 정상적으로 제출되었습니다.");
-      setCourses((prev) => prev.filter((c) => c.id !== openedCourse.id));
-      closeModal();
-    } catch (err) {
-      console.error(err);
-      setError(err.detail || "평가 제출 중 오류가 발생했습니다.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className={layoutStyles.pageLayout}>
-      {/* 왼쪽 사이드바 */}
-      <nav className={layoutStyles.sidebar}>
-        <div className={layoutStyles.sidebarTop}>
-          <div className={layoutStyles.sidebarLogo}>
-            <Image src="/doro-logo.svg" alt="DORO 로고" width={147} height={38} />
-          </div>
-          <div className={layoutStyles.profileIcon}>
-            <Image src="/profile-circle.svg" alt="Profile" width={184} height={184} />
-          </div>
-        </div>
-
-        <div className={layoutStyles.sidebarMainGroup}>
-          <div className={layoutStyles.sidebarTitleContainer}>
-            <div className={layoutStyles.sidebarTitleIcon}>
-              <Image src="/Task.svg" alt="강의평가 아이콘" width={25} height={32} />
-            </div>
-            <h2 className={layoutStyles.sidebarTitle}>강의 만족도 조사</h2>
-          </div>
-
-          <ul className={layoutStyles.sidebarMenu}>
-            {SidebarMenus.map((menu) => {
-              const isActive = pathname === menu.href;
-              return (
-                <li
-                  key={menu.text}
-                  className={`${layoutStyles.menuItem} ${
-                    isActive ? layoutStyles.active : ""
-                  }`}
-                >
-                  <a href={menu.href} className={layoutStyles.menuLink}>
-                    <div className={layoutStyles.menuIcon}>
-                      <span className={layoutStyles.menuIconDot}></span>
-                    </div>
-                    {menu.text}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div className={layoutStyles.sidebarFooter}>
-          <SideBarFooter />
-        </div>
-      </nav>
-
-      {/* 오른쪽: 강의 평가 리스트 */}
-      <main className={styles.evalMain}>
-        <h1 className={styles.evalTitle}>강의 만족도 조사</h1>
-        <p className={styles.evalPeriod}>기간 : 2025년 11월 23일 ~ 2025년 11월 30일</p>
-        <p className={styles.evalNotice}>
-          ※ 수업에 참여한 후 솔직하게 느낀 점을 작성해주세요.
-        </p>
-
-        {loading && <p className={styles.infoText}>불러오는 중...</p>}
-        {error && <p className={styles.errorText}>{error}</p>}
-        {message && <p className={styles.successText}>{message}</p>}
-
-        {!loading && courses.length === 0 && !error && (
-          <p className={styles.infoText}>현재 평가 가능한 강의가 없습니다.</p>
-        )}
-
-        {courses.length > 0 && (
-          <table className={styles.evalTable}>
-            <thead>
-              <tr>
-                <th className={styles.colCategory}>강의명</th>
-                <th className={styles.colTeacher}>강사</th>
-                <th className={styles.colAction}>강의평가</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course) => {
-                const teacherName =
-                  course.instructor_name ||
-                  course.teacher_name ||
-                  course.teacher ||
-                  "-";
-
-                return (
-                  <tr key={course.id}>
-                    <td className={`${styles.cellTitle} ${styles.colCategory}`}>
-                      {course.title}
-                    </td>
-                    <td className={`${styles.cellTeacher} ${styles.colTeacher}`}>
-                      {teacherName}
-                    </td>
-                    <td className={`${styles.cellAction} ${styles.colAction}`}>
-                      <button
-                        type="button"
-                        className={styles.evalButton}
-                        onClick={() => openModal(course)}
-                      >
-                        평가하기
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-
-        {/* 평가 모달 */}
-        <EvalModal
-          visible={!!openedCourse}
-          course={openedCourse}
-          questions={questions}
-          onClose={closeModal}
-          onSubmit={handleSubmitEvaluation}
-          submitting={submitting}
-        />
-      </main>
     </div>
   );
 }
