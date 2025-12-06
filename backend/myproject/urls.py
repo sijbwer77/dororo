@@ -24,8 +24,8 @@ router = DefaultRouter()
 
 urlpatterns = [
     path("api/", include("apps.learning.urls")),
-
-    #검토 필요
+    path("api/group/",include("apps.group.urls")),
+    
     path("api/", include("apps.users.urls")),
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),

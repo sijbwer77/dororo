@@ -21,7 +21,6 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'rest_framework',  # Django로 API 만드는 프레임워크
-    # 'rest_framework_simplejwt',  # [삭제] 세션 방식에서는 불필요
     'corsheaders',               # [추가] 프론트엔드 연결용
 
     'django.contrib.admin',
@@ -37,9 +36,13 @@ INSTALLED_APPS = [
     'apps.consultation',
     'apps.gamification',
     'apps.message',
-    'apps.group'
+    'apps.group.apps.GroupConfig',
+
+    #웹소켓
+    "channels",
 
 ]
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -183,3 +186,16 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+
+#웹소켓 관련
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+#웹소켓 관련
+ASGI_APPLICATION = "myproject.asgi.application"
