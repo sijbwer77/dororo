@@ -8,6 +8,9 @@ import Image from "next/image";
 import SideBarFooter from "@/components/SideBarFooter";
 import { usePathname } from "next/navigation";
 import ScoreCircles from "@/components/ScoreCircles";
+import { useRouter } from "next/navigation";
+
+
 
 import {
   getMyEvalCourses,
@@ -196,6 +199,18 @@ function EvalModal({
 // ────────────────────── 메인 페이지 ──────────────────────
 export default function LectureEvalPage() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };  
 
   const [openedCourse, setOpenedCourse] = useState(null);
   const [courses, setCourses] = useState([]);
@@ -267,11 +282,16 @@ export default function LectureEvalPage() {
   };
 
   return (
+    <>
     <div className={layoutStyles.pageLayout}>
       {/* 1. 왼쪽 사이드바 (DIMC랑 동일 구조) */}
       <nav className={layoutStyles.sidebar}>
         <div className={layoutStyles.sidebarTop}>
-          <div className={layoutStyles.sidebarLogo}>
+          <div 
+            className={layoutStyles.sidebarLogo}
+            onClick={handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image
               src="/doro-logo.svg"
               alt="DORO 로고"
@@ -413,5 +433,20 @@ export default function LectureEvalPage() {
         />
       </main>
     </div>
+    {showLogoutModal && (
+      <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+          <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div>
+              <p className={styles.modalTitle}>로그아웃</p>
+              <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+            </div>
+            <div className={styles.modalButtons}>
+              <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+              <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+            </div>
+          </div>
+      </div>
+    )}
+   </>    
   );
 }
