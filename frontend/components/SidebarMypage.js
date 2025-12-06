@@ -10,7 +10,8 @@ import SideBarFooter from '@/components/SideBarFooter';
 export default function SidebarMypage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const [profileSrc, setProfileSrc] = useState('/profile-circle.svg');
+  const fallback = '/profile-circle.svg';
+  const [profileSrc, setProfileSrc] = useState(fallback);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -26,7 +27,11 @@ export default function SidebarMypage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const stored = window.localStorage.getItem('mypageProfileImage');
-    if (stored) setProfileSrc(stored);
+    if (stored) {
+      setProfileSrc(stored);
+    } else {
+      setProfileSrc(fallback);
+    }
   }, []);
   const menus = [
     { text: '내 정보', href: '/student/mypage?tab=info', key: 'info' },
@@ -45,7 +50,13 @@ export default function SidebarMypage() {
             <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} priority />
           </div>
           <div className={styles.profileWrap}>
-            <Image src={profileSrc} alt="프로필" fill sizes="184px" className={styles.profileImage} />
+            <Image
+              src={profileSrc || fallback}
+              alt="프로필"
+              width={184}
+              height={184}
+              className={styles.profileImage}
+            />
           </div>
         </div>
 

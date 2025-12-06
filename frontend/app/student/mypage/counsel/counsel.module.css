@@ -60,6 +60,24 @@
   padding-right: 4px;
 }
 
+.errorBox {
+  border: 1px solid #d9534f;
+  background: #fdecea;
+  color: #b52b27;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.loadingBox {
+  border: 1px dashed #7faee6;
+  background: #f8fbff;
+  color: #0a5fae;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
 .counselItem {
   border: 1px solid #BFDBFE;
   border-radius: 10px;
@@ -282,4 +300,32 @@
 .chatHint {
   font-size: 12px;
   color: #777;
+}
+
+.suggestionBox {
+  margin: 6px 0 0 0;
+  padding: 10px 12px;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  background: #f8fbff;
+  font-size: 13px;
+  color: #0A5FAE;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suggestionTitle {
+  font-weight: 700;
+  color: #0A5FAE;
+}
+
+.suggestionText {
+  color: #333;
+  white-space: pre-line;
+}
+
+.suggestionFooter {
+  font-size: 12px;
+  color: #0A5FAE;
 }

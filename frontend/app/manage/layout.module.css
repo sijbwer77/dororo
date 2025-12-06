@@ -1,0 +1,184 @@
+.adminPage {
+  width: 100%;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: 'KoPubWorldDotum', sans-serif;
+  display: flex;
+  flex-direction: column; /* 위: 헤더, 아래: 내용 */
+}
+
+.globalHeader {
+  height: 82px;
+  border-bottom: 1px solid #0a5fae;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+
+  /* 🔥 헤더 고정 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* 사이드바/내용보다 위에 오도록 */
+}
+
+
+/* 헤더 아래: 왼쪽 사이드바 + 오른쪽 컨텐츠를 가로로 배치 */
+.bodyWrapper {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+
+  /* 🔥 헤더 높이만큼 아래로 */
+  margin-top: 82px;
+}
+
+
+/* ===================== */
+/* 좌측 사이드바         */
+/* ===================== */
+
+.sidebarLogo {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;   /* 로고 위 여백 */
+  padding-bottom: 30px; /* 로고와 메뉴 사이 여백 */
+  box-sizing: border-box;
+}
+
+
+.sidebar {
+  width: 115px;
+  background: #dbe8f4;
+  border-right: 1px solid #0a5fae;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+
+  /* 🔥 고정 사이드바 핵심 */
+  position: fixed;
+  top: 82px;                       /* 헤더 높이랑 맞춤 (globalHeader height) */
+  left: 0;
+  height: calc(100vh - 82px);      /* 화면 높이 - 헤더 높이 */
+  box-sizing: border-box;
+}
+
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: -50px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.sidebarItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 0;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ✅ 활성 메뉴일 때 파란 배경 (실제 배경으로) */
+.sidebarItemActive {
+  background: #78a4cc;
+  border-radius: 0;
+  width: 100%;
+}
+
+.sidebarItemActive::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #78a4cc;
+  opacity: 0.5;
+  border-radius: 0 20px 20px 0;
+  z-index: -1;
+}
+
+
+
+.sidebarItemIcon {
+  width: 26px;
+  height: 26px;
+  margin-bottom: 4px;
+}
+
+.sidebarItemLabel {
+  font-size: 14px;
+  color: #0a5fae;
+}
+
+/* 상단 헤더 라인 + 프로필 (AdminHeader 안에서 사용) */
+.topBar {
+  height: 82px;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.topBarSpacer {
+  flex: 1;
+}
+
+.topBarProfile {
+  position: absolute;
+  top: 25px;       /* 위에서 얼마나 내릴지 */
+  right: -1720px;        /* ← 이걸 0으로 하면 진짜 맨 오른쪽 끝 */
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  overflow: visible;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.topBarProfile img {
+  width: 50px;
+  height: 50px;
+  /* 🔴 transform 쓰지 말기 – 쓰면 또 잘린다 */
+}
+
+.topBarLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  align-items: center;
+}
+
+.topBarLogo img {
+  transform: scale(4) translateX(15px);   /* ← 여기를 원하는 크기로 조절 */
+  transform-origin: center right; /* 오른쪽 정렬 깨지지 않도록 */
+}
+
+
+/*메인화면 부분입니당*/
+.contentArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+
+  /* 사이드바 폭만큼 오른쪽으로 */
+  margin-left: 115px;
+}
+
+.dashboard {
+  flex: 1;
+  padding: 24px 40px 40px 40px;
+  box-sizing: border-box;
+}

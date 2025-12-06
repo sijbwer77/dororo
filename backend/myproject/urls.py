@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/learning/',include('apps.learning.urls')),
     path("api/", include("apps.gamification.urls")),
+    path("api/", include("apps.consultation.urls")),
     path("api/", include("apps.challenge.urls")),
     path("api/", include("apps.message.urls")),
 ]
