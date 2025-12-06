@@ -8,7 +8,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from apps.learning.models import Course
+from apps.learning.models import Course, StudentEnrollment
+from rest_framework.views import APIView
 from .models import EvaluationQuestion, CourseEvaluation, EvaluationAnswer
 from .serializers import (
     EvaluationQuestionSerializer,
@@ -243,3 +244,4 @@ def teacher_test_assign_course(request):
         "instructor": (instructor.get_full_name() or instructor.username),
         "is_mine": True,
     })
+

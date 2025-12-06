@@ -1,7 +1,7 @@
 // app/student/eval/page.js
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import layoutStyles from "../dimc/dimc.module.css"; // DIMC / 결과 페이지랑 같은 사이드바 레이아웃
 import styles from "./eval.module.css";
 import Image from "next/image";
@@ -18,23 +18,26 @@ import {
 // 사이드바 메뉴
 const SidebarMenus = [{ text: "강의 평가", href: "/student/eval" }];
 
-// 드래그 가능한 평가 모달 컴포넌트
-function EvalModal({ visible, course, questions, onClose, onSubmitted }) {
+// ────────────────────── 드래그 가능한 평가 모달 ──────────────────────
+function EvalModal({
+  visible,
+  course,
+  questions,
+  onClose,
+  onSubmit,
+  submitting,
+}) {
   const [position, setPosition] = useState({ x: 520, y: 80 });
   const [dragging, setDragging] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  // 점수형 문항 점수
-  const [scores, setScores] = useState([]);
-  // 서술형 문항 텍스트
-  const [texts, setTexts] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
+  // 질문별 답변 (점수 또는 텍스트)
+  const [answers, setAnswers] = useState([]);
 
-  // 모달이 열릴 때마다 질문 개수에 맞춰 초기화
+  // 모달 열릴 때마다 질문 개수에 맞춰 초기화
   useEffect(() => {
     if (visible && questions && questions.length > 0) {
-      setScores(Array(questions.length).fill(0));
-      setTexts(Array(questions.length).fill(""));
+      setAnswers(Array(questions.length).fill(0));
     }
   }, [visible, questions]);
 
@@ -62,18 +65,18 @@ function EvalModal({ visible, course, questions, onClose, onSubmitted }) {
     setDragging(false);
   };
 
-  // idx 번째 질문의 점수 변경
+  // 점수형 문항 변경
   const handleScoreChange = (idx, newValue) => {
-    setScores((prev) => {
+    setAnswers((prev) => {
       const copy = [...prev];
       copy[idx] = newValue;
       return copy;
     });
   };
 
-  // idx 번째 질문의 서술형 답변 변경
+  // 서술형 문항 변경
   const handleTextChange = (idx, value) => {
-    setTexts((prev) => {
+    setAnswers((prev) => {
       const copy = [...prev];
       copy[idx] = value;
       return copy;
@@ -81,58 +84,30 @@ function EvalModal({ visible, course, questions, onClose, onSubmitted }) {
   };
 
   const handleSubmit = async () => {
-    if (!questions || questions.length === 0) {
-      alert("설문 문항을 불러오지 못했습니다.");
-      return;
-    }
-
-    // 점수형 문항은 1~5 중 반드시 선택
-    const hasMissingScore = questions.some(
-      (q, idx) => !q.is_text && (!scores[idx] || scores[idx] < 1)
-    );
-    if (hasMissingScore) {
-      alert("모든 문항의 점수를 선택해주세요.");
-      return;
-    }
-
+    // 백엔드로 보낼 answers 형태로 가공
     const payloadAnswers = questions.map((q, idx) => {
+      const value = answers[idx];
+
       if (q.is_text) {
-        return {
-          question: q.id,
-          text: texts[idx] || "",
-        };
+        return { question: q.id, text: value || "" };
       }
-      return {
-        question: q.id,
-        score: scores[idx],
-      };
+      return { question: q.id, score: value || 0 };
     });
 
-    try {
-      setSubmitting(true);
+    // 점수 0 & 빈 문자열만 있는 항목은 날리기
+    const filtered = payloadAnswers.filter(
+      (a) =>
+        (typeof a.score === "number" && a.score > 0) ||
+        (typeof a.text === "string" && a.text.trim() !== "")
+    );
 
-      await submitEvaluation(course.id, payloadAnswers);
-
-      alert("강의 평가가 정상적으로 제출되었습니다.");
-      if (onSubmitted) onSubmitted(course);
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert(
-        err.detail ||
-          "강의 평가 제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-      );
-    } finally {
-      setSubmitting(false);
+    if (filtered.length === 0) {
+      alert("하나 이상 응답을 선택하거나 입력해주세요.");
+      return;
     }
-  };
 
-  const teacherName =
-    course.instructor_name ||
-    course.instructor ||
-    course.teacher ||
-    course.teacher_name ||
-    "-";
+    await onSubmit(filtered);
+  };
 
   return (
     <div
@@ -149,7 +124,13 @@ function EvalModal({ visible, course, questions, onClose, onSubmitted }) {
         <div className={styles.modalHeader} onMouseDown={handleMouseDown}>
           <div className={styles.modalHeaderLeft}>
             <div className={styles.modalCourseTitle}>{course.title}</div>
-            <div className={styles.modalTeacher}>강사: {teacherName}</div>
+            <div className={styles.modalTeacher}>
+              강사:{" "}
+              {course.instructor_name ||
+                course.teacher_name ||
+                course.teacher ||
+                "-"}
+            </div>
           </div>
 
           <div className={styles.modalHeaderRight}>
@@ -176,24 +157,20 @@ function EvalModal({ visible, course, questions, onClose, onSubmitted }) {
         {/* 설문 내용 */}
         <div className={styles.modalBody}>
           {questions.map((q, idx) => (
-            <div key={q.id ?? idx} className={styles.questionRow}>
+            <div key={q.id} className={styles.questionRow}>
               <div className={styles.questionText}>{q.text}</div>
 
-              {/* 점수형 문항 */}
-              {!q.is_text && (
-                <ScoreCircles
-                  value={scores[idx]}
-                  onChange={(newValue) => handleScoreChange(idx, newValue)}
-                />
-              )}
-
-              {/* 서술형 문항 */}
-              {q.is_text && (
+              {q.is_text ? (
                 <textarea
-                  className={styles.textAnswer}
-                  value={texts[idx]}
+                  className={styles.commentInput}
+                  value={answers[idx] || ""}
                   onChange={(e) => handleTextChange(idx, e.target.value)}
-                  placeholder="의견을 자유롭게 작성해주세요."
+                  placeholder="자유롭게 의견을 작성해주세요."
+                />
+              ) : (
+                <ScoreCircles
+                  value={answers[idx] || 0}
+                  onChange={(newValue) => handleScoreChange(idx, newValue)}
                 />
               )}
             </div>
@@ -216,17 +193,48 @@ function EvalModal({ visible, course, questions, onClose, onSubmitted }) {
   );
 }
 
+// ────────────────────── 메인 페이지 ──────────────────────
 export default function LectureEvalPage() {
   const pathname = usePathname();
-  const [openedCourse, setOpenedCourse] = useState(null);
 
-  // 실제 API에서 가져온 데이터들
+  const [openedCourse, setOpenedCourse] = useState(null);
   const [courses, setCourses] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+
+  // 초기 로딩: 내 강의 + 평가 문항
+  useEffect(() => {
+    async function load() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [courseData, questionData] = await Promise.all([
+          getMyEvalCourses(),  // 수강한 강의 중 평가 대상 리스트
+          getEvalQuestions(),  // 평가 문항 리스트
+        ]);
+
+        setCourses(courseData || []);
+        setQuestions(questionData || []);
+      } catch (err) {
+        console.error(err);
+        setError(
+          err.detail || "강의 평가 정보를 불러오는 중 오류가 발생했습니다."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, []);
 
   const openModal = (course) => {
+    setMessage(null);
+    setError(null);
     setOpenedCourse(course);
   };
 
@@ -234,33 +242,36 @@ export default function LectureEvalPage() {
     setOpenedCourse(null);
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(null);
+  // 실제 평가 제출
+  const handleSubmitEvaluation = async (answersPayload) => {
+    if (!openedCourse) return;
 
-        const [courseData, questionData] = await Promise.all([
-          getMyEvalCourses(),
-          getEvalQuestions(),
-        ]);
+    try {
+      setSubmitting(true);
+      setError(null);
 
-        setCourses(courseData || []);
-        setQuestions(questionData || []);
-      } catch (err) {
-        console.error(err);
-        setError(err.detail || "데이터를 불러오는 중 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
+      await submitEvaluation({
+        course_id: openedCourse.id,
+        answers: answersPayload,
+      });
+
+      setMessage("평가가 정상적으로 제출되었습니다.");
+
+      // 제출한 강의는 리스트에서 빼버리기 (원하면)
+      setCourses((prev) => prev.filter((c) => c.id !== openedCourse.id));
+
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      setError(err.detail || "평가 제출 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
     }
-
-    fetchData();
-  }, []);
+  };
 
   return (
     <div className={layoutStyles.pageLayout}>
-      {/* 1. 왼쪽 사이드바 */}
+      {/* 1. 왼쪽 사이드바 (DIMC랑 동일 구조) */}
       <nav className={layoutStyles.sidebar}>
         <div className={layoutStyles.sidebarTop}>
           <div className={layoutStyles.sidebarLogo}>
@@ -332,12 +343,17 @@ export default function LectureEvalPage() {
           ※ 수업에 참여한 후 솔직하게 느낀 점을 작성해주세요.
         </p>
 
-        {loading && <p>강의 및 설문 문항을 불러오는 중입니다...</p>}
-        {error && !loading && (
-          <p className={styles.errorText}>{error}</p>
+        {loading && <p className={styles.infoText}>불러오는 중...</p>}
+        {error && <p className={styles.errorText}>{error}</p>}
+        {message && <p className={styles.successText}>{message}</p>}
+
+        {!loading && courses.length === 0 && !error && (
+          <p className={styles.infoText}>
+            현재 평가 가능한 강의가 없습니다.
+          </p>
         )}
 
-        {!loading && !error && (
+        {courses.length > 0 && (
           <table className={styles.evalTable}>
             <thead>
               <tr>
@@ -347,21 +363,11 @@ export default function LectureEvalPage() {
               </tr>
             </thead>
             <tbody>
-              {courses.length === 0 && (
-                <tr>
-                  <td colSpan={3} className={styles.emptyRow}>
-                    수강 중인 강의가 없습니다.
-                  </td>
-                </tr>
-              )}
-
               {courses.map((course) => {
-                const category = course.course_type || course.category || "";
                 const teacherName =
                   course.instructor_name ||
-                  course.instructor ||
-                  course.teacher ||
                   course.teacher_name ||
+                  course.teacher ||
                   "-";
 
                 return (
@@ -370,9 +376,6 @@ export default function LectureEvalPage() {
                     <td
                       className={`${styles.cellTitle} ${styles.colCategory}`}
                     >
-                      {category && (
-                        <span className={styles.category}>{category}</span>
-                      )}
                       {course.title}
                     </td>
 
@@ -408,9 +411,8 @@ export default function LectureEvalPage() {
           course={openedCourse}
           questions={questions}
           onClose={closeModal}
-          onSubmitted={(course) => {
-            console.log("평가 완료:", course);
-          }}
+          onSubmit={handleSubmitEvaluation}
+          submitting={submitting}
         />
       </main>
     </div>
