@@ -6,17 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./admin.module.css";
 import AdminStatCard from "./components/AdminStatCard";
-import AdminUserChart from "./components/AdminUserChart";
 import AdminInquiryChart from "./components/AdminInquiryChart";
-
-const userStats = [
-  { month: "7월", newUsers: 100, withdrawn: 20 },
-  { month: "8월", newUsers: 80, withdrawn: 15 },
-  { month: "9월", newUsers: 120, withdrawn: 18 },
-  { month: "10월", newUsers: 90, withdrawn: 25 },
-  { month: "11월", newUsers: 110, withdrawn: 10 },
-  { month: "12월", newUsers: 130, withdrawn: 22 },
-];
 
 const inquiryData = [
   { label: "강의 수강 신청 관련 문의", count: 8 },
@@ -76,7 +66,7 @@ export default function AdminDashboardPage() {
   if (!ready) return null;
 
   return (
-    <>
+    <div className={styles.adminPage}>
       {/* 날짜 */}
       <section className={styles.dateSection}>
         <span className={styles.todayBadge}>Today</span>
@@ -98,25 +88,39 @@ export default function AdminDashboardPage() {
 
       {/* 중간 그래프 2개 */}
       <section className={styles.graphRow}>
-        <div className={styles.graphBox}>
-          <h3 className={styles.graphTitle}>사용자 현황</h3>
-          <AdminUserChart data={userStats} />
+        
+        {/* [왼쪽] 사용자 현황 (틀/제목 제거, 이미지만 배치) */}
+        {/* SVG 파일 안에 배경 박스와 제목이 이미 포함되어 있다고 가정 */}
+        <div className={styles.chartImageOnly}>
+          <Image 
+            src="/user_chart.svg" 
+            alt="사용자 현황" 
+            width={580} 
+            height={280} 
+            style={{ width: '100%', height: 'auto' }} 
+          />
         </div>
 
+        {/* [오른쪽] 문의 유형 (기존 흰색 박스 틀 유지) */}
         <div className={styles.graphBox}>
           <h3 className={styles.graphTitle}>1:1 상담 문의 유형별 건수</h3>
           <AdminInquiryChart data={inquiryData} />
         </div>
       </section>
 
-      {/* 도넛 + 인기 강의 */}
+      {/* 하단 도넛 + 인기 강의 */}
       <section className={styles.bottomRow}>
         <div className={styles.graphBox}>
           <h3 className={styles.graphTitle}>강의 만족도 평가 (통합)</h3>
 
           <div className={styles.evalDonutRow}>
             <div className={styles.evalDonutWrapper}>
-              <Image src="/donut.svg" alt="강의 만족도 도넛" width={258} height={252} />
+              <Image
+                src="/dounat.svg"
+                alt="강의 만족도 도넛"
+                width={258}
+                height={252}
+              />
             </div>
 
             <div className={styles.evalLegendColumn}>
@@ -165,6 +169,6 @@ export default function AdminDashboardPage() {
           </table>
         </div>
       </section>
-    </>
+    </div>
   );
 }

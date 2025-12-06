@@ -358,7 +358,86 @@
   text-align: left;
 }
 
+/* ... 기존 CSS 아래에 추가 ... */
 
+/* --- 로그아웃 모달 (팝업) 스타일 --- */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modalBox {
+  background: #FFFFFF;
+  width: 320px;
+  padding: 30px 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: popUp 0.2s ease-out;
+}
+
+@keyframes popUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modalTitle {
+  font-family: 'KoPubWorldDotum';
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.modalDesc {
+  font-family: 'KoPubWorldDotum';
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.cancelBtn, .confirmBtn {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.cancelBtn {
+  background: #F1F3F5;
+  color: #495057;
+}
+
+.confirmBtn {
+  background: #FF6B6B;
+  color: white;
+}
+
+.cancelBtn:hover, .confirmBtn:hover {
+  opacity: 0.8;
+}
 
 
 
