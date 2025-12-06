@@ -6,4 +6,5 @@ export const FAKE_USER_DATA = {
   organization: "DORO 대학교",
   username: "student123",
   email: "student123@doro.ac.kr",
+  solvedAc: "",
 };

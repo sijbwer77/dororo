@@ -29,7 +29,21 @@ export default function NoticeWritePage() {
 
   return (
     <div className={styles.container}>
+      {/* ========== 상단 헤더 ========== */}
+      <div className={styles.header}>
+        <div className={styles.logo}>
+          <Image src="/doro-logo.svg" width={145} height={70} alt="로고" />
+        </div>
 
+        <div className={styles.profile}>
+          <Image
+            src="/profile-circle2.svg"
+            width={40}
+            height={40}
+            alt="프로필"
+          />
+        </div>
+      </div>
 
       <div className={styles.layout}>
         {/* 🔥 사이드바 제거됨 */}

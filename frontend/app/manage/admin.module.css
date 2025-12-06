@@ -130,6 +130,115 @@
   box-sizing: border-box;
 }
 
+.userChartGrid {
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  right: 10px;
+  bottom: 30px;
+}
+
+.userChartGridLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid #d9d9d9;
+}
+
+.userChartYAxisLabel {
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+  color: #8f9091;
+}
+
+.userChartXAxis {
+  position: absolute;
+  left: 40px;
+  right: 10px;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #8f9091;
+}
+
+/* 바 차트 */
+.userChartBars {
+  position: absolute;
+  left: 40px;
+  right: 10px;
+  top: 20px;
+  bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.userChartBarGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+}
+
+.userChartBarNew {
+  width: 12px;
+  background: #0074e1;
+}
+
+.userChartBarWithdraw {
+  width: 12px;
+  background: #dd0101;
+  margin-top: 2px;
+}
+
+/* 누적(라인) */
+.userChartLinePoint {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ccf88;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+/* 범례 */
+.userChartLegend {
+  margin-top: 6px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  font-size: 11px;
+}
+
+.userChartLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendDotNew {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0074e1;
+}
+
+.legendDotWithdraw {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dd0101;
+}
+
+.legendDotTotal {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2ccf88;
+}
 
 /* 문의 유형 그래프(가로 막대) */
 
