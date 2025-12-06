@@ -46,10 +46,13 @@ export default function CounselPage() {
   const visibleCounsel = counselList
     .filter(item => !item.isEnded)                  // 종료된 상담 제외
     .sort((a, b) => {
-      if (a.isAnswered !== b.isAnswered) {
-        return a.isAnswered ? 1 : -1;               // 미답변 위로
-      }
-      return b.createdAt - a.createdAt;             // 최신순
+      // 답변완료(관리자 마지막 메시지)를 아래쪽으로
+      const aAnswered = a.last_message_sender_type === "admin";
+      const bAnswered = b.last_message_sender_type === "admin";
+      if (aAnswered !== bAnswered) return aAnswered ? 1 : -1;
+      const aTime = a.last_message_at || a.created_at;
+      const bTime = b.last_message_at || b.created_at;
+      return new Date(bTime) - new Date(aTime);
     });
 
   // ----------------------------------------------------
