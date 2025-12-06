@@ -100,7 +100,7 @@ export default function NoticeManagePage() {
           <div className={styles.topRowButtons}>
             <button
               className={styles.writeBtn}
-              onClick={() => router.push("/admin/notice/write")} 
+              onClick={() => router.push("/manage/notice/write")} 
               // TODO: 실제 경로에 맞게 수정 (예: "/admin/notice/write")
             >
               <span>공지 작성하기</span>
