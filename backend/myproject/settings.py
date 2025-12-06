@@ -145,7 +145,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dororo',
+        'NAME': 'dororo_local',
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': 'localhost',
