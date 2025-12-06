@@ -26,6 +26,8 @@ class LocalAccount(TimeStampedModel):
     nickname = models.CharField(max_length=50)
     account_type = models.CharField(max_length=20, default='local')
     role = models.CharField(max_length=20, choices=Role.choices)
+    profile_image = models.ImageField(upload_to='resource/profiles', null=True, blank=True)
+
 
     solvedac_handel = models.CharField(
         max_length=50,

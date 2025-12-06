@@ -2,6 +2,7 @@
 
 from django.urls import path
 from .views import LoginAPIView, LogoutAPIView, SignupAPIView, CheckUsernameAPIView
+from .views import mypage_view
 
 urlpatterns = [
     # 로그인 / 로그아웃
@@ -13,4 +14,6 @@ urlpatterns = [
     
     # 아이디 중복 확인
     path("check-username/", CheckUsernameAPIView.as_view(), name="check_username"),
+
+    path("user/me/", mypage_view),
 ]

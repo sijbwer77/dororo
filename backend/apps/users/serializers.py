@@ -114,3 +114,49 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
+
+# 마이페이지 정보 가져오기
+
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from .models import LocalAccount
+
+User = get_user_model()
+
+class MyPageSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="user.first_name", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+
+    class Meta:
+        model = LocalAccount
+        fields = [
+            "username",
+            "name",
+            "email",
+            "nickname",
+            "phone_number",
+            "role",
+            "solvedac_handel",
+            "profile_image",
+        ]
+
+    def update(self, instance, validated_data):
+        # nickname
+        if 'nickname' in validated_data:
+            instance.nickname = validated_data['nickname']
+
+        # phone_number
+        if 'phone_number' in validated_data:
+            instance.phone_number = validated_data['phone_number']
+
+        # solvedac_handel
+        if 'solvedac_handel' in validated_data:
+            instance.solvedac_handel = validated_data['solvedac_handel']
+
+        # 프로필 이미지
+        if 'profile_image' in validated_data:
+            instance.profile_image = validated_data['profile_image']
+
+        instance.save()
+        return instance
