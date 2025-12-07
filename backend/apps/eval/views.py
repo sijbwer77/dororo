@@ -43,7 +43,7 @@ def submit_evaluation(request):
       "answers": [
         {"question": 1, "score": 5},
         {"question": 2, "score": 4},
-        {"question": 3, "text": "자유 의견..."}
+        {"question": 3", "text": "자유 의견."}
       ]
     }
     """
@@ -70,7 +70,13 @@ class TeacherEvalSummaryAPIView(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        courses_qs = Course.objects.filter(instructor=user).order_by("id")
+
+        # ✅ 종료된(status='finished') 강의만 요약에 포함
+        #   Course.STATUS_CHOICES 에서 'finished' 가 종료 상태 
+        courses_qs = Course.objects.filter(
+            instructor=user,
+            status="finished",
+        ).order_by("id")
 
         total_courses = courses_qs.count()
         summary_courses = []
@@ -244,4 +250,3 @@ def teacher_test_assign_course(request):
         "instructor": (instructor.get_full_name() or instructor.username),
         "is_mine": True,
     })
-

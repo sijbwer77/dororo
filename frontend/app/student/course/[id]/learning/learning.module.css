@@ -5,11 +5,12 @@
   width: 1590px;
   height: 903px;
   background: #FFFFFF;
-  margin-left: 47px;  
+  margin: 0 auto;  
   display: flex; 
   position: relative;
   box-sizing: border-box;
   overflow: hidden; 
+  overflow-y: scroll;
 }
 
 /* --- 3. 오른쪽 메인 콘텐츠 ('주차학습' 영역) --- */

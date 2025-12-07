@@ -159,7 +159,7 @@
 .infoLine {
   width: 465px;
   border-top: 1px solid #0A5FAE;
-  margin-top: -1px; 
+  margin-top: 3px; 
 }
 
 /* 'NOTICE', 'CAMP' 제목 */
@@ -184,4 +184,40 @@
 /* 두 번째 infoBox만 간격 조절 */
 .infoBox:not(:first-child) {
   margin-top: 159px; 
+}
+/* --- NOTICE 리스트 영역 --- */
+.noticeListWrapper {
+  padding: 4px 0 2px;
+}
+
+.noticeEmpty {
+  font-size: 14px;
+  color: #777777;
+  margin-top: 4px;
+}
+
+.noticeList {
+  list-style: none;
+  padding: 0;
+  margin: 0;           /* 리스트 위 여백도 없애기 */
+}
+
+/* 🔥 공지 한 줄 + 구분선 */
+.noticeItem {
+  font-family: 'KoPubWorldDotum';
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  color: #0a5fae;
+
+  padding: 6px 0;                         /* 위아래 여백 */
+  border-bottom: 1px solid #0a5fae;       /* ← 여기! 공지마다 선 */
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noticeItem:last-child {
+  border-bottom: none;
 }

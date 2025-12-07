@@ -228,16 +228,21 @@ export default function LectureEvalPage() {
         setError(null);
 
         const [courseData, questionData] = await Promise.all([
-          getMyEvalCourses(),  // 수강한 강의 중 평가 대상 리스트
-          getEvalQuestions(),  // 평가 문항 리스트
+          getMyEvalCourses(), // 수강한 강의 목록 (백엔드 공용 API) :contentReference[oaicite:1]{index=1}
+          getEvalQuestions(), // 평가 문항 리스트
         ]);
 
-        setCourses(courseData || []);
+        // ✅ 여기서 "종료된 강의"만 남기고 나머지는 UI에서 제거
+        const finishedCourses = (courseData || []).filter(
+          (c) => c.status === "finished"
+        );
+
+        setCourses(finishedCourses);
         setQuestions(questionData || []);
       } catch (err) {
         console.error(err);
         setError(
-          err.detail || "강의 평가 정보를 불러오는 중 오류가 발생했습니다."
+          err?.detail || "강의 평가 정보를 불러오는 중 오류가 발생했습니다."
         );
       } finally {
         setLoading(false);
@@ -269,13 +274,13 @@ export default function LectureEvalPage() {
 
       setMessage("평가가 정상적으로 제출되었습니다.");
 
-      // 제출한 강의는 리스트에서 빼버리기 (원하면)
+      // 제출한 강의는 리스트에서 제거
       setCourses((prev) => prev.filter((c) => c.id !== openedCourse.id));
 
       closeModal();
     } catch (err) {
       console.error(err);
-      setError(err.detail || "평가 제출 중 오류가 발생했습니다.");
+      setError(err?.detail || "평가 제출 중 오류가 발생했습니다.");
     } finally {
       setSubmitting(false);
     }
@@ -354,7 +359,6 @@ export default function LectureEvalPage() {
       <main className={styles.evalMain}>
         <h1 className={styles.evalTitle}>강의 만족도 조사</h1>
         <p className={styles.evalPeriod}>
-          기간 : 2025년 11월 23일 ~ 2025년 11월 30일
         </p>
         <p className={styles.evalNotice}>
           ※ 수업에 참여한 후 솔직하게 느낀 점을 작성해주세요.
