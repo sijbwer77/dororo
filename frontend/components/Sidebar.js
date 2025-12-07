@@ -3,13 +3,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import styles from "./Sidebar.module.css";
 import { FAKE_COURSES } from "@/data/mock-courses";
 import SideBarFooter from "@/components/SideBarFooter";
+import { useState } from "react";
 
 export default function Sidebar({ courseId }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);  
 
   const course = FAKE_COURSES.find((c) => c.id === Number(courseId));
   const courseName = course ? course.title : "제목을 불러오지 못했습니다.";
@@ -22,11 +25,27 @@ export default function Sidebar({ courseId }) {
     { text: "메시지", href:`/student/course/${courseId}/message` },
   ];
 
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };  
+
   return (
+    <>
     <nav className={styles.sidebar}>
       <div className={styles.sidebarGroup}>
         <div className={styles.sidebarTop}>
-          <div className={styles.sidebarLogo}>
+          <div 
+            className={styles.sidebarLogo}
+            onCLick = {handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} />
           </div>
           <div className={styles.profileIcon}>
@@ -68,5 +87,22 @@ export default function Sidebar({ courseId }) {
       
       <SideBarFooter />
     </nav>
+
+    {showLogoutModal && (
+      <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+           {/* 박스 클릭 시에는 닫히지 않도록 stopPropagation */}
+          <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div>
+              <p className={styles.modalTitle}>로그아웃</p>
+              <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+            </div>
+            <div className={styles.modalButtons}>
+              <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+              <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+            </div>
+          </div>
+      </div>
+    )}
+  </>    
   );
 }
