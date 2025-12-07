@@ -9,6 +9,7 @@ from .views_student import (
     StudentAssignmentsAPIView,
     StudentAssignmentDetailAPIView,
     StudentCourseLessonsAPIView,
+    StudentCourseDetailAPIView, #사이드바에 과목명 가져올라고 추가했어요.
 
     MyInfoAPIView,
     StudentCourseAttendanceAPIView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path("student/course/<int:course_id>/assignments/", StudentAssignmentsAPIView.as_view()),
     path("student/course/<int:course_id>/assignment/<int:assignment_id>/",StudentAssignmentDetailAPIView.as_view()),
     path("student/courses/<int:course_id>/lessons/",StudentCourseLessonsAPIView.as_view()),
+    path('student/course/<int:course_id>/info/', StudentCourseDetailAPIView.as_view(), name='student-course-detail'), #사이드바에 과목명 가져올라고 추가했어요.
     
     #아래는 수정중
     path('user/me/', MyInfoAPIView.as_view(), name='user-me'),
