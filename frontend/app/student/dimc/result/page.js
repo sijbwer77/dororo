@@ -8,6 +8,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SideBarFooter from "@/components/SideBarFooter.js";
 import { DIMC_RESULT_SAMPLE } from "@/data/mock-dimcresult";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const dimcSidebarMenus = [
   { text: "검사하기", href: "/student/dimc" },
@@ -24,18 +26,39 @@ const TYPE_LABEL = {
 
 export default function DIMCResultPage() {
   const pathname = usePathname();
+  const router = useRouter();
 
   // 점수 높은 순으로 정렬
   const rankedTypes = Object.entries(DIMC_RESULT_SAMPLE.scores).sort(
     (a, b) => b[1] - a[1]
   );
 
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };  
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);  
+
   return (
+    <>
     <div className={layoutStyles.pageLayout}>
       {/* 1. 왼쪽 사이드바 (검사하기 페이지와 완전히 동일 구조) */}
       <nav className={layoutStyles.sidebar}>
         <div className={layoutStyles.sidebarTop}>
-          <div className={layoutStyles.sidebarLogo}>
+          <div 
+            className={layoutStyles.sidebarLogo}
+            onClick={handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image
               src="/doro-logo.svg"
               alt="DORO 로고"
@@ -167,5 +190,20 @@ export default function DIMCResultPage() {
         </section>
       </main>
     </div>
+    {showLogoutModal && (
+      <div className={layoutStyles.modalOverlay} onClick={handleCancelLogout}>
+          <div className={layoutStyles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div>
+              <p className={layoutStyles.modalTitle}>로그아웃</p>
+              <p className={layoutStyles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+            </div>
+            <div className={layoutStyles.modalButtons}>
+              <button className={layoutStyles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+              <button className={layoutStyles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+            </div>
+          </div>
+      </div>
+     )}
+   </>    
   );
 }
