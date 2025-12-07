@@ -235,3 +235,23 @@ class StudentCourseAttendanceAPIView(APIView):
         )
 
         return Response(AttendanceSerializer(attendances, many=True).data)
+
+
+#사이드바에 과목명 가져올라고 추가했어요.
+class StudentCourseDetailAPIView(APIView):   
+    permission_classes = [IsAuthenticated, IsStudent]
+
+    def get(self, request, course_id):
+        student = request.user
+        
+        # 학생이 수강 중인 강의인지 확인하면서 객체 가져오기
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+
+        return Response({
+            "id": course.id,
+            "title": course.title,
+            "instructor": course.instructor.get_full_name() if course.instructor else "미정"
+        })
