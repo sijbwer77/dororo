@@ -10,6 +10,7 @@ export default function ChatPanel({
 }) {
   const [chatInput, setChatInput] = useState("");
   const socketRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   // 1) 컴포넌트가 화면에 나타나면 WebSocket 연결
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function ChatPanel({
           sender: data.sender,
           text: data.text,
           time: data.time,
-          isMe: data.is_me,   // 🔥 백엔드에서 내려준 is_me 그대로 사용
+          isMe: data.is_me,
         });
       } catch (err) {
         console.error("WS message parse error:", err);
@@ -58,6 +59,16 @@ export default function ChatPanel({
       ws.close();
     };
   }, [groupId]);  // 🔥 addChatMessage 절대 넣지 말기
+
+  useEffect(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [chatMessages.length]);
 
   // 2) 입력창에서 Enter 누르면 메시지 전송
   const handleChatSubmit = (e) => {
@@ -79,7 +90,7 @@ export default function ChatPanel({
 
   return (
     <div className={styles.chatContainer}>
-      <div className={styles.messagesArea}>
+      <div className={styles.messagesArea} ref={messagesContainerRef}>
         {chatMessages.map((msg) => (
           <div
             key={msg.id}
