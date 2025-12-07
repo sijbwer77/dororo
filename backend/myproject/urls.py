@@ -36,3 +36,6 @@ if settings.DEBUG:
         "/course_messages/",
         document_root=settings.BASE_DIR / "course_messages",
     )
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

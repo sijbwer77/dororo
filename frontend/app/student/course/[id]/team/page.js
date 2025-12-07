@@ -19,7 +19,7 @@ export default function TeamPage() {
   const [activeTab, setActiveTab] = useState("chat");
 
   // 👇 setChatMessages 추가로 꺼내오기
-  const { files, chatMessages, addFile, addChatMessage, setChatMessages } =
+  const { chatMessages, addChatMessage, setChatMessages } =
     useTeamData();
 
   // 1) 내 그룹 정보 가져오기
@@ -131,8 +131,7 @@ export default function TeamPage() {
 
                 {activeTab === "upload" && (
                   <UploadPanel
-                    files={files}
-                    addFile={addFile}
+                    groupId={myGroup.id}
                   />
                 )}
               </div>

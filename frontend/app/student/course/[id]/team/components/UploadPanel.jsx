@@ -99,8 +99,8 @@ export default function UploadPanel({ groupId }) {
         {files.map((file) => (
           <a
             key={file.id}
-            href={file.file_url}           // ← 백엔드 절대 URL
-            download={file.filename}       // ← 다운로드 시 파일 이름
+            href={file.file_url}
+            download={file.filename}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.fileItem}
