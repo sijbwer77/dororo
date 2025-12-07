@@ -32,6 +32,31 @@ class MyGroupView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+from rest_framework.decorators import api_view, permission_classes
+from django.utils import timezone
+
+from .models import GroupMessage
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def group_messages(request, group_id):
+    user = request.user
+
+    qs = GroupMessage.objects.filter(group_id=group_id).select_related("user").order_by("created_at")
+
+    data = []
+    for msg in qs:
+        data.append({
+            "id": msg.id,
+            "sender": msg.user.username,
+            "text": msg.content,
+            "time": timezone.localtime(msg.created_at).strftime("%H:%M"),
+            "is_me": (msg.user_id == user.id),
+        })
+
+    return Response(data)
+
+
 from .models import Group, GroupFile
 from .serializers import GroupFileSerializer
 from django.shortcuts import get_object_or_404

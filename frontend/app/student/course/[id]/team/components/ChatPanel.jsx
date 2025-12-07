@@ -18,7 +18,7 @@ export default function ChatPanel({
       return;
     }
 
-    // 백엔드(daphne)가 8000번 포트에서 돌고 있으니까 이쪽으로 연결
+    // 백엔드(daphne) 연결
     const wsUrl = `ws://localhost:8000/ws/group/${groupId}/`;
 
     const ws = new WebSocket(wsUrl);
@@ -31,18 +31,14 @@ export default function ChatPanel({
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
-        // 서버에서 보내는 형태:
-        // { type: "chat_message", id, sender, text, time }
         if (data.type !== "chat_message") return;
 
-        // teamContext에서 기대하는 형태에 맞게 객체 추가
         addChatMessage({
           id: data.id,
           sender: data.sender,
           text: data.text,
           time: data.time,
-          isMe: false, // 나중에 username 알게 되면 비교해서 true/false로 바꾸면 됨
+          isMe: data.is_me,   // 🔥 백엔드에서 내려준 is_me 그대로 사용
         });
       } catch (err) {
         console.error("WS message parse error:", err);
@@ -61,7 +57,7 @@ export default function ChatPanel({
     return () => {
       ws.close();
     };
-  }, [groupId, addChatMessage]);
+  }, [groupId]);  // 🔥 addChatMessage 절대 넣지 말기
 
   // 2) 입력창에서 Enter 누르면 메시지 전송
   const handleChatSubmit = (e) => {

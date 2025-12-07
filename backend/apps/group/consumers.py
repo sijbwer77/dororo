@@ -45,7 +45,7 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
             print(">>> empty message, ignore")
             return
 
-        # 로그인 안 돼 있으면 그냥 무시 (처음에는 이 부분 주석처리하고 테스트해도 됨)
+        # 로그인 안 돼 있으면 무시 (테스트 시 주석처리)
         if isinstance(user, AnonymousUser):
             print(">>> AnonymousUser, ignore")
             return
@@ -79,5 +79,22 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         """
         group_send 로 넘어온 이벤트를 실제 브라우저로 보내는 부분
+        여기서 "이 소켓 유저가 보낸 메시지인지"를 계산해서 is_me 플래그를 붙인다.
         """
-        await self.send(text_data=json.dumps(event))
+        user = self.scope.get("user", None)
+
+        is_me = False
+        if user and not isinstance(user, AnonymousUser):
+            # 이 소켓에 연결된 유저와 sender 가 같으면 내 메시지
+            is_me = (user.username == event.get("sender"))
+
+        payload = {
+            "type": "chat_message",
+            "id": event["id"],
+            "sender": event["sender"],
+            "text": event["text"],
+            "time": event["time"],
+            "is_me": is_me,
+        }
+
+        await self.send(text_data=json.dumps(payload))
