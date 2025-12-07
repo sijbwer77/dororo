@@ -1,31 +1,82 @@
-'use client';
+"use client";
 
+import { useEffect, useRef, useState } from "react";
 import styles from "../team.module.css";
 import Image from "next/image";
-import { useRef } from "react";
 
-export default function UploadPannel({ files, addFile }) {
+export default function UploadPanel({ groupId }) {
+  const [files, setFiles] = useState([]);
   const fileInputRef = useRef(null);
+
+  /** 🔵 파일 목록 불러오기 */
+  useEffect(() => {
+    if (!groupId) return;
+
+    async function fetchFiles() {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/group/${groupId}/files/`,
+          {
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) {
+          console.error("파일 목록 불러오기 실패");
+          return;
+        }
+
+        const data = await res.json();
+        setFiles(data);
+      } catch (err) {
+        console.error("파일 조회 오류:", err);
+      }
+    }
+
+    fetchFiles();
+  }, [groupId]);
+
+  /** 🔵 파일 업로드 */
+  const handleFileChange = async (e) => {
+    const selected = e.target.files[0];
+    if (!selected) return;
+
+    const formData = new FormData();
+    formData.append("file", selected);
+
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/group/${groupId}/files/`,
+        {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) {
+        alert("업로드 실패");
+        return;
+      }
+
+      const data = await res.json();
+
+      // 🔹 업로드된 파일을 목록에 추가 (새 파일이 위로 오게)
+      setFiles((prev) => [data, ...prev]);
+    } catch (err) {
+      console.error("업로드 오류:", err);
+    }
+
+    e.target.value = "";
+  };
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0];
-    if (selected) {
-      const objectUrl = URL.createObjectURL(selected);
-      addFile({
-        id: Date.now(),
-        name: selected.name,
-        url: objectUrl,
-      });
-    }
-    e.target.value = "";
-  };
-
   return (
     <div className={styles.uploadContainer}>
+      {/* 파일 input */}
       <input
         type="file"
         ref={fileInputRef}
@@ -33,6 +84,7 @@ export default function UploadPannel({ files, addFile }) {
         onChange={handleFileChange}
       />
 
+      {/* 업로드 버튼 */}
       <div
         className={styles.fileUploadBox}
         onClick={handleUploadClick}
@@ -42,12 +94,13 @@ export default function UploadPannel({ files, addFile }) {
         <p className={styles.uploadText}>파일을 업로드하세요</p>
       </div>
 
+      {/* 파일 목록 */}
       <div className={styles.fileList}>
         {files.map((file) => (
           <a
             key={file.id}
-            href={file.url}
-            download={file.name}
+            href={file.file_url}           // ← 백엔드 절대 URL
+            download={file.filename}       // ← 다운로드 시 파일 이름
             target="_blank"
             rel="noopener noreferrer"
             className={styles.fileItem}
@@ -57,12 +110,10 @@ export default function UploadPannel({ files, addFile }) {
               color: "black",
             }}
           >
-            {file.name}
+            {file.filename}
           </a>
         ))}
       </div>
-
-      <div className={styles.pagination}>&lt; 1 2 3 &gt;</div>
     </div>
   );
 }

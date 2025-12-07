@@ -83,6 +83,7 @@ export default function TeamPage() {
               <div className={styles.workContent}>
                 {activeTab === "chat" && (
                   <ChatPanel
+                    groupId={myGroup.id}          // 이 값이 아까 콘솔에서 테스트했던 2 같은 숫자
                     chatMessages={chatMessages}
                     addChatMessage={addChatMessage}
                   />

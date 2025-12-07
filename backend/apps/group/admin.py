@@ -22,7 +22,7 @@ class GroupFileAdmin(admin.ModelAdmin):
 
 @admin.register(GroupMessage)
 class GroupMessageAdmin(admin.ModelAdmin):
-    list_display = ('group', 'user', 'created_at')
+    list_display = ('group', 'user', 'created_at', 'content')
     search_fields = ('group__name', 'user__username', 'content')
     readonly_fields = ('created_at',)
 
