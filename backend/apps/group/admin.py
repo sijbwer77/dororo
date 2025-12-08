@@ -29,7 +29,7 @@ class GroupMessageAdmin(admin.ModelAdmin):
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('group', 'block_type', 'order_index', 'created_at',)
+    list_display = ('group', 'block_type','content', 'order_index', 'created_at',)
     search_fields = ('content', 'group__name')
     list_filter = ('block_type',)
     readonly_fields = ('created_at',)

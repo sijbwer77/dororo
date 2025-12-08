@@ -99,7 +99,9 @@ export default function TeamPage() {
           <>
             {/* 좌측: notion */}
             <section className={styles.teamListSection}>
-              <FolderTree courseId={courseId} />
+              {myGroup && (
+                <FolderTree courseId={courseId} groupId={myGroup.id} />
+              )}
             </section>
 
             {/* 우측: 작업 패널 */}

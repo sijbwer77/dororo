@@ -9,7 +9,8 @@ from .views import (
     GroupMessageListView,
     group_messages,
     
-    DocumentView,
+    DocumentListCreateView,
+    DocumentDetailView,
 )
 
 urlpatterns = [
@@ -20,5 +21,6 @@ urlpatterns = [
     path("<int:group_id>/messages/", GroupMessageListView.as_view()),
     path("<int:group_id>/messages_load/", group_messages),
 
-    path("<int:group_id>/documents/", DocumentView.as_view(), name="group-documents"),
+    path("<int:group_id>/documents/", DocumentListCreateView.as_view(), name="group-documents"),
+    path("documents/<int:doc_id>/", DocumentDetailView.as_view(), name="document-detail"),
 ]

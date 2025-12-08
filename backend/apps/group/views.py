@@ -167,54 +167,127 @@ class GroupMessageListView(APIView):
         return Response(data, status=status.HTTP_201_CREATED)
     
 # notion
-from .models import Document
+# notion
 from .models import Group, GroupMember, Document
+from .serializers import DocumentSerializer
+from django.db.models import Max
+
+
 def get_or_create_root(group):
+    """
+    group + parent=None + block_type='root' 인 노드가 없으면 하나 생성
+    """
     root, _ = Document.objects.get_or_create(
         group=group,
-        block_type="root",
         parent=None,
+        block_type="root",
+        defaults={"content": ""},
     )
     return root
 
 
-class DocumentView(APIView):
+class DocumentListCreateView(APIView):
+    """
+    GET  /api/group/<group_id>/documents/?parent_id=...  -> parent 기준 children 탐색
+    POST /api/group/<group_id>/documents/                -> parent 밑에 새 블록 생성
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request, group_id):
-        group = get_object_or_404(Group, id=group_id)
-
-        # 그룹 멤버 체크
-        if not GroupMember.objects.filter(group=group, user=request.user).exists():
-            return Response({"detail": "권한이 없습니다."}, status=403)
+        # 로그인 유저가 이 그룹 멤버인지 확인 + group 가져오기
+        membership = get_object_or_404(
+            GroupMember, group_id=group_id, user=request.user
+        )
+        group = membership.group
 
         parent_id = request.query_params.get("parent_id")
 
-        # 1) parent_id 없으면 → 그룹의 루트부터
         if parent_id is None:
             parent = get_or_create_root(group)
         else:
-            # 2) parent_id 있으면 → 그걸 부모로 사용하는 노드
             parent = get_object_or_404(Document, id=parent_id, group=group)
 
         children = parent.children.all().order_by("order_index")
 
-        return Response({
-            "parent": {
-                "id": parent.id,
-                "block_type": parent.block_type,
-                "content": parent.content,
-                "parent_id": parent.parent_id,  # 상위로 올라갈 때 쓰면 됨
-            },
-            "children": [
-                {
-                    "id": c.id,
-                    "block_type": c.block_type,
-                    "content": c.content,
-                    "toggle_inner": c.toggle_inner,
-                    "parent_id": c.parent_id,
-                    "order_index": c.order_index,
-                }
-                for c in children
-            ],
-        })
+        return Response(
+            {
+                "parent": {
+                    "id": parent.id,
+                    "block_type": parent.block_type,
+                    "content": parent.content,
+                    "parent_id": parent.parent_id,
+                },
+                "children": [
+                    {
+                        "id": c.id,
+                        "block_type": c.block_type,
+                        "content": c.content,
+                        "toggle_inner": getattr(c, "toggle_inner", ""),
+                        "parent_id": c.parent_id,
+                        "order_index": c.order_index,
+                    }
+                    for c in children
+                ],
+            }
+        )
+
+    def post(self, request, group_id):
+        # parent 밑에 새 블록 생성
+        membership = get_object_or_404(
+            GroupMember, group_id=group_id, user=request.user
+        )
+        group = membership.group
+
+        parent_id = request.data.get("parent_id")
+
+        if parent_id is None:
+            parent = get_or_create_root(group)
+        else:
+            parent = get_object_or_404(Document, id=parent_id, group=group)
+
+        # 같은 parent 아래에서 다음 order_index 계산
+        max_index = (
+            Document.objects.filter(group=group, parent=parent)
+            .aggregate(Max("order_index"))["order_index__max"]
+        )
+        next_index = (max_index or 0) + 1
+
+        serializer = DocumentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        doc = serializer.save(group=group, parent=parent, order_index=next_index)
+        return Response(DocumentSerializer(doc).data, status=status.HTTP_201_CREATED)
+
+
+class DocumentDetailView(APIView):
+    """
+    PATCH /api/group/documents/<doc_id>/  -> 블록 내용 수정
+    DELETE /api/group/documents/<doc_id>/ -> 블록 삭제
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, doc_id, user):
+        doc = get_object_or_404(Document, id=doc_id)
+        # 그룹 멤버인지 확인
+        if not GroupMember.objects.filter(group=doc.group, user=user).exists():
+            return None
+        return doc
+
+    def patch(self, request, doc_id):
+        doc = self.get_object(doc_id, request.user)
+        if doc is None:
+            return Response({"detail": "권한이 없습니다."}, status=403)
+
+        serializer = DocumentSerializer(doc, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data)
+
+    def delete(self, request, doc_id):
+        doc = self.get_object(doc_id, request.user)
+        if doc is None:
+            return Response({"detail": "권한이 없습니다."}, status=403)
+        doc.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -35,3 +35,19 @@ class GroupFileSerializer(serializers.ModelSerializer):
         if request:
             return request.build_absolute_uri(obj.file.url)
         return obj.file.url
+
+class DocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = [
+            "id",
+            "group",
+            "parent",
+            "block_type",
+            "content",
+            "toggle_inner",
+            "order_index",
+            "created_at",
+        ]
+        read_only_fields = ["id", "group", "created_at"]
+
