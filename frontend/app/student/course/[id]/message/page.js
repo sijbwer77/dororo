@@ -76,13 +76,19 @@ function mapThreadDetailToUI(thread) {
 
   const conversations = [...messages].reverse().map((msg) => {
     const attachment = buildAttachmentInfo(msg.attachment);
+    // 프로필 이미지 (마이페이지에서 저장한 값 동기화)
+    let profileImage = "/profile-circle.svg";
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage.getItem("mypageProfileImage");
+      if (stored) profileImage = stored;
+    }
 
     return {
       id: msg.id,
       role: msg.is_mine ? "나" : msg.sender_nickname,
       date: formatKoreanDate(msg.created_at),
       text: msg.content,
-      profileImage: "/profile-circle.svg",
+      profileImage,
       attachment,
     };
   });

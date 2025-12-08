@@ -13,9 +13,56 @@ export default function Sidebar({ courseId }) {
   const pathname = usePathname();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const getFallback = () =>
+    typeof window !== "undefined"
+      ? `${window.location.origin}/profile-circle.svg`
+      : "/profile-circle.svg";
+  const fallback = getFallback();
+  const [profileSrc, setProfileSrc] = useState(fallback);
+  const handleProfileError = () => {
+    const fb = getFallback();
+    setProfileSrc(fb);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mypageProfileImage", fb);
+    }
+  };
   
   // [추가] 백엔드에서 가져온 강의 제목을 저장할 state
   const [courseTitle, setCourseTitle] = useState("");
+
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === "string" && raw.includes("profile-circle.svg")) {
+      return getFallback();
+    }
+    if (/^https?:\/\//i.test(raw)) return raw;
+    let path = raw.toString().trim();
+    if (!path || path === "null" || path === "None") return null;
+    path = path.replace(/^\/+/, "");
+    const origin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:8000";
+    return `${origin}/${path}`;
+  };
+
+  // 프로필 이미지: 마이페이지에서 저장한 값(localStorage) 구독
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("mypageProfileImage");
+    const normalized = normalizeProfile(stored) || fallback;
+    setProfileSrc(normalized);
+    if (normalized !== stored) {
+      window.localStorage.setItem("mypageProfileImage", normalized);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: normalized })
+      );
+    }
+
+    const handler = (e) => {
+      const nextSrc = normalizeProfile(e.detail) || fallback;
+      setProfileSrc(nextSrc);
+    };
+    window.addEventListener("mypageProfileImageChange", handler);
+    return () => window.removeEventListener("mypageProfileImageChange", handler);
+  }, []);
 
   // [추가] 백엔드 API 호출해서 진짜 강의 제목 가져오기
   useEffect(() => {
@@ -79,7 +126,13 @@ export default function Sidebar({ courseId }) {
             <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} />
           </div>
           <div className={styles.profileIcon}>
-            <Image src="/profile-circle.svg" alt="Profile" width={184} height={184} />
+            <Image
+              src={profileSrc || fallback}
+              alt="Profile"
+              width={184}
+              height={184}
+              onError={handleProfileError}
+            />
           </div>
         </div>
 

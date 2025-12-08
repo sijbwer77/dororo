@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SideBarFooter from "@/components/SideBarFooter.js";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // 마이페이지처럼 메뉴 배열로 관리
 const dimcSidebarMenus = [
@@ -19,6 +19,53 @@ export default function DIMCPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const getFallback = () =>
+    typeof window !== "undefined"
+      ? `${window.location.origin}/profile-circle.svg`
+      : "/profile-circle.svg";
+  const fallback = getFallback();
+  const [profileSrc, setProfileSrc] = useState(fallback);
+
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === "string" && raw.includes("profile-circle.svg")) return getFallback();
+    if (/^https?:\/\//i.test(raw)) return raw;
+    let path = raw.toString().trim();
+    if (!path || path === "null" || path === "None") return null;
+    path = path.replace(/^\/+/, "");
+    const origin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:8000";
+    return `${origin}/${path}`;
+  };
+
+  const handleProfileError = () => {
+    setProfileSrc(fallback);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mypageProfileImage", fallback);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: fallback })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("mypageProfileImage");
+    const normalized = normalizeProfile(stored) || fallback;
+    setProfileSrc(normalized);
+    if (normalized !== stored) {
+      window.localStorage.setItem("mypageProfileImage", normalized);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: normalized })
+      );
+    }
+
+    const handler = (e) => {
+      const nextSrc = normalizeProfile(e.detail) || fallback;
+      setProfileSrc(nextSrc);
+    };
+    window.addEventListener("mypageProfileImageChange", handler);
+    return () => window.removeEventListener("mypageProfileImageChange", handler);
+  }, []);
   const handleLogoClick = () => {
     setShowLogoutModal(true);
   };
@@ -37,25 +84,21 @@ export default function DIMCPage() {
       <nav className={styles.sidebar}>
         {/* 로고 + 프로필 */}
         <div className={styles.sidebarTop}>
-          <div 
+          <div
             className={styles.sidebarLogo}
             onClick={handleLogoClick}
-            style={{cursor: "pointer"}}
+            style={{ cursor: "pointer" }}
           >
-            <Image
-              src="/doro-logo.svg"
-              alt="DORO 로고"
-              width={147}
-              height={38}
-            />
+            <Image src="/doro-logo.svg" alt="DORO 로고" width={147} height={38} />
           </div>
 
           <div className={styles.profileIcon}>
             <Image
-              src="/profile-circle.svg"
+              src={profileSrc || fallback}
               alt="Profile"
               width={184}
               height={184}
+              onError={handleProfileError}
             />
           </div>
         </div>
