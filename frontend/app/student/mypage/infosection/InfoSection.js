@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import styles from "./infosection.module.css";
+import { useEffect, useState } from "react";
 
 export default function InfoSection({
   isEditing,
@@ -9,39 +10,61 @@ export default function InfoSection({
   userData,
   handleInputChange,
   saveChanges,
+  onProfileSelect,
+  onProfileReset,
 }) {
   if (!userData) return null;
+
+  const fallback = "/profile-circle.svg";
+  const [profileSrc, setProfileSrc] = useState(
+    userData.profileImage || fallback
+  );
+
+  useEffect(() => {
+    setProfileSrc(userData.profileImage || fallback);
+  }, [userData.profileImage]);
 
   return (
     <>
       <header className={styles.profileHeader}>
         <div className={styles.profileAvatar}>
           <Image
-            src={userData.profileImage || "/profile-circle.svg"}
+            src={profileSrc}
             alt="프로필 아이콘"
             fill
             className={styles.profilePreview}
+            onError={() => setProfileSrc(fallback)}
           />
         </div>
 
         {isEditing && (
-          <label className={styles.uploadLabel}>
-            프로필 이미지 변경
-            <input
-              type="file"
-              accept="image/*"
-              className={styles.fileInput}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const objectUrl = URL.createObjectURL(file);
-                handleInputChange({ target: { name: "profileImage", value: objectUrl } });
-              }}
-            />
-          </label>
+          <div className={styles.profileActions}>
+            <label className={styles.uploadLabel}>
+              프로필 이미지 변경
+              <input
+                type="file"
+                accept="image/*"
+                className={styles.fileInput}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  onProfileSelect?.(file);
+                }}
+              />
+            </label>
+            <button
+              type="button"
+              className={styles.resetButton}
+              onClick={() => onProfileReset?.()}
+            >
+              기본 이미지로 설정
+            </button>
+          </div>
         )}
 
-        <h1 className={styles.profileName}>{userData.name}</h1>
+        <h1 className={styles.profileName}>
+          {userData.nickname || userData.username}
+        </h1>
       </header>
 
       <section className={styles.infoSection}>

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SideBarFooter from "@/components/SideBarFooter.js";
 import { DIMC_RESULT_SAMPLE } from "@/data/mock-dimcresult";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const dimcSidebarMenus = [
@@ -27,6 +27,12 @@ const TYPE_LABEL = {
 export default function DIMCResultPage() {
   const pathname = usePathname();
   const router = useRouter();
+  const getFallback = () =>
+    typeof window !== "undefined"
+      ? `${window.location.origin}/profile-circle.svg`
+      : "/profile-circle.svg";
+  const fallback = getFallback();
+  const [profileSrc, setProfileSrc] = useState(fallback);
 
   // 점수 높은 순으로 정렬
   const rankedTypes = Object.entries(DIMC_RESULT_SAMPLE.scores).sort(
@@ -48,6 +54,47 @@ export default function DIMCResultPage() {
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);  
 
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === "string" && raw.includes("profile-circle.svg")) return getFallback();
+    if (/^https?:\/\//i.test(raw)) return raw;
+    let path = raw.toString().trim();
+    if (!path || path === "null" || path === "None") return null;
+    path = path.replace(/^\/+/, "");
+    const origin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:8000";
+    return `${origin}/${path}`;
+  };
+
+  const handleProfileError = () => {
+    setProfileSrc(fallback);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mypageProfileImage", fallback);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: fallback })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("mypageProfileImage");
+    const normalized = normalizeProfile(stored) || fallback;
+    setProfileSrc(normalized);
+    if (normalized !== stored) {
+      window.localStorage.setItem("mypageProfileImage", normalized);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: normalized })
+      );
+    }
+
+    const handler = (e) => {
+      const nextSrc = normalizeProfile(e.detail) || fallback;
+      setProfileSrc(nextSrc);
+    };
+    window.addEventListener("mypageProfileImageChange", handler);
+    return () => window.removeEventListener("mypageProfileImageChange", handler);
+  }, []);
+
   return (
     <>
     <div className={layoutStyles.pageLayout}>
@@ -68,10 +115,11 @@ export default function DIMCResultPage() {
           </div>
           <div className={layoutStyles.profileIcon}>
             <Image
-              src="/profile-circle.svg"
+              src={profileSrc || fallback}
               alt="Profile"
               width={184}
               height={184}
+              onError={handleProfileError}
             />
           </div>
         </div>
