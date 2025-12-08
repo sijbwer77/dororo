@@ -4,6 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import styles from "../team.module.css";
 import Image from "next/image";
 
+function getCookie(name) {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+  return null;
+}
+
+
 export default function UploadPanel({ groupId }) {
   const [files, setFiles] = useState([]);
   const fileInputRef = useRef(null);
@@ -44,6 +53,8 @@ export default function UploadPanel({ groupId }) {
     const formData = new FormData();
     formData.append("file", selected);
 
+    const csrftoken = getCookie("csrftoken");
+    
     try {
       const res = await fetch(
         `http://localhost:8000/api/group/${groupId}/files/`,
@@ -51,6 +62,9 @@ export default function UploadPanel({ groupId }) {
           method: "POST",
           body: formData,
           credentials: "include",
+          headers: {
+            "X-CSRFToken": csrftoken ?? "",
+          },
         }
       );
 

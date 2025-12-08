@@ -74,6 +74,10 @@ class GroupFileListCreateView(APIView):
     def get(self, request, group_id):
         """그룹의 모든 파일 목록 조회"""
         group = get_object_or_404(Group, id=group_id)
+        
+
+        if not GroupMember.objects.filter(group=group, user=request.user).exists():
+            return Response({"detail": "You are not a member of this group"}, status=403)
 
         files = group.files.all().order_by("-created_at")
         serializer = GroupFileSerializer(
@@ -88,6 +92,9 @@ class GroupFileListCreateView(APIView):
         """파일 업로드"""
         group = get_object_or_404(Group, id=group_id)
 
+        if not GroupMember.objects.filter(group=group, user=request.user).exists():
+            return Response({"detail": "You are not a member of this group"}, status=403)
+        
         uploaded_file = request.FILES.get("file")
         if not uploaded_file:
             return Response({"error": "file is required"}, status=400)
