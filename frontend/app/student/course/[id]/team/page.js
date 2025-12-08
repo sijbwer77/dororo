@@ -1,7 +1,7 @@
 'use client';
 
 import Sidebar from "@/components/Sidebar";
-import { useTeamData } from "./teamContext";
+import { TeamProvider, useTeamData } from "./teamContext";
 import FolderTree from "./components/FolderTree";
 import ChatPanel from "./components/ChatPanel";
 import UploadPanel from "./components/UploadPanel";
@@ -74,71 +74,73 @@ export default function TeamPage() {
   }, [myGroup, setChatMessages]);
 
   return (
-    <div className={styles.pageLayout}>
-      <Sidebar courseId={courseId} />
+    <TeamProvider groupId={myGroup?.id}>
+      <div className={styles.pageLayout}>
+        <Sidebar courseId={courseId} />
 
-      <main className={styles.mainContent}>
-        {/* --- 1) 로딩 상태 --- */}
-        {loadingGroup && (
-          <GroupEmptyNotice
-            message="팀 정보를 불러오는 중입니다."
-            showHelp={false}
-          />
-        )}
+        <main className={styles.mainContent}>
+          {/* --- 1) 로딩 상태 --- */}
+          {loadingGroup && (
+            <GroupEmptyNotice
+              message="팀 정보를 불러오는 중입니다."
+              showHelp={false}
+            />
+          )}
 
-        {/* --- 2) 그룹 없음 --- */}
-        {!loadingGroup && !myGroup && (
-          <GroupEmptyNotice
-            message="아직 팀에 배정되지 않았습니다."
-            showHelp={true}
-          />
-        )}
+          {/* --- 2) 그룹 없음 --- */}
+          {!loadingGroup && !myGroup && (
+            <GroupEmptyNotice
+              message="아직 팀에 배정되지 않았습니다."
+              showHelp={true}
+            />
+          )}
 
-        {/* --- 3) 그룹 있음 --- */}
-        {!loadingGroup && myGroup && (
-          <>
-            {/* 좌측: notion */}
-            <section className={styles.teamListSection}>
-              <FolderTree courseId={courseId} />
-            </section>
+          {/* --- 3) 그룹 있음 --- */}
+          {!loadingGroup && myGroup && (
+            <>
+              {/* 좌측: notion */}
+              <section className={styles.teamListSection}>
+                <FolderTree courseId={courseId} />
+              </section>
 
-            {/* 우측: 작업 패널 */}
-            <section className={styles.teamWorkSection}>
-              <div className={styles.tabButtons}>
-                <button
-                  className={`${styles.tabButton} ${activeTab === "chat" ? styles.activeTab : ""}`}
-                  onClick={() => setActiveTab("chat")}
-                >
-                  <img src="/chat.svg" alt="chat" width={24} height={24} />
-                </button>
+              {/* 우측: 작업 패널 */}
+              <section className={styles.teamWorkSection}>
+                <div className={styles.tabButtons}>
+                  <button
+                    className={`${styles.tabButton} ${activeTab === "chat" ? styles.activeTab : ""}`}
+                    onClick={() => setActiveTab("chat")}
+                  >
+                    <img src="/chat.svg" alt="chat" width={24} height={24} />
+                  </button>
 
-                <button
-                  className={`${styles.tabButton} ${activeTab === "upload" ? styles.activeTab : ""}`}
-                  onClick={() => setActiveTab("upload")}
-                >
-                  <img src="/upload-icon.svg" alt="upload" width={24} height={24} />
-                </button>
-              </div>
+                  <button
+                    className={`${styles.tabButton} ${activeTab === "upload" ? styles.activeTab : ""}`}
+                    onClick={() => setActiveTab("upload")}
+                  >
+                    <img src="/upload-icon.svg" alt="upload" width={24} height={24} />
+                  </button>
+                </div>
 
-              <div className={styles.workContent}>
-                {activeTab === "chat" && (
-                  <ChatPanel
-                    groupId={myGroup.id}
-                    chatMessages={chatMessages}
-                    addChatMessage={addChatMessage}
-                  />
-                )}
+                <div className={styles.workContent}>
+                  {activeTab === "chat" && (
+                    <ChatPanel
+                      groupId={myGroup.id}
+                      chatMessages={chatMessages}
+                      addChatMessage={addChatMessage}
+                    />
+                  )}
 
-                {activeTab === "upload" && (
-                  <UploadPanel
-                    groupId={myGroup.id}
-                  />
-                )}
-              </div>
-            </section>
-          </>
-        )}
-      </main>
-    </div>
+                  {activeTab === "upload" && (
+                    <UploadPanel
+                      groupId={myGroup.id}
+                    />
+                  )}
+                </div>
+              </section>
+            </>
+          )}
+        </main>
+      </div>
+    </TeamProvider>
   );
 }

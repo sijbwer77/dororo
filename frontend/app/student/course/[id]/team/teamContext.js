@@ -5,7 +5,7 @@ import { createContext, useState, useContext } from 'react';
 
 const TeamContext = createContext();
 
-export function TeamProvider({ children }) {
+export function TeamProvider({ children, groupId }) {
   // --- 파일 상태 ---
   const [files, setFiles] = useState([
     { id: 1, name: "기획서_v1.pdf", url: "#" },
@@ -50,6 +50,7 @@ export function TeamProvider({ children }) {
   return (
     <TeamContext.Provider
       value={{
+        groupId,
         files,
         addFile,
         chatMessages,
