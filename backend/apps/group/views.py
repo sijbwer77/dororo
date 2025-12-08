@@ -6,11 +6,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, permissions
-from rest_framework.authentication import SessionAuthentication
 
 from apps.learning.models import Course
 from .models import GroupMember, Document
-from .serializers import GroupMemberSerializer, DocumentSerializer
+from .serializers import GroupMemberSerializer
 
 class MyGroupView(APIView):
     permission_classes = [IsAuthenticated]
@@ -167,250 +166,55 @@ class GroupMessageListView(APIView):
         }
         return Response(data, status=status.HTTP_201_CREATED)
     
-# notiont 기능 - 수정중
-from .models import Document, Group
-
-class CsrfExemptSessionAuthentication(SessionAuthentication):
-    def enforce_csrf(self, request):
-        # Disable CSRF check for API endpoints that are called with session cookies
-        return
-
-def build_document_tree(document):
-    return {
-        "id": document.id,
-        "block_type": document.block_type,
-        "content": document.content,
-        "file": document.file.url if document.file else None,
-        "order_index": document.order_index,
-        "children": [
-            build_document_tree(child)
-            for child in document.children.all().order_by("order_index")
-        ]
-    }
-class PageDetailView(APIView):
-
-    def get(self, request, group_id, page_id):
-
-        # 1. 그룹 검증
-        try:
-            group = Group.objects.get(id=group_id)
-        except Group.DoesNotExist:
-            return Response({"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # 2. 페이지 문서 찾기
-        try:
-            page = Document.objects.get(id=page_id, group=group, block_type="page")
-        except Document.DoesNotExist:
-            return Response({"error": "Page not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        # 3. 트리 구조로 변환
-        data = build_document_tree(page)
-
-        return Response(data, status=status.HTTP_200_OK)
+# notion
+from .models import Document
+from .models import Group, GroupMember, Document
+def get_or_create_root(group):
+    root, _ = Document.objects.get_or_create(
+        group=group,
+        block_type="root",
+        parent=None,
+    )
+    return root
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class PageListCreateView(APIView):
+class DocumentView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [CsrfExemptSessionAuthentication]
 
     def get(self, request, group_id):
-        folders = (
-            Document.objects
-            .filter(group_id=group_id, parent__isnull=True, block_type="folder")
-            .order_by("order_index", "created_at")
-        )
-        pages_without_folder = (
-            Document.objects
-            .filter(group_id=group_id, parent__isnull=True, block_type="page")
-            .order_by("order_index", "created_at")
-        )
+        group = get_object_or_404(Group, id=group_id)
 
-        data = []
-        for f in folders:
-            children = (
-                Document.objects
-                .filter(parent=f, block_type="page")
-                .order_by("order_index", "created_at")
-            )
-            data.append({
-                "id": f.id,
-                "name": f.content or "폴더",
-                "order_index": f.order_index,
-                "items": [
-                    {
-                        "id": c.id,
-                        "title": c.content or f"Page {c.id}",
-                        "order_index": c.order_index,
-                    } for c in children
-                ]
-            })
+        # 그룹 멤버 체크
+        if not GroupMember.objects.filter(group=group, user=request.user).exists():
+            return Response({"detail": "권한이 없습니다."}, status=403)
 
-        # 고아 페이지는 루트 버킷으로 반환
-        if pages_without_folder:
-            data.append({
-                "id": "root",
-                "name": "페이지",
-                "order_index": 0,
-                "items": [
-                    {
-                        "id": p.id,
-                        "title": p.content or f"Page {p.id}",
-                        "order_index": p.order_index,
-                    } for p in pages_without_folder
-                ]
-            })
+        parent_id = request.query_params.get("parent_id")
 
-        return Response(data, status=status.HTTP_200_OK)
-
-    def post(self, request, group_id):
-        title = (request.data.get("title") or request.data.get("content") or "").strip()
-        if not title:
-            return Response({"error": "title is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        block_type = request.data.get("block_type", "page")
-        parent_id = request.data.get("parent_id")
-
-        if block_type == "folder":
-            max_order = (
-                Document.objects
-                .filter(group_id=group_id, parent__isnull=True, block_type="folder")
-                .aggregate(models.Max("order_index"))
-                .get("order_index__max") or 0
-            )
-            folder = Document.objects.create(
-                group_id=group_id,
-                parent=None,
-                block_type="folder",
-                content=title,
-                order_index=max_order + 1,
-            )
-            return Response(
-                {"id": folder.id, "name": folder.content, "order_index": folder.order_index, "items": []},
-                status=status.HTTP_201_CREATED,
-            )
+        # 1) parent_id 없으면 → 그룹의 루트부터
+        if parent_id is None:
+            parent = get_or_create_root(group)
         else:
-            parent_obj = None
-            if parent_id and parent_id != "root":
-                parent_obj = Document.objects.filter(id=parent_id, group_id=group_id, block_type="folder").first()
-            max_order = (
-                Document.objects
-                .filter(group_id=group_id, parent=parent_obj, block_type="page")
-                .aggregate(models.Max("order_index"))
-                .get("order_index__max") or 0
-            )
-            page = Document.objects.create(
-                group_id=group_id,
-                parent=parent_obj,
-                block_type="page",
-                content=title,
-                order_index=max_order + 1,
-            )
-            return Response(
+            # 2) parent_id 있으면 → 그걸 부모로 사용하는 노드
+            parent = get_object_or_404(Document, id=parent_id, group=group)
+
+        children = parent.children.all().order_by("order_index")
+
+        return Response({
+            "parent": {
+                "id": parent.id,
+                "block_type": parent.block_type,
+                "content": parent.content,
+                "parent_id": parent.parent_id,  # 상위로 올라갈 때 쓰면 됨
+            },
+            "children": [
                 {
-                    "id": page.id,
-                    "title": page.content,
-                    "order_index": page.order_index,
-                    "parent_id": parent_obj.id if parent_obj else None,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class DocumentBlockCreateView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CsrfExemptSessionAuthentication]
-
-    def post(self, request, group_id, page_id):
-        try:
-            parent = Document.objects.get(id=page_id, group_id=group_id)
-        except Document.DoesNotExist:
-            return Response({"error": "Page not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        block_type = request.data.get("block_type", "text")
-        content = request.data.get("content", "")
-        max_order = (
-            Document.objects
-            .filter(group_id=group_id, parent=parent)
-            .aggregate(models.Max("order_index"))
-            .get("order_index__max") or 0
-        )
-        doc = Document.objects.create(
-            group_id=group_id,
-            parent=parent,
-            block_type=block_type,
-            content=content,
-            order_index=max_order + 1,
-        )
-        ser = DocumentSerializer(doc)
-        return Response(ser.data, status=status.HTTP_201_CREATED)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class DocumentUpdateView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CsrfExemptSessionAuthentication]
-
-    def patch(self, request, doc_id):
-        try:
-            doc = Document.objects.select_for_update().get(id=doc_id)
-        except Document.DoesNotExist:
-            return Response({"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        data = {}
-        if "content" in request.data:
-            data["content"] = request.data.get("content", "")
-        if "block_type" in request.data:
-            data["block_type"] = request.data.get("block_type")
-        if "order_index" in request.data:
-            data["order_index"] = request.data.get("order_index")
-        if "parent" in request.data:
-            data["parent_id"] = request.data.get("parent")
-
-        for k, v in data.items():
-            setattr(doc, k, v)
-        doc.save()
-
-        ser = DocumentSerializer(doc)
-        return Response(ser.data, status=status.HTTP_200_OK)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class PageReorderView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [CsrfExemptSessionAuthentication]
-
-    def post(self, request, group_id):
-        """
-        Payload 예:
-        {
-            "parent": null | <folder_id> | <page_id>,
-            "orders": [ {"id":1,"order_index":1}, {"id":5,"order_index":2} ]
-        }
-        """
-        parent = request.data.get("parent")
-        orders = request.data.get("orders")
-        if not isinstance(orders, list):
-            return Response({"error": "orders must be a list"}, status=status.HTTP_400_BAD_REQUEST)
-
-        ids = [item.get("id") for item in orders if "id" in item]
-        docs = {
-            d.id: d
-            for d in Document.objects.filter(id__in=ids, group_id=group_id)
-        }
-        for item in orders:
-            doc = docs.get(item.get("id"))
-            if doc is None:
-                continue
-            fields = []
-            if "order_index" in item:
-                doc.order_index = item["order_index"]
-                fields.append("order_index")
-            if parent is not None:
-                doc.parent_id = parent if parent != "root" else None
-                fields.append("parent")
-            if fields:
-                doc.save(update_fields=fields)
-
-        return Response({"status": "ok"}, status=status.HTTP_200_OK)
+                    "id": c.id,
+                    "block_type": c.block_type,
+                    "content": c.content,
+                    "toggle_inner": c.toggle_inner,
+                    "parent_id": c.parent_id,
+                    "order_index": c.order_index,
+                }
+                for c in children
+            ],
+        })

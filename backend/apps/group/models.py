@@ -47,20 +47,19 @@ class GroupMessage(models.Model):
 
 class Document(models.Model):
     BLOCK_TYPES = (
+        ("root", "Root"),
         ("page", "Page"),
-        ("folder", "Folder"),
         ("text", "Text"),
-        ("file", "File"),
         ("toggle", "Toggle"),
         ("divider", "Divider"),
     )
 
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="documents")
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="children")
-    block_type = models.CharField(max_length=20, choices=BLOCK_TYPES)
 
+    block_type = models.CharField(max_length=20, choices=BLOCK_TYPES)
     content = models.TextField(blank=True)
-    file = models.FileField(upload_to="resources/team/document_files/", null=True, blank=True)
+    toggle_inner=models.TextField(blank=True) #토글 내부 내용
     order_index = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
