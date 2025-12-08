@@ -11,6 +11,7 @@ from .models import (
     TeacherAssignmentRequest,
 )
 
+
 class LessonMaterialSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
 
@@ -43,7 +44,7 @@ class StudentCourseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'title', 'course_type', 'status', 'instructor_name']
+        fields = ['id', 'title', 'dimc_type', 'course_type', 'status', 'instructor_name']
 
     def get_instructor_name(self, obj):
         instructor = obj.instructor  # Course 모델의 FK :contentReference[oaicite:1]{index=1}

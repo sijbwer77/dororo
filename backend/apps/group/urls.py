@@ -10,6 +10,9 @@ from .views import (
     DocumentBlockCreateView,
     DocumentUpdateView,
     PageReorderView,
+
+    GroupMessageListView,
+    group_messages,
 )
 
 urlpatterns = [
@@ -21,7 +24,9 @@ urlpatterns = [
     path("<int:group_id>/pages/<int:page_id>/blocks/", DocumentBlockCreateView.as_view()),
     path("pages/<int:doc_id>/", DocumentUpdateView.as_view()),
 
-    #아래는 수정중
-    # GET /api/group/<group_id>/messages/
+    path("<int:group_id>/messages/", GroupMessageListView.as_view()),
+    path("<int:group_id>/messages_load/", group_messages),
+
+
     path("groups/<int:group_id>/pages/<int:page_id>/", PageDetailView.as_view()),
 ]

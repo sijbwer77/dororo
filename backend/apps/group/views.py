@@ -43,25 +43,69 @@ class MyGroupView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+from rest_framework.decorators import api_view, permission_classes
+from django.utils import timezone
+
+from .models import GroupMessage
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def group_messages(request, group_id):
+    user = request.user
+
+    qs = GroupMessage.objects.filter(group_id=group_id).select_related("user").order_by("created_at")
+
+    data = []
+    for msg in qs:
+        data.append({
+            "id": msg.id,
+            "sender": msg.user.username,
+            "text": msg.content,
+            "time": timezone.localtime(msg.created_at).strftime("%H:%M"),
+            "is_me": (msg.user_id == user.id),
+        })
+
+    return Response(data)
+
+
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, permissions
+
 from .models import Group, GroupFile
 from .serializers import GroupFileSerializer
 from django.shortcuts import get_object_or_404
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+@method_decorator(csrf_exempt, name="dispatch")     #개발용으로 임시 사용
+
 class GroupFileListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request, group_id):
         """그룹의 모든 파일 목록 조회"""
         group = get_object_or_404(Group, id=group_id)
+        
 
-        files = group.files.all()
-        serializer = GroupFileSerializer(files, many=True)
+        if not GroupMember.objects.filter(group=group, user=request.user).exists():
+            return Response({"detail": "You are not a member of this group"}, status=403)
+
+        files = group.files.all().order_by("-created_at")
+        serializer = GroupFileSerializer(
+            files,
+            many=True,
+            context={"request": request},  # file_url 절대 경로
+        )
         return Response(serializer.data)
+
 
     def post(self, request, group_id):
         """파일 업로드"""
         group = get_object_or_404(Group, id=group_id)
 
+        if not GroupMember.objects.filter(group=group, user=request.user).exists():
+            return Response({"detail": "You are not a member of this group"}, status=403)
+        
         uploaded_file = request.FILES.get("file")
         if not uploaded_file:
             return Response({"error": "file is required"}, status=400)
@@ -72,13 +116,14 @@ class GroupFileListCreateView(APIView):
             file=uploaded_file,
         )
 
-        serializer = GroupFileSerializer(group_file)
+        serializer = GroupFileSerializer(
+            group_file,
+            context={"request": request},
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-#아래는 미구현됨 아직 테스트중
-
-# 그룹 메시지 - 수정중
+# 그룹 메시지 
 from .models import GroupMessage
 
 class GroupMessageListView(APIView):

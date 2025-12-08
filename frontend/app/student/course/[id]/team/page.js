@@ -18,8 +18,11 @@ export default function TeamPage() {
   const [loadingGroup, setLoadingGroup] = useState(true);
   const [activeTab, setActiveTab] = useState("chat");
 
-  const { files, chatMessages, addFile, addChatMessage } = useTeamData();
+  // 👇 setChatMessages 추가로 꺼내오기
+  const { chatMessages, addChatMessage, setChatMessages } =
+    useTeamData();
 
+  // 1) 내 그룹 정보 가져오기
   useEffect(() => {
     async function fetchGroup() {
       try {
@@ -36,6 +39,40 @@ export default function TeamPage() {
     fetchGroup();
   }, [courseId]);
 
+  // 2) 그룹이 정해지면, 그 그룹의 과거 메시지 불러오기
+  useEffect(() => {
+    if (!myGroup) return; // 아직 그룹 정보 없으면 스킵
+
+    async function fetchMessages() {
+      try {
+        const res = await fetch(
+          `http://localhost:8000/api/group/${myGroup.id}/messages_load/`,
+          { credentials: "include" }
+        );
+        if (!res.ok) {
+          console.error("failed to load messages", res.status);
+          return;
+        }
+
+        const data = await res.json(); // [{id, sender, text, time, is_me}, ...]
+
+        const mapped = data.map((m) => ({
+          id: m.id,
+          sender: m.sender,
+          text: m.text,
+          time: m.time,
+          isMe: m.is_me,
+        }));
+
+        setChatMessages(mapped);   // 👈 히스토리 한 번에 세팅
+      } catch (err) {
+        console.error("load messages error:", err);
+      }
+    }
+
+    fetchMessages();
+  }, [myGroup, setChatMessages]);
+
   return (
     <div className={styles.pageLayout}>
       <Sidebar courseId={courseId} />
@@ -43,12 +80,18 @@ export default function TeamPage() {
       <main className={styles.mainContent}>
         {/* --- 1) 로딩 상태 --- */}
         {loadingGroup && (
-          <GroupEmptyNotice message="팀 정보를 불러오는 중입니다..." showHelp={false} />
+          <GroupEmptyNotice
+            message="팀 정보를 불러오는 중입니다."
+            showHelp={false}
+          />
         )}
 
         {/* --- 2) 그룹 없음 --- */}
         {!loadingGroup && !myGroup && (
-          <GroupEmptyNotice message="아직 팀에 배정되지 않았습니다." showHelp={true} />
+          <GroupEmptyNotice
+            message="아직 팀에 배정되지 않았습니다."
+            showHelp={true}
+          />
         )}
 
         {/* --- 3) 그룹 있음 --- */}
@@ -61,8 +104,6 @@ export default function TeamPage() {
 
             {/* 우측: 작업 패널 */}
             <section className={styles.teamWorkSection}>
-              
-              {/* Chat / Upload 전환 버튼 UI */}
               <div className={styles.tabButtons}>
                 <button
                   className={`${styles.tabButton} ${activeTab === "chat" ? styles.activeTab : ""}`}
@@ -79,10 +120,10 @@ export default function TeamPage() {
                 </button>
               </div>
 
-              {/* 패널 렌더링 */}
               <div className={styles.workContent}>
                 {activeTab === "chat" && (
                   <ChatPanel
+                    groupId={myGroup.id}
                     chatMessages={chatMessages}
                     addChatMessage={addChatMessage}
                   />
@@ -90,8 +131,7 @@ export default function TeamPage() {
 
                 {activeTab === "upload" && (
                   <UploadPanel
-                    files={files}
-                    addFile={addFile}
+                    groupId={myGroup.id}
                   />
                 )}
               </div>

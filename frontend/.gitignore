@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+#백엔드 파일 저장된것 공유 방지
+backend/resources/*
+
 # dependencies
 /node_modules
 /.pnp
@@ -39,3 +42,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
