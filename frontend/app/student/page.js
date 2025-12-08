@@ -30,6 +30,19 @@ export default function StudentDashboard() {
   const [courses, setCourses] = useState([]);
   const [ready, setReady] = useState(false); // 역할 체크 끝났는지
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const getFallback = () =>
+    typeof window !== "undefined"
+      ? `${window.location.origin}/profile-circle.svg`
+      : "/profile-circle.svg";
+  const fallback = getFallback();
+  const [profileSrc, setProfileSrc] = useState(fallback);
+  const handleProfileError = () => {
+    const fb = getFallback();
+    setProfileSrc(fb);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mypageProfileImage", fb);
+    }
+  };
   const handleLogoClick = () => {
     setShowLogoutModal(true);
   };  
@@ -40,6 +53,40 @@ export default function StudentDashboard() {
   const handleCancelLogout = () => {
     setShowLogoutModal(false);
   };
+
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === "string" && raw.includes("profile-circle.svg")) {
+      return getFallback();
+    }
+    if (/^https?:\/\//i.test(raw)) return raw;
+    let path = raw.toString().trim();
+    if (!path || path === "null" || path === "None") return null;
+    path = path.replace(/^\/+/, "");
+    const origin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:8000";
+    return `${origin}/${path}`;
+  };
+
+  // 마이페이지 프로필 이미지 구독
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("mypageProfileImage");
+    const normalized = normalizeProfile(stored) || fallback;
+    setProfileSrc(normalized);
+    if (normalized !== stored) {
+      window.localStorage.setItem("mypageProfileImage", normalized);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: normalized })
+      );
+    }
+
+    const handler = (e) => {
+      const nextSrc = normalizeProfile(e.detail) || fallback;
+      setProfileSrc(nextSrc);
+    };
+    window.addEventListener("mypageProfileImageChange", handler);
+    return () => window.removeEventListener("mypageProfileImageChange", handler);
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -101,7 +148,13 @@ export default function StudentDashboard() {
             <Image src="/doro-logo.svg" alt="DORO 로고" width={147} height={38} />
           </div>
           <div className={styles.profileIcon}>
-            <Image src="/profile-circle.svg" alt="프로필 아이콘" width={184} height={184} />
+            <Image
+              src={profileSrc || fallback}
+              alt="프로필 아이콘"
+              width={184}
+              height={184}
+              onError={handleProfileError}
+            />
           </div>
         </div>
 

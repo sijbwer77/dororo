@@ -201,6 +201,12 @@ export default function LectureEvalPage() {
   const pathname = usePathname();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const getFallback = () =>
+    typeof window !== "undefined"
+      ? `${window.location.origin}/profile-circle.svg`
+      : "/profile-circle.svg";
+  const fallback = getFallback();
+  const [profileSrc, setProfileSrc] = useState(fallback);
   const handleLogoClick = () => {
     setShowLogoutModal(true);
   };
@@ -219,6 +225,48 @@ export default function LectureEvalPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === "string" && raw.includes("profile-circle.svg")) return getFallback();
+    if (/^https?:\/\//i.test(raw)) return raw;
+    let path = raw.toString().trim();
+    if (!path || path === "null" || path === "None") return null;
+    path = path.replace(/^\/+/, "");
+    const origin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:8000";
+    return `${origin}/${path}`;
+  };
+
+  const handleProfileError = () => {
+    setProfileSrc(fallback);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("mypageProfileImage", fallback);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: fallback })
+      );
+    }
+  };
+
+  // 사이드바 프로필 이미지 동기화
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("mypageProfileImage");
+    const normalized = normalizeProfile(stored) || fallback;
+    setProfileSrc(normalized);
+    if (normalized !== stored) {
+      window.localStorage.setItem("mypageProfileImage", normalized);
+      window.dispatchEvent(
+        new CustomEvent("mypageProfileImageChange", { detail: normalized })
+      );
+    }
+
+    const handler = (e) => {
+      const nextSrc = normalizeProfile(e.detail) || fallback;
+      setProfileSrc(nextSrc);
+    };
+    window.addEventListener("mypageProfileImageChange", handler);
+    return () => window.removeEventListener("mypageProfileImageChange", handler);
+  }, []);
 
   // 초기 로딩: 내 강의 + 평가 문항
   useEffect(() => {
@@ -306,10 +354,11 @@ export default function LectureEvalPage() {
           </div>
           <div className={layoutStyles.profileIcon}>
             <Image
-              src="/profile-circle.svg"
+              src={profileSrc || fallback}
               alt="Profile"
               width={184}
               height={184}
+              onError={handleProfileError}
             />
           </div>
         </div>

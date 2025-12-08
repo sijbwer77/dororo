@@ -74,6 +74,27 @@ function mapThreadListItemToUI(thread) {
 function mapThreadDetailToUI(thread) {
   const messages = thread.messages || [];
 
+  const resolveProfileImage = (msg) => {
+    const nickname = (msg.sender_nickname || "").toLowerCase();
+    // 매니저 계정: 닉네임이 manager/매니저이거나 manager로 시작하면 항상 기본 프로필 아이콘 사용
+    const isManager =
+      nickname === "manager" ||
+      nickname === "매니저" ||
+      nickname.startsWith("manager");
+
+    if (isManager && !msg.is_mine) {
+      return "/profile-circle.svg";
+    }
+
+    // 학생(나) 프로필은 로컬 스토리지에 저장된 값 사용, 없으면 기본
+    if (msg.is_mine && typeof window !== "undefined") {
+      const stored = window.localStorage.getItem("mypageProfileImage");
+      if (stored) return stored;
+    }
+
+    return "/profile-circle.svg";
+  };
+
   const conversations = [...messages].reverse().map((msg) => {
     const attachment = buildAttachmentInfo(msg.attachment);
 
@@ -82,7 +103,7 @@ function mapThreadDetailToUI(thread) {
       role: msg.is_mine ? "나" : msg.sender_nickname,
       date: formatKoreanDate(msg.created_at),
       text: msg.content,
-      profileImage: "/profile-circle.svg",
+      profileImage: resolveProfileImage(msg),
       attachment,
     };
   });

@@ -11,7 +11,11 @@ import { useRouter } from "next/navigation";
 export default function SidebarMypage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const fallback = '/profile-circle.svg';
+  const getFallback = () =>
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/profile-circle.svg`
+      : '/profile-circle.svg';
+  const fallback = getFallback();
   const [profileSrc, setProfileSrc] = useState(fallback);
   const router = useRouter();
 
@@ -27,25 +31,44 @@ export default function SidebarMypage() {
     setShowLogoutModal(false);
   };  
 
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    if (typeof raw === 'string' && raw.includes('profile-circle.svg')) return getFallback();
+    if (/^https?:\/\//i.test(raw)) return raw;
+    let path = raw.toString().trim();
+    if (!path || path === 'null' || path === 'None') return null;
+    path = path.replace(/^\/+/, '');
+    const origin = process.env.NEXT_PUBLIC_API_ORIGIN || 'http://localhost:8000';
+    return `${origin}/${path}`;
+  };
+
+  const handleProfileError = () => {
+    const fb = getFallback();
+    setProfileSrc(fb);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('mypageProfileImage', fb);
+      window.dispatchEvent(new CustomEvent('mypageProfileImageChange', { detail: fb }));
+    }
+  };
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const stored = window.localStorage.getItem('mypageProfileImage');
-    if (stored) setProfileSrc(stored);
+    const normalized = normalizeProfile(stored) || fallback;
+    setProfileSrc(normalized);
+    if (normalized !== stored) {
+      window.localStorage.setItem('mypageProfileImage', normalized);
+      window.dispatchEvent(new CustomEvent('mypageProfileImageChange', { detail: normalized }));
+    }
 
     const handler = (e) => {
-      if (e.detail) setProfileSrc(e.detail);
+      if (e.detail) {
+        const nextSrc = normalizeProfile(e.detail) || fallback;
+        setProfileSrc(nextSrc);
+      }
     };
     window.addEventListener('mypageProfileImageChange', handler);
     return () => window.removeEventListener('mypageProfileImageChange', handler);
-  }, []);
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = window.localStorage.getItem('mypageProfileImage');
-    if (stored) {
-      setProfileSrc(stored);
-    } else {
-      setProfileSrc(fallback);
-    }
   }, []);
   const menus = [
     { text: '내 정보', href: '/student/mypage?tab=info', key: 'info' },
@@ -60,12 +83,12 @@ export default function SidebarMypage() {
     <>
     <nav className={styles.sidebar}>
       <div className={styles.sidebarGroup}>
-        <div 
-          className={styles.sidebarTop}
-          onClick={handleLogoClick}
-          style={{cursor: "pointer"}}
-        >
-          <div className={styles.logo}>
+        <div className={styles.sidebarTop}>
+          <div 
+            className={styles.logo}
+            onClick={handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} priority />
           </div>
           <div className={styles.profileWrap}>
@@ -75,6 +98,7 @@ export default function SidebarMypage() {
               width={184}
               height={184}
               className={styles.profileImage}
+              onError={handleProfileError}
             />
           </div>
         </div>

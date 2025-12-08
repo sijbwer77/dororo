@@ -19,11 +19,38 @@ const TABS = [
 export default function MyPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [profileFile, setProfileFile] = useState(null);
+  const [profileReset, setProfileReset] = useState(false);
+  const getFallback = () =>
+    typeof window !== "undefined"
+      ? `${window.location.origin}/profile-circle.svg`
+      : "/profile-circle.svg";
+  const DEFAULT_PROFILE = getFallback();
+  const apiOrigin = process.env.NEXT_PUBLIC_API_ORIGIN || "http://localhost:8000";
   const searchParams = useSearchParams();
   const activeTab =
     TABS.some((t) => t.key === searchParams.get("tab"))
       ? searchParams.get("tab")
       : "info";
+
+  const syncSidebarProfile = (url) => {
+    if (typeof window === "undefined") return;
+    const finalUrl = url || getFallback();
+    window.localStorage.setItem("mypageProfileImage", finalUrl);
+    window.dispatchEvent(
+      new CustomEvent("mypageProfileImageChange", { detail: finalUrl })
+    );
+  };
+
+  const normalizeProfile = (raw) => {
+    if (!raw) return null;
+    const str = raw.toString().trim();
+    if (!str || str === "null" || str === "None") return null;
+    if (str.includes("profile-circle.svg")) return getFallback();
+    if (/^https?:\/\//i.test(str)) return str;
+    const path = str.replace(/^\/+/, "");
+    return `${apiOrigin}/${path}`;
+  };
 
   // -------------------------------
   // 1) 유저 정보 최초 로드
@@ -32,6 +59,9 @@ export default function MyPage() {
     async function fetchUser() {
       try {
         const data = await apiFetch("/api/user/me/");
+
+        const profileUrl = normalizeProfile(data.profile_image);
+        syncSidebarProfile(profileUrl);
 
         setUserData({
           // 읽기 전용 데이터
@@ -45,9 +75,7 @@ export default function MyPage() {
           solvedAc: data.solvedac_handel || "",
 
           // 프로필 이미지 (지금은 그대로 유지) //나중에 API 따로 하나 만들기
-          profileImage: data.profile_image
-            ? `http://localhost:8000/${data.profile_image}`
-            : "/profile-circle.svg",
+          profileImage: profileUrl || getFallback(),
         });
       } catch (err) {
         console.error("유저 정보 불러오기 실패:", err);
@@ -62,22 +90,34 @@ export default function MyPage() {
   // -------------------------------
   const saveChanges = async () => {
     try {
+      const formData = new FormData();
+      formData.append("nickname", userData.nickname || "");
+      formData.append("phone_number", userData.phone_number || "");
+      formData.append("solvedAc", userData.solvedAc || "");
+      if (profileFile) {
+        formData.append("profile_image", profileFile);
+      } else if (profileReset) {
+        formData.append("profile_image", "");
+      }
+
       const updated = await apiFetch("/api/user/me/", {
         method: "PATCH",
-        body: JSON.stringify({
-          nickname: userData.nickname,
-          phone_number: userData.phone_number,
-          solvedAc: userData.solvedAc, // backend에서 solvedac_handel 로 매핑
-        }),
+        body: formData,
       });
+
+      const normalizedProfile = normalizeProfile(updated.profile_image);
 
       setUserData((prev) => ({
         ...prev,
         nickname: updated.nickname,
         phone_number: updated.phone_number,
         solvedAc: updated.solvedac_handel,
+        profileImage: normalizedProfile || getFallback(),
       }));
 
+      syncSidebarProfile(normalizedProfile);
+      setProfileFile(null);
+      setProfileReset(false);
       setIsEditing(false);
     } catch (err) {
       console.error("업데이트 실패:", err);
@@ -98,6 +138,27 @@ export default function MyPage() {
     setUserData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleProfileSelect = (file) => {
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setProfileFile(file);
+    setProfileReset(false);
+    setUserData((prev) => ({
+      ...prev,
+      profileImage: objectUrl,
+    }));
+  };
+
+  const handleProfileReset = () => {
+    setProfileFile(null);
+    setProfileReset(true);
+    setUserData((prev) => ({
+      ...prev,
+      profileImage: getFallback(),
+    }));
+    syncSidebarProfile(getFallback());
+  };
+
   if (!userData) {
     return <main className={styles.mainContent}>불러오는 중...</main>;
   }
@@ -111,6 +172,8 @@ export default function MyPage() {
           userData={userData}
           handleInputChange={handleInputChange}
           saveChanges={saveChanges}
+          onProfileSelect={handleProfileSelect}
+          onProfileReset={handleProfileReset}
         />
       )}
 
