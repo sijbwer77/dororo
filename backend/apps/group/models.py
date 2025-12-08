@@ -24,7 +24,7 @@ class GroupMember(models.Model):
 class GroupFile(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="files")
     uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True) # models.SET_NULL - 사용자 삭제되어도 파일 날라가지 않음
-    file = models.FileField(upload_to="group")
+    file = models.FileField(upload_to="resources/group")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
