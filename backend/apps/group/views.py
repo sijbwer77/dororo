@@ -171,6 +171,7 @@ class GroupMessageListView(APIView):
 from .models import Group, GroupMember, Document
 from .serializers import DocumentSerializer
 from django.db.models import Max
+from django.db import transaction
 
 
 def get_or_create_root(group):
@@ -282,8 +283,36 @@ class DocumentDetailView(APIView):
         serializer = DocumentSerializer(doc, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
-        return Response(serializer.data)
+
+        validated = dict(serializer.validated_data)
+
+        # parent 변경은 지원하지 않음 (간단한 순서 이동만 허용)
+        if "parent" in validated and validated["parent"] != doc.parent:
+            return Response({"detail": "parent 변경은 지원하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_order = validated.pop("order_index", None)
+
+        with transaction.atomic():
+            # 내용/타입 업데이트
+            for attr, value in validated.items():
+                setattr(doc, attr, value)
+            doc.save()
+
+            # 순서 재정렬
+            if new_order is not None:
+                siblings = list(
+                    Document.objects.filter(group=doc.group, parent=doc.parent)
+                    .exclude(id=doc.id)
+                    .order_by("order_index")
+                )
+                target_pos = max(1, min(new_order, len(siblings) + 1))
+                siblings.insert(target_pos - 1, doc)
+
+                for idx, item in enumerate(siblings, start=1):
+                    if item.order_index != idx:
+                        Document.objects.filter(id=item.id).update(order_index=idx)
+
+        return Response(DocumentSerializer(doc).data)
 
     def delete(self, request, doc_id):
         doc = self.get_object(doc_id, request.user)
