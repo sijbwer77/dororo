@@ -83,12 +83,12 @@ export default function SidebarMypage() {
     <>
     <nav className={styles.sidebar}>
       <div className={styles.sidebarGroup}>
-        <div 
-          className={styles.sidebarTop}
-          onClick={handleLogoClick}
-          style={{cursor: "pointer"}}
-        >
-          <div className={styles.logo}>
+        <div className={styles.sidebarTop}>
+          <div 
+            className={styles.logo}
+            onClick={handleLogoClick}
+            style={{cursor: "pointer"}}
+          >
             <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} priority />
           </div>
           <div className={styles.profileWrap}>
