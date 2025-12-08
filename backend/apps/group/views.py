@@ -375,6 +375,15 @@ class DocumentUpdateView(APIView):
         ser = DocumentSerializer(doc)
         return Response(ser.data, status=status.HTTP_200_OK)
 
+    def delete(self, request, doc_id):
+        try:
+            doc = Document.objects.get(id=doc_id)
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        doc.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class PageReorderView(APIView):
