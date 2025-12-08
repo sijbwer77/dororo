@@ -6,12 +6,26 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import styles from './SidebarMypage.module.css';
 import SideBarFooter from '@/components/SideBarFooter';
+import { useRouter } from "next/navigation";
 
 export default function SidebarMypage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
   const fallback = '/profile-circle.svg';
   const [profileSrc, setProfileSrc] = useState(fallback);
+  const router = useRouter();
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const handleLogoClick = () => {
+    setShowLogoutModal(true);
+  };
+  const handleConfirmLogout = () => {
+    setShowLogoutModal(false);
+    router.push("/");
+  };
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false);
+  };  
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -43,9 +57,14 @@ export default function SidebarMypage() {
   const activeTab = menus.some((m) => m.key === tabParam) ? tabParam : 'info';
 
   return (
+    <>
     <nav className={styles.sidebar}>
       <div className={styles.sidebarGroup}>
-        <div className={styles.sidebarTop}>
+        <div 
+          className={styles.sidebarTop}
+          onClick={handleLogoClick}
+          style={{cursor: "pointer"}}
+        >
           <div className={styles.logo}>
             <Image src="/doro-logo.svg" alt="DORO" width={147} height={38} priority />
           </div>
@@ -82,5 +101,20 @@ export default function SidebarMypage() {
 
       <SideBarFooter />
     </nav>
+    {showLogoutModal && (
+      <div className={styles.modalOverlay} onClick={handleCancelLogout}>
+          <div className={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <div>
+              <p className={styles.modalTitle}>로그아웃</p>
+              <p className={styles.modalDesc}>정말 로그아웃 하시겠습니까?</p>
+            </div>
+            <div className={styles.modalButtons}>
+              <button className={styles.cancelBtn} onClick={handleCancelLogout}>취소</button>
+              <button className={styles.confirmBtn} onClick={handleConfirmLogout}>확인</button>
+            </div>
+          </div>
+      </div>
+    )}
+  </>    
   );
 }

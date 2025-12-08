@@ -1,30 +1,47 @@
+// app/admin/notice/write/page.js
 "use client";
 
 import styles from "./write.module.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createNotice } from "@/lib/notice";
 
 export default function NoticeWritePage() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    const newNotice = {
-      id: Date.now(),
-      title,
-      date: new Date().toISOString().slice(0, 10),
-      content: content.split("\n"),
-      preview: content.split("\n")[0] + "...",
-    };
+  const handleSubmit = async () => {
+    if (!title.trim()) {
+      alert("제목을 입력하세요.");
+      return;
+    }
+    if (!content.trim()) {
+      alert("내용을 입력하세요.");
+      return;
+    }
 
-    const existing = JSON.parse(localStorage.getItem("notices") || "[]");
-    const updated = [...existing, newNotice];
-    localStorage.setItem("notices", JSON.stringify(updated));
+    try {
+      setSubmitting(true);
 
-    router.push("/manage/notice"); // 필요하면 여기 경로만 나중에 바꾸면 됨
+      // 파일 업로드는 안 할 거라 title / content만 보냄
+      await createNotice({
+        title,
+        content,
+        // is_pinned: false,  // 나중에 상단 고정 기능 쓰고 싶으면 여기 붙이면 됨
+      });
+
+      alert("공지사항이 등록되었습니다.");
+      router.push("/manage/notice"); // 필요하면 경로 수정
+    } catch (err) {
+      console.error(err);
+      alert("공지 등록 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -50,8 +67,12 @@ export default function NoticeWritePage() {
 
         {/* ========== 메인 영역 ========== */}
         <main className={styles.main}>
-          <button className={styles.submitBtn} onClick={handleSubmit}>
-            등록하기
+          <button
+            className={styles.submitBtn}
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? "등록 중..." : "등록하기"}
           </button>
 
           <div className={styles.formBox}>
@@ -67,7 +88,7 @@ export default function NoticeWritePage() {
               />
             </div>
 
-            {/* 파일 첨부 */}
+            {/* 파일 첨부 (UI만, 실제 업로드는 안 함) */}
             <div className={styles.row}>
               <div className={styles.label}>파일첨부</div>
               <label className={styles.fileUpload}>
@@ -78,7 +99,7 @@ export default function NoticeWritePage() {
                   alt="업로드"
                 />
                 파일을 업로드하세요
-                <input type="file" />
+                <input type="file" disabled />
               </label>
             </div>
 

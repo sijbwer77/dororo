@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.challenge',
     "apps.eval",
     "apps.schedule",
+    "apps.notice",
     
     # 'apps.group', 
     'apps.group.apps.GroupConfig',
@@ -130,7 +131,6 @@ DATABASES = {
 }
 
 '''
-
 #준석 DB
 DATABASES = {
     'default': {
@@ -142,8 +142,10 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 '''
+
+
+
 #영선DB
 DATABASES = {
     'default': {
@@ -156,6 +158,7 @@ DATABASES = {
     }
 }
 '''
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

@@ -1,7 +1,8 @@
-// app/admin/page.js
+// frontend/app/admin/page.js
 "use client";
 
-import { useState, useEffect } from "react"; // ✅ useState, useEffect 추가
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./admin.module.css";
 import AdminStatCard from "./components/AdminStatCard";
@@ -26,7 +27,7 @@ const inquiryData = [
   { label: "기타", count: 1 },
 ];
 
-const popularCourses = [ 
+const popularCourses = [
   { rank: 1, title: "마인크래프트, 어디까지 해봤니?", teacher: "강개발", students: 50 },
   { rank: 2, title: "내 손으로 만드는 무한의 계단", teacher: "김개발", students: 45 },
   { rank: 3, title: "Vrew로 손쉽게 만드는 유튜브 쇼츠", teacher: "이개발", students: 38 },
@@ -35,25 +36,50 @@ const popularCourses = [
 ];
 
 export default function AdminDashboardPage() {
-  // 날짜 상태 관리
+  const router = useRouter();
   const [todayDate, setTodayDate] = useState("");
+  const [ready, setReady] = useState(false);
 
-  // 컴포넌트 마운트 시 오늘 날짜 계산 (YYYY.MM.DD 형식)
   useEffect(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-    const day = String(now.getDate()).padStart(2, '0');
-    
-    setTodayDate(`${year}.${month}.${day}`);
-  }, []);
+    const init = async () => {
+      try {
+        // 1) 내 정보 조회해서 role 확인
+        const meRes = await fetch("http://localhost:8000/api/user/me/", {
+          credentials: "include",
+        });
+        if (!meRes.ok) throw new Error("auth failed");
+
+        const me = await meRes.json();
+        if (me.role !== "MG") {
+          alert("매니저만 접근할 수 있는 페이지입니다.");
+          router.replace("/");
+          return;
+        }
+
+        // 2) 날짜 세팅
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        setTodayDate(`${year}.${month}.${day}`);
+
+        setReady(true);
+      } catch (e) {
+        console.error("관리자 대시보드 로딩 실패:", e);
+        router.replace("/");
+      }
+    };
+
+    init();
+  }, [router]);
+
+  if (!ready) return null;
 
   return (
     <>
       {/* 날짜 */}
       <section className={styles.dateSection}>
         <span className={styles.todayBadge}>Today</span>
-        {/* 계산된 날짜 표시 (로딩 중엔 비워두거나 스켈레톤 처리가능) */}
         <span className={styles.todayDate}>{todayDate}</span>
       </section>
 
@@ -72,11 +98,17 @@ export default function AdminDashboardPage() {
 
       {/* 중간 그래프 2개 */}
       <section className={styles.graphRow}>
-        <div className={styles.graphBox}>
-          <h3 className={styles.graphTitle}>사용자 현황</h3>
-          <AdminUserChart data={userStats} />
+        <div className={styles.chartImageOnly}>
+          <Image 
+            src="/user_chart.svg" 
+            alt="사용자 현황" 
+            width={580} 
+            height={280} 
+            style={{ width: '100%', height: 'auto' }} 
+          />
         </div>
 
+        {/* [오른쪽] 문의 유형 (기존 흰색 박스 틀 유지) */}
         <div className={styles.graphBox}>
           <h3 className={styles.graphTitle}>1:1 상담 문의 유형별 건수</h3>
           <AdminInquiryChart data={inquiryData} />
@@ -90,12 +122,7 @@ export default function AdminDashboardPage() {
 
           <div className={styles.evalDonutRow}>
             <div className={styles.evalDonutWrapper}>
-              <Image
-                src="/donut.svg"
-                alt="강의 만족도 도넛"
-                width={258}
-                height={252}
-              />
+              <Image src="/donut.svg" alt="강의 만족도 도넛" width={258} height={252} />
             </div>
 
             <div className={styles.evalLegendColumn}>

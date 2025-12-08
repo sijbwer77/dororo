@@ -14,6 +14,8 @@ router = DefaultRouter()
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path("api/notices/", include("apps.notice.urls")),
+
     path("api/", include("apps.users.urls")),
     path("api/", include("apps.learning.urls")),
     path("api/group/",include("apps.group.urls")),

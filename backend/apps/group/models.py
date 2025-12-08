@@ -48,6 +48,7 @@ class GroupMessage(models.Model):
 class Document(models.Model):
     BLOCK_TYPES = (
         ("page", "Page"),
+        ("folder", "Folder"),
         ("text", "Text"),
         ("file", "File"),
         ("toggle", "Toggle"),

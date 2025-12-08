@@ -1,6 +1,7 @@
 // frontend/app/signup/form/page.js
 'use client';
 
+import { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from '../signup.module.css';
@@ -10,6 +11,15 @@ export default function SignupFormPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = searchParams.get('role'); // 'student' 또는 'admin'
+
+  // 역할 없이 진입하면 알림 띄우고 /signup 으로 돌려보내기
+  useEffect(() => {
+    if (!role) {
+      alert('역할 정보가 없습니다. 처음 화면에서 다시 선택해주세요.');
+      router.push('/signup'); // 역할 선택하는 첫 화면
+    }
+  }, [role, router]);
+
   const roleName = role === 'student' ? '학생/학부모' : '매니저';
 
   const handleSubmit = async (e) => {
@@ -53,14 +63,24 @@ export default function SignupFormPage() {
       router.push('/');
     } catch (err) {
       console.error('회원가입 실패:', err);
+
+      const errors = err.errors || err;
       let msg = '회원가입에 실패했습니다.';
-      if (typeof err === 'string') msg = err;
-      else if (err.username) msg = Array.isArray(err.username) ? err.username[0] : err.username;
-      else if (err.non_field_errors)
-        msg = Array.isArray(err.non_field_errors)
-          ? err.non_field_errors[0]
-          : err.non_field_errors;
-      else if (err.error) msg = err.error;
+
+      if (typeof errors === 'string') {
+        msg = errors;
+      } else if (errors.username) {
+        msg = Array.isArray(errors.username)
+          ? errors.username[0]
+          : errors.username;
+      } else if (errors.non_field_errors) {
+        msg = Array.isArray(errors.non_field_errors)
+          ? errors.non_field_errors[0]
+          : errors.non_field_errors;
+      } else if (errors.error) {
+        msg = errors.error;
+      }
+
       alert(msg);
     }
   };
@@ -86,12 +106,22 @@ export default function SignupFormPage() {
       <label className={`${styles.label} ${styles.labelName}`} htmlFor="name">
         이름
       </label>
-      <input type="text" id="name" className={`${styles.inputField} ${styles.inputName}`} required />
+      <input
+        type="text"
+        id="name"
+        className={`${styles.inputField} ${styles.inputName}`}
+        required
+      />
 
       <label className={`${styles.label} ${styles.labelId}`} htmlFor="id">
         아이디
       </label>
-      <input type="text" id="id" className={`${styles.inputField} ${styles.inputId}`} required />
+      <input
+        type="text"
+        id="id"
+        className={`${styles.inputField} ${styles.inputId}`}
+        required
+      />
 
       <label className={`${styles.label} ${styles.labelPw}`} htmlFor="password">
         비밀번호
@@ -117,7 +147,12 @@ export default function SignupFormPage() {
         이메일
       </label>
       <div className={styles.emailGroup}>
-        <input type="text" id="emailPart1" className={styles.inputEmailPart1} placeholder="아이디" />
+        <input
+          type="text"
+          id="emailPart1"
+          className={styles.inputEmailPart1}
+          placeholder="아이디"
+        />
         <span className={styles.atSymbol}>@</span>
         <input
           type="text"
@@ -150,7 +185,11 @@ export default function SignupFormPage() {
         />
       </div>
 
-      <button type="button" onClick={handleSubmit} className={styles.submitButton}>
+      <button
+        type="button"
+        onClick={handleSubmit}
+        className={styles.submitButton}
+      >
         회원 가입
       </button>
     </div>

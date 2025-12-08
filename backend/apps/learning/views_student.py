@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from .permissions import IsStudent
 
 
 from .models import Course, Assignment, Attendance, Submission
@@ -16,6 +17,7 @@ from .serializers import StudentCourseListSerializer, StudentNoticeSerializer, S
 # 강의 목록
 class StudentCoursesAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
 
     def get(self, request):
         student = request.user
@@ -30,6 +32,7 @@ class StudentCoursesAPIView(APIView):
 # 강의별 공지
 class StudentCourseNoticesAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
 
     def get(self, request, course_id):
         student = request.user
@@ -50,6 +53,7 @@ class StudentCourseNoticesAPIView(APIView):
 
 class StudentAssignmentsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
 
     def get(self, request, course_id):
         student = request.user
@@ -68,6 +72,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 class StudentAssignmentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated, IsStudent]
 
     def get(self, request, course_id, assignment_id):
         student = request.user
@@ -135,6 +140,7 @@ class StudentAssignmentDetailAPIView(APIView):
 
 class LessonAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
 
 
 from .serializers import LearningPageSerializer
@@ -142,6 +148,7 @@ from .models import Course, Lesson
 
 class StudentCourseLessonsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
 
     def get(self, request, course_id):
         student = request.user
@@ -211,6 +218,7 @@ class MyInfoAPIView(APIView):
 
 class StudentCourseAttendanceAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsStudent]
 
     def get(self, request, course_id):
         student = request.user
@@ -227,3 +235,23 @@ class StudentCourseAttendanceAPIView(APIView):
         )
 
         return Response(AttendanceSerializer(attendances, many=True).data)
+
+
+#사이드바에 과목명 가져올라고 추가했어요.
+class StudentCourseDetailAPIView(APIView):   
+    permission_classes = [IsAuthenticated, IsStudent]
+
+    def get(self, request, course_id):
+        student = request.user
+        
+        # 학생이 수강 중인 강의인지 확인하면서 객체 가져오기
+        course = get_object_or_404(
+            Course.objects.filter(enrollments__student=student),
+            id=course_id
+        )
+
+        return Response({
+            "id": course.id,
+            "title": course.title,
+            "instructor": course.instructor.get_full_name() if course.instructor else "미정"
+        })

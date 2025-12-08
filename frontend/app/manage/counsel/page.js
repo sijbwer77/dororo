@@ -77,6 +77,10 @@ export default function CounselPage() {
   const visibleCounsel = counselList
     .filter((c) => c.status !== "DONE") // 학생이 상담 종료하면 목록에서 제외
     .sort((a, b) => {
+      // 답변완료(관리자 마지막 메시지)를 아래쪽으로
+      const aAnswered = a.last_message_sender_type === "admin";
+      const bAnswered = b.last_message_sender_type === "admin";
+      if (aAnswered !== bAnswered) return aAnswered ? 1 : -1;
       const aTime = a.last_message_at || a.created_at;
       const bTime = b.last_message_at || b.created_at;
       return new Date(bTime) - new Date(aTime);
