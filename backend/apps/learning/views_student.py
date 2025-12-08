@@ -64,7 +64,23 @@ class StudentAssignmentsAPIView(APIView):
         )
         assignments = Assignment.objects.filter(course=course).order_by("due_date")
         serializer = StudentAssignmentSerializer(assignments, many=True)
-        return Response(serializer.data)
+
+        #제출 여부 확인 로직
+        data = serializer.data 
+        submitted_ids = set(
+            Submission.objects.filter(
+                assignment__course=course,
+                student=student
+            ).values_list('assignment_id', flat=True)
+        )
+
+        for item in data:
+            # 과제 ID가 제출 목록에 있으면 True, 없으면 False
+            item['isSubmitted'] = item['id'] in submitted_ids   
+            
+             
+
+        return Response(data)
 
 
 from rest_framework.parsers import MultiPartParser, FormParser
